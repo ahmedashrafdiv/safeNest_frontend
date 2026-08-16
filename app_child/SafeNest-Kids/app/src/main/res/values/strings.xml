@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Layngo Kids</string>
+    <string name="accessibility_service_description">تستخدم هذه الخدمة لحظر التطبيقات غير المسموح بها</string>
+</resources>

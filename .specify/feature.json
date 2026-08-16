@@ -1,0 +1,6 @@
+{
+  "feature": "frontend-app-blocking-reliability",
+  "directory": "specs/frontend-app-blocking-reliability",
+  "description": "Android FCM reception, WorkManager policy synchronization, token refresh, boot recovery, and AccessibilityService app enforcement.",
+  "status": "ready-for-review"
+}

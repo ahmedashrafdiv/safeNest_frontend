@@ -1,0 +1,35 @@
+# Gradle
+.gradle/
+**/.gradle/
+/build/
+**/build/
+
+# Local Android configuration
+local.properties
+**/local.properties
+
+# IDE metadata
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Generated and local artifacts
+*.apk
+*.aab
+*.log
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing and secrets
+*.jks
+*.keystore
+**/google-services.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Spec Kit runtime state
+.specify/memory/

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light"
+    android:gravity="center"
+    android:layoutDirection="rtl"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <ImageView
+        android:id="@+id/iv_blocked_icon"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_app_logo"
+        android:contentDescription="محظور"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/tv_blocked_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="هذا التطبيق محظور"
+        android:textColor="@color/red_warning"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tv_blocked_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="تواصل مع ولي الأمر لمزيد من المعلومات"
+        android:textColor="@color/gray_medium"
+        android:textSize="16sp"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:gravity="center" />
+
+</LinearLayout>

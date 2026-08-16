@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Layngo</string>
+
+    <!-- ==================== Common ==================== -->
+    <string name="back">رجوع</string>
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
+    <string name="delete">حذف</string>
+    <string name="edit">تعديل</string>
+    <string name="add">إضافة</string>
+    <string name="remove">إزالة</string>
+    <string name="confirm">تأكيد</string>
+    <string name="clear">مسح</string>
+    <string name="block">حظر</string>
+    <string name="saving">جاري الحفظ…</string>
+    <string name="not_available">غير متاح</string>
+    <string name="unknown_child">الطفل</string>
+
+    <!-- ==================== Errors ==================== -->
+    <string name="error_network">خطأ في الاتصال. يرجى التحقق من الإنترنت والمحاولة مجدداً.</string>
+    <string name="error_unauthorized">انتهت صلاحية الجلسة. يرجى تسجيل الدخول مجدداً.</string>
+    <string name="error_no_child">لا يوجد طفل مرتبط. يرجى إضافة طفل أولاً.</string>
+    <string name="error_no_active_rule">لا توجد قاعدة تحكم نشطة.</string>
+
+    <!-- ==================== Feature 1: Device Pairing ==================== -->
+    <string name="device_pairing">ربط الجهاز</string>
+    <string name="device_pairing_subtitle">ربط جهاز الطفل بحسابك</string>
+    <string name="device_pairing_hint">أدخل رمز الربط المكون من 6 أحرف وأرقام الموجود في جهاز الطفل</string>
+    <string name="pairing_code_hint">رمز الربط (6 أحرف)</string>
+    <string name="device_name_hint">اسم الجهاز (مثال: هاتف أحمد)</string>
+    <string name="device_type_label">نوع الجهاز</string>
+    <string name="device_type_hint">مثال: Android, GPS Tracker</string>
+    <string name="pair_device">ربط الجهاز</string>
+    <string name="pairing_in_progress">جاري الربط…</string>
+    <string name="error_pairing_code_invalid">رمز الربط يجب أن يتكون من 6 أحرف وأرقام</string>
+    <string name="error_device_name_required">يرجى إدخال اسم الجهاز</string>
+    <string name="error_device_type_required">يرجى إدخال نوع الجهاز</string>
+    <string name="error_pairing_code_not_found">رمز الربط غير صحيح أو منتهي الصلاحية</string>
+    <string name="error_device_already_paired">هذا الجهاز مرتبط بحساب آخر</string>
+    <string name="error_pairing_invalid_input">بيانات غير صحيحة. يرجى التحقق والمحاولة مجدداً</string>
+
+    <!-- My Devices -->
+    <string name="my_devices">أجهزتي</string>
+    <string name="my_devices_subtitle">إدارة الأجهزة المرتبطة</string>
+    <string name="no_devices_paired">لا توجد أجهزة مرتبطة حتى الآن</string>
+    <string name="error_loading_devices">تعذر تحميل الأجهزة</string>
+    <string name="error_delete_device">تعذر حذف الجهاز: %s</string>
+    <string name="device_deleted">تم حذف الجهاز</string>
+    <string name="device_status_online">متصل</string>
+    <string name="device_status_offline">غير متصل</string>
+    <string name="last_active_format">آخر اتصال: %s</string>
+    <string name="battery_level_format">البطارية: %s%%</string>
+    <string name="delete_device">حذف الجهاز</string>
+    <string name="delete_device_confirm_title">تأكيد الحذف</string>
+    <string name="delete_device_confirm_message">هل أنت متأكد من حذف جهاز \'%s\'؟</string>
+
+    <!-- ==================== Feature 2: GPS Config ==================== -->
+    <string name="gps_tracker_config">إعداد جهاز GPS</string>
+    <string name="gps_tracker_subtitle">ربط جهاز تتبع GPS بالطفل</string>
+    <string name="no_gps_assigned">لم يتم ربط جهاز GPS بعد</string>
+    <string name="add_gps_tracker">إضافة جهاز GPS</string>
+    <string name="edit_gps_tracker">تعديل بيانات GPS</string>
+    <string name="gps_device_info">معلومات جهاز GPS</string>
+    <string name="gps_serial_format">الرقم التسلسلي: %s</string>
+    <string name="gps_battery_format">البطارية: %s%%</string>
+    <string name="gps_last_connection_format">آخر اتصال: %s</string>
+    <string name="gps_battery_level_label">مستوى البطارية (اختياري)</string>
+    <string name="gps_battery_hint">مثال: 85%%</string>
+    <string name="gps_added_success">تم إضافة جهاز GPS بنجاح</string>
+    <string name="gps_updated_success">تم تحديث بيانات GPS بنجاح</string>
+    <string name="gps_removed_success">تم إزالة جهاز GPS بنجاح</string>
+    <string name="error_gps_create">تعذر إضافة GPS: %s</string>
+    <string name="error_gps_update">تعذر تحديث GPS: %s</string>
+    <string name="error_gps_remove">تعذر إزالة GPS: %s</string>
+    <string name="remove_gps_title">إزالة جهاز GPS</string>
+    <string name="remove_gps_message">هل أنت متأكد من إزالة جهاز GPS المرتبط بهذا الطفل؟</string>
+
+    <!-- ==================== Feature 3: Safe Zones ==================== -->
+    <string name="safe_zones">المناطق الآمنة</string>
+    <string name="safe_zones_subtitle">تحديد المناطق الآمنة والخطرة</string>
+    <string name="add_zone">إضافة منطقة</string>
+    <string name="save_zone">حفظ المنطقة</string>
+    <string name="no_zones">لا توجد مناطق محددة حتى الآن</string>
+    <string name="error_loading_zones">تعذر تحميل المناطق</string>
+    <string name="zone_name_hint">اسم المنطقة (مثال: المنزل، المدرسة)</string>
+    <string name="zone_type_hint">نوع المنطقة</string>
+    <string name="zone_type_values_hint">القيم المسموحة: Safe أو Danger</string>
+    <string name="latitude_hint">خط العرض (Latitude)</string>
+    <string name="longitude_hint">خط الطول (Longitude)</string>
+    <string name="radius_hint">نصف القطر بالمتر</string>
+    <string name="zone_type_format">النوع: %s</string>
+    <string name="zone_radius_format">نصف القطر: %d م</string>
+    <string name="zone_coords_format">الموقع: %1$.6f, %2$.6f</string>
+    <string name="zone_created">تمت إضافة المنطقة بنجاح</string>
+    <string name="zone_deleted">تم حذف المنطقة</string>
+    <string name="delete_zone">حذف المنطقة</string>
+    <string name="delete_zone_confirm_title">حذف المنطقة</string>
+    <string name="delete_zone_confirm_message">هل أنت متأكد من حذف منطقة \'%s\'؟</string>
+    <string name="error_delete_zone">تعذر حذف المنطقة</string>
+    <string name="error_zone_name_required">يرجى إدخال اسم المنطقة</string>
+    <string name="error_zone_type_invalid">نوع المنطقة يجب أن يكون Safe أو Danger</string>
+    <string name="error_latitude_invalid">يرجى إدخال خط العرض بشكل صحيح</string>
+    <string name="error_longitude_invalid">يرجى إدخال خط الطول بشكل صحيح</string>
+    <string name="error_radius_invalid">يرجى إدخال نصف قطر صحيح (بالمتر)</string>
+
+    <!-- ==================== Feature 5: Digital Control ==================== -->
+    <string name="screen_time_limit_format">الحد الأقصى: %d دقيقة</string>
+    <string name="screen_time_not_set">غير محدد</string>
+    <string name="no_blocked_apps">لا توجد تطبيقات محظورة</string>
+    <string name="blocked_apps_format">التطبيقات المحظورة: %s</string>
+    <string name="block_app_title">حظر تطبيق</string>
+    <string name="block_app_message">أدخل اسم حزمة التطبيق (Package Name)</string>
+    <string name="app_package_hint">مثال: com.example.app</string>
+    <string name="set_screen_time_title">تحديد وقت الشاشة</string>
+    <string name="set_screen_time_message">أدخل الحد الأقصى للاستخدام اليومي بالدقائق</string>
+    <string name="screen_time_hint">الدقائق (مثال: 120)</string>
+    <string name="app_blocked_success">تم حظر التطبيق: %s</string>
+    <string name="error_block_app">تعذر حظر التطبيق</string>
+    <string name="screen_time_set_success">تم ضبط وقت الشاشة على %d دقيقة</string>
+    <string name="error_update_screen_time">تعذر تحديث وقت الشاشة</string>
+    <string name="delete_rule">حذف قاعدة التحكم</string>
+    <string name="delete_rule_title">حذف قاعدة التحكم الرقمي</string>
+    <string name="delete_rule_message">هل أنت متأكد من حذف قاعدة التحكم الرقمي؟ سيتم إلغاء جميع القيود الحالية.</string>
+    <string name="rule_deleted_success">تم حذف قاعدة التحكم بنجاح</string>
+    <string name="error_delete_rule">تعذر حذف القاعدة: %s</string>
+    <string name="clear_usage_log">مسح سجل اليوم</string>
+    <string name="clear_usage_log_title">مسح سجل الاستخدام اليومي</string>
+    <string name="clear_usage_log_message">هل أنت متأكد من مسح سجل الاستخدام اليومي لهذا الطفل؟</string>
+    <string name="usage_log_cleared_success">تم مسح سجل الاستخدام اليومي</string>
+    <string name="error_clear_usage_log">تعذر مسح السجل: %s</string>
+
+    <!-- Video History -->
+    <string name="video_history">تاريخ مقاطع الفيديو</string>
+    <string name="no_video_history">لا يوجد تاريخ لمقاطع الفيديو</string>
+    <string name="error_loading_video_history">تعذر تحميل تاريخ الفيديو</string>
+    <string name="clear_history">مسح السجل</string>
+    <string name="clear_video_history_title">مسح تاريخ الفيديو</string>
+    <string name="clear_video_history_message">هل أنت متأكد من مسح جميع مقاطع الفيديو المشاهدة؟</string>
+    <string name="video_history_cleared">تم مسح تاريخ الفيديو بنجاح</string>
+    <string name="error_clear_video_history">تعذر مسح التاريخ: %s</string>
+
+    <!-- ==================== Feature 6: Children Management ==================== -->
+    <string name="edit_child_profile">تعديل ملف الطفل</string>
+    <string name="edit_child_subtitle">تحديث بيانات الطفل</string>
+    <string name="child_name_hint">اسم الطفل</string>
+    <string name="child_gender_hint">الجنس (ذكر / أنثى)</string>
+    <string name="child_dob_hint">تاريخ الميلاد</string>
+    <string name="date_format_hint">YYYY-MM-DD</string>
+    <string name="save_changes">حفظ التغييرات</string>
+    <string name="child_updated_success">تم تحديث بيانات الطفل بنجاح</string>
+    <string name="error_child_name_required">يرجى إدخال اسم الطفل</string>
+
+    <!-- Delete Child -->
+    <string name="delete_child_title">حذف ملف الطفل</string>
+    <string name="delete_child_subtitle">حذف بيانات الطفل نهائياً</string>
+    <string name="delete_child_message">هل أنت متأكد من حذف ملف الطفل \'%s\'؟</string>
+    <string name="delete_child_confirm_final_title">تأكيد الحذف النهائي</string>
+    <string name="delete_child_confirm_final_message">لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بيانات الطفل نهائياً.</string>
+    <string name="delete_permanently">حذف نهائي</string>
+    <string name="child_deleted_success">تم حذف ملف الطفل بنجاح</string>
+    <string name="error_delete_child">تعذر حذف الطفل: %s</string>
+
+    <!-- Installed Apps -->
+    <string name="installed_apps">التطبيقات المثبتة</string>
+    <string name="installed_apps_subtitle">اختر التطبيقات التي تريد حظرها</string>
+    <string name="no_installed_apps">لا توجد تطبيقات مسجلة</string>
+    <string name="error_loading_apps">تعذر تحميل التطبيقات</string>
+    <string name="blocked_label">محظور</string>
+    <string name="save_apps">حفظ إعدادات التطبيقات</string>
+    <string name="apps_saved_success">تم حفظ إعدادات التطبيقات بنجاح</string>
+    <string name="error_saving_apps">تعذر حفط الإعدادات: %s</string>
+
+    <!-- ==================== Feature 8: Alerts ==================== -->
+    <string name="no_alerts">لا توجد تنبيهات</string>
+    <string name="error_loading_alerts">تعذر تحميل التنبيهات</string>
+    <string name="alert_resolved">تم الحل ✓</string>
+    <string name="alert_pending">قيد المعالجة</string>
+    <string name="mark_resolved">تم الحل</string>
+    <string name="alert_resolved_success">تم تحديث حالة التنبيه</string>
+    <string name="error_resolving_alert">تعذر تحديث التنبيه: %s</string>
+    <string name="alert_deleted_success">تم حذف التنبيه</string>
+    <string name="error_delete_alert">تعذر حذف التنبيه</string>
+
+    <!-- ==================== Google Maps ==================== -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyATJiEsP8XYIg9y_Axa9AiDVVc1gnUUd1c</string>
+
+</resources>

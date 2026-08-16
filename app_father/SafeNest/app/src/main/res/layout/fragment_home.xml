@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light"
+    android:layoutDirection="rtl"
+    android:textDirection="rtl">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Header card with child info - EDGE TO EDGE -->
+            <FrameLayout
+                android:id="@+id/childHeaderCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/header_card_background"
+                android:elevation="4dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/childHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layoutDirection="rtl"
+                    android:padding="16dp">
+
+                    <!-- Avatar (Right side in RTL) -->
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/headerAvatar"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:contentDescription="avatar"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ch4"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+
+                    <!-- Name with person icon (Left side in RTL) -->
+                    <LinearLayout
+                        android:id="@+id/nameContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/childName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/lemonada_bold"
+                            android:text="جميل"
+                            android:textColor="@color/purple_dark"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginStart="4dp"
+                            android:contentDescription="person"
+                            android:src="@drawable/ic_home"
+                            app:tint="@color/purple_dark" />
+                    </LinearLayout>
+
+                    <!-- Battery percentage — hidden until real device telemetry is available -->
+                    <LinearLayout
+                        android:id="@+id/batteryContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/nameContainer">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="4dp"
+                            android:contentDescription="battery"
+                            android:src="@drawable/ic_sensors"
+                            app:tint="@color/purple_dark" />
+
+                        <TextView
+                            android:id="@+id/childBattery"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/lemonada_bold"
+                            android:text="—"
+                            android:textColor="@color/purple_dark"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Usage time chip (dark rounded, centered at bottom) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/usageTimeCard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        app:cardBackgroundColor="@color/purple_dark"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/headerAvatar">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="8dp">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginEnd="8dp"
+                                android:contentDescription="clock"
+                                android:src="@drawable/ic_home"
+                                app:tint="@color/white" />
+
+                            <TextView
+                                android:id="@+id/usageTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:text="— من —"
+                                android:textColor="@color/white"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </FrameLayout>
+
+            <!-- Content with padding below header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+
+            <!-- Daily usage alert strip -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/purple_primary"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/lemonada_bold"
+                    android:padding="12dp"
+                    android:text="الاستخدام اليومى للهاتف"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Weekly Bar Chart Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gray_light"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="32dp"
+                    android:paddingBottom="16dp"
+                    android:paddingHorizontal="16dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <!-- Dashed reference line + badge -->
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:paddingBottom="28dp">
+
+                            <View
+                                android:id="@+id/dashedLine"
+                                android:layout_width="0dp"
+                                android:layout_height="1.5dp"
+                                android:layout_marginLeft="8dp"
+                                android:background="@drawable/dashed_line"
+                                android:layerType="software"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"
+                                app:layout_constraintLeft_toRightOf="@id/chartHoursBadge"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintVertical_bias="0.45" />
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/chartHoursBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:cardBackgroundColor="#1A1A1A"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp"
+                                app:layout_constraintBottom_toBottomOf="@id/dashedLine"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintTop_toTopOf="@id/dashedLine">
+
+                                <TextView
+                                    android:id="@+id/chartHoursLabel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:paddingHorizontal="10dp"
+                                    android:paddingVertical="4dp"
+                                    android:text="— ساعة"
+                                    android:textColor="@color/white"
+                                    android:textSize="11sp"
+                                    android:textDirection="ltr" />
+                            </com.google.android.material.card.MaterialCardView>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <!-- Bars row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="bottom"
+                            android:orientation="horizontal"
+                            android:paddingLeft="55dp"
+                            android:paddingRight="24dp"
+                            android:paddingBottom="28dp"
+                            android:layoutDirection="ltr">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="vertical">
+                                <View
+                                    android:id="@+id/barMon"
+                                    android:layout_width="24dp"
+                                    android:layout_height="35dp"
+                                    android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="vertical">
+                                <View
+                                    android:id="@+id/barTue"
+                                    android:layout_width="24dp"
+                                    android:layout_height="25dp"
+                                    android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="vertical">
+                                <View
+                                    android:id="@+id/barWed"
+                                    android:layout_width="24dp"
+                                    android:layout_height="75dp"
+                                    android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="vertical">
+                                <View
+                                    android:id="@+id/barThu"
+                                    android:layout_width="24dp"
+                                    android:layout_height="40dp"
+                                    android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <!-- Friday (Active) -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="vertical">
+                                <View
+                                    android:id="@+id/barFri"
+                                    android:layout_width="24dp"
+                                    android:layout_height="115dp"
+                                    android:background="@drawable/bar_chart_active" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="vertical">
+                                <View
+                                    android:id="@+id/barSat"
+                                    android:layout_width="24dp"
+                                    android:layout_height="65dp"
+                                    android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="bottom|center_horizontal"
+                                android:orientation="vertical">
+                                <View
+                                    android:id="@+id/barSun"
+                                    android:layout_width="24dp"
+                                    android:layout_height="90dp"
+                                    android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Day labels row pinned at bottom -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom"
+                            android:orientation="horizontal"
+                            android:paddingLeft="55dp"
+                            android:paddingRight="24dp"
+                            android:layoutDirection="ltr">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:gravity="center"
+                                android:text="اث"
+                                android:textColor="#BDBDBD"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:gravity="center"
+                                android:text="ثل"
+                                android:textColor="#BDBDBD"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:gravity="center"
+                                android:text="ارب"
+                                android:textColor="#BDBDBD"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:gravity="center"
+                                android:text="خم"
+                                android:textColor="#BDBDBD"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:gravity="center"
+                                android:text="جم"
+                                android:textColor="#BDBDBD"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:gravity="center"
+                                android:text="سب"
+                                android:textColor="#BDBDBD"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/lemonada_bold"
+                                android:gravity="center"
+                                android:text="اح"
+                                android:textColor="#BDBDBD"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+                    </FrameLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Categories list -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gray_light"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:paddingTop="20dp">
+
+                        <!-- Bars row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="bottom"
+                            android:orientation="horizontal"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:paddingBottom="28dp"
+                            android:layoutDirection="ltr">
+
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="bottom|center_horizontal" android:orientation="vertical">
+                                <View android:id="@+id/catGames" android:layout_width="24dp" android:layout_height="0dp" android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="bottom|center_horizontal" android:orientation="vertical">
+                                <View android:id="@+id/catSocial" android:layout_width="24dp" android:layout_height="0dp" android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="bottom|center_horizontal" android:orientation="vertical">
+                                <View android:id="@+id/catYoutube" android:layout_width="24dp" android:layout_height="0dp" android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="bottom|center_horizontal" android:orientation="vertical">
+                                <View android:id="@+id/catAllowed" android:layout_width="24dp" android:layout_height="0dp" android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="bottom|center_horizontal" android:orientation="vertical">
+                                <View android:id="@+id/catOther" android:layout_width="24dp" android:layout_height="0dp" android:background="@drawable/bar_chart_rounded" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Day labels row pinned at bottom -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom"
+                            android:orientation="horizontal"
+                            android:paddingLeft="16dp"
+                            android:paddingRight="16dp"
+                            android:layoutDirection="ltr">
+
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="العاب" android:gravity="center" android:textSize="9sp" android:fontFamily="@font/lemonada_bold" android:textColor="#BDBDBD"/>
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="تواصل" android:gravity="center" android:textSize="9sp" android:fontFamily="@font/lemonada_bold" android:textColor="#BDBDBD"/>
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="يوتيوب" android:gravity="center" android:textSize="9sp" android:fontFamily="@font/lemonada_bold" android:textColor="#BDBDBD"/>
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="مسموح" android:gravity="center" android:textSize="9sp" android:fontFamily="@font/lemonada_bold" android:textColor="#BDBDBD"/>
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="اخرى" android:gravity="center" android:textSize="9sp" android:fontFamily="@font/lemonada_bold" android:textColor="#BDBDBD"/>
+
+                        </LinearLayout>
+                    </FrameLayout>
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout> <!-- Close padded content LinearLayout -->
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Material 3 Bottom Navigation Bar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/purple_accent"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:layoutDirection="rtl"
+    android:padding="24dp"
+    tools:context=".fragments.OtpVerificationFragment">
+
+    <!-- الشعار -->
+    <ImageView
+        android:id="@+id/shieldLogo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:contentDescription="SafeNest Logo"
+        android:scaleType="centerInside"
+        android:src="@drawable/logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <!-- عنوان التحقق -->
+    <TextView
+        android:id="@+id/verifyTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/lemonada_bold"
+        android:text="التحقق من البريد الإلكتروني"
+        android:textColor="@color/purple_accent"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/shieldLogo" />
+
+    <!-- وصف -->
+    <TextView
+        android:id="@+id/verifyDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/lemonada_bold"
+        android:gravity="center"
+        android:text="تم إرسال رمز التحقق إلى بريدك الإلكتروني"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/verifyTitle" />
+
+    <!-- عرض البريد الإلكتروني -->
+    <TextView
+        android:id="@+id/emailDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/lemonada_bold"
+        android:text="example@email.com"
+        android:textColor="@color/purple_accent"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/verifyDescription" />
+
+    <!-- حقول إدخال OTP -->
+    <LinearLayout
+        android:id="@+id/otpContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:layoutDirection="ltr"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/emailDisplay">
+
+        <EditText
+            android:id="@+id/otp1"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/otp_box_background"
+            android:fontFamily="@font/lemonada_bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@color/purple_accent"
+            android:textSize="24sp"
+            android:importantForAutofill="no" />
+
+        <EditText
+            android:id="@+id/otp2"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/otp_box_background"
+            android:fontFamily="@font/lemonada_bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@color/purple_accent"
+            android:textSize="24sp"
+            android:importantForAutofill="no" />
+
+        <EditText
+            android:id="@+id/otp3"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/otp_box_background"
+            android:fontFamily="@font/lemonada_bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@color/purple_accent"
+            android:textSize="24sp"
+            android:importantForAutofill="no" />
+
+        <EditText
+            android:id="@+id/otp4"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/otp_box_background"
+            android:fontFamily="@font/lemonada_bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@color/purple_accent"
+            android:textSize="24sp"
+            android:importantForAutofill="no" />
+
+        <EditText
+            android:id="@+id/otp5"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/otp_box_background"
+            android:fontFamily="@font/lemonada_bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@color/purple_accent"
+            android:textSize="24sp"
+            android:importantForAutofill="no" />
+
+        <EditText
+            android:id="@+id/otp6"
+            android:layout_width="48dp"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="@drawable/otp_box_background"
+            android:fontFamily="@font/lemonada_bold"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="1"
+            android:textColor="@color/purple_accent"
+            android:textSize="24sp"
+            android:importantForAutofill="no" />
+
+    </LinearLayout>
+
+    <!-- رسالة الخطأ -->
+    <TextView
+        android:id="@+id/errorMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/lemonada_bold"
+        android:textColor="@color/red_warning"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/otpContainer"
+        tools:text="رمز التحقق غير صحيح"
+        tools:visibility="visible" />
+
+    <!-- زر التحقق -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/verifyBtn"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/lemonada_bold"
+        android:text="تحقق"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:backgroundTint="@color/purple_accent"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/errorMessage" />
+
+    <!-- إعادة إرسال الرمز -->
+    <LinearLayout
+        android:id="@+id/resendContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/verifyBtn">
+
+        <TextView
+            android:id="@+id/resendText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/lemonada_bold"
+            android:text="لم تستلم الرمز؟ "
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/resendBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/lemonada_bold"
+            android:text="إعادة الإرسال"
+            android:textColor="@color/purple_accent"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- مؤقت إعادة الإرسال -->
+    <TextView
+        android:id="@+id/timerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/lemonada_bold"
+        android:text="إعادة الإرسال بعد 60 ثانية"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/resendContainer"
+        tools:visibility="visible" />
+
+    <!-- شريط التحميل -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/purple_accent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

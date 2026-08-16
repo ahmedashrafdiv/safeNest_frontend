@@ -1,0 +1,24 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.SafeNest" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/teal_brand</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/navy_brand</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:windowBackground">@color/ivory_surface</item>
+        <item name="android:statusBarColor">@color/ivory_surface</item>
+        <item name="android:navigationBarColor">@color/ivory_surface</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="Theme.SafeNest" parent="Base.Theme.SafeNest" />
+
+    <style name="Theme.App.SplashScreen" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/ivory_surface</item>
+        <item name="android:statusBarColor">@color/ivory_surface</item>
+        <item name="android:navigationBarColor">@color/ivory_surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

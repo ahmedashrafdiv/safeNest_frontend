@@ -1,0 +1,64 @@
+package com.example.safenest
+
+import android.content.Context
+import android.util.Log
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
+import com.example.safenest.network.ApiClient
+import com.example.safenest.network.UpdateLocationRequest
+
+/**
+ * LocationSyncWorker — Background WorkManager worker that pushes GPS coordinates
+ * from ThingSpeak IoT sensor to the backend.
+ *
+ * TRIGGER POINT: This worker is enqueued as a periodic task on app startup.
+ * In a full implementation, it should be triggered by a ThingSpeak webhook or
+ * a real-time listener (e.g., MQTT, Firebase Realtime DB) whenever a new GPS
+ * reading is received from the hardware sensor, NOT called from any UI layer.
+ *
+ * TODO: Replace periodic polling with an event-driven trigger when ThingSpeak
+ *       pushes a new reading (via FCM data message or a WebSocket connection).
+ */
+class LocationSyncWorker(
+    context: Context,
+    params: WorkerParameters
+) : CoroutineWorker(context, params) {
+
+    companion object {
+        private const val TAG = "LocationSyncWorker"
+        const val WORK_NAME = "LocationSyncWork"
+    }
+
+    override suspend fun doWork(): Result {
+        val prefs = applicationContext.getSharedPreferences("SafeNestPrefs", Context.MODE_PRIVATE)
+        val childId = prefs.getString("child_id", null)
+        val gpsId = prefs.getString("gps_id", null)
+
+        if (childId == null || gpsId == null) {
+            Log.d(TAG, "Skipping location sync: child_id=$childId, gps_id=$gpsId")
+            return Result.success()
+        }
+
+        return try {
+            Log.d(TAG, "Syncing location for child=$childId, gps=$gpsId")
+            val request = UpdateLocationRequest(childId = childId, gpsId = gpsId)
+            val response = ApiClient.apiService.updateLocation(request)
+
+            if (response.isSuccessful) {
+                Log.d(TAG, "Location synced successfully")
+                Result.success()
+            } else {
+                Log.w(TAG, "Location sync failed with HTTP ${response.code()}")
+                if (response.code() == 401) {
+                    // Token expired — do not retry; let the app handle re-login
+                    Result.failure()
+                } else {
+                    Result.retry()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Network error during location sync: ${e.message}", e)
+            Result.retry()
+        }
+    }
+}

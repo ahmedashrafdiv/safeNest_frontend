@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Layngo brand palette -->
+    <color name="navy_brand">#15385F</color>
+    <color name="teal_brand">#2CA39D</color>
+    <color name="ivory_surface">#FFFEEE</color>
+    <color name="coral_action">#E8796A</color>
+
+    <!-- Compatibility names retained for existing layouts -->
+    <color name="black">#15385F</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="purple_primary">#15385F</color>
+    <color name="purple_accent">#2CA39D</color>
+    <color name="purple_dark">#15385F</color>
+    <color name="green_success">#2CA39D</color>
+    <color name="gray_light">#DDEBE9</color>
+    <color name="gray_medium">#71808D</color>
+    <color name="background_light">#FFFEEE</color>
+    <color name="pink_soft">#F5D3CE</color>
+    <color name="pink_accent">#E8796A</color>
+    <color name="orange_accent">#E8796A</color>
+    <color name="brown_tone">#A98A70</color>
+    <color name="red_warning">#E8796A</color>
+    <color name="gray_text">#71808D</color>
+</resources>
