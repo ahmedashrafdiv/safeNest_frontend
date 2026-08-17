@@ -1,4 +1,4 @@
-package com.example.safenest.fragments
+﻿package com.example.safenest.fragments
 
 import android.app.AlertDialog
 import android.graphics.Color
@@ -42,6 +42,13 @@ class MyDevicesFragment : Fragment() {
         view.findViewById<View>(R.id.backButton).setOnClickListener { parentFragmentManager.popBackStack() }
         addPairingAction(view)
         observeState()
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.scopeChildDefault).setOnClickListener {
+            Toast.makeText(requireContext(), "Future policies will use the child default", Toast.LENGTH_SHORT).show()
+        }
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.scopeSelectedDevice).setOnClickListener {
+            Toast.makeText(requireContext(), "Select a device card before applying an override", Toast.LENGTH_SHORT).show()
+        }
+
         viewModel.loadDevices()
     }
 
@@ -77,7 +84,14 @@ class MyDevicesFragment : Fragment() {
                 when (state) {
                     is Result.Success -> {
                         Toast.makeText(requireContext(), "Pairing code: ${state.data.pairingCode}", Toast.LENGTH_LONG).show()
-                        viewModel.loadDevices()
+        requireView().findViewById<com.google.android.material.button.MaterialButton>(R.id.scopeChildDefault).setOnClickListener {
+            Toast.makeText(requireContext(), "Future policies will use the child default", Toast.LENGTH_SHORT).show()
+        }
+        requireView().findViewById<com.google.android.material.button.MaterialButton>(R.id.scopeSelectedDevice).setOnClickListener {
+            Toast.makeText(requireContext(), "Select a device card before applying an override", Toast.LENGTH_SHORT).show()
+        }
+
+        viewModel.loadDevices()
                     }
                     is Result.Error -> Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                     else -> Unit
@@ -113,8 +127,8 @@ class MyDevicesFragment : Fragment() {
         addView(LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24, 24, 24, 24)
-            addView(label("${device.model} · ${device.platform}", 18f, "#15385F"))
-            addView(label("${device.status.replaceFirstChar { it.uppercase() }} · ${device.trustState.replaceFirstChar { it.uppercase() }}", 14f, "#2CA39D"))
+            addView(label("${device.model} Â· ${device.platform}", 18f, "#15385F"))
+            addView(label("${device.status.replaceFirstChar { it.uppercase() }} Â· ${device.trustState.replaceFirstChar { it.uppercase() }}", 14f, "#2CA39D"))
             addView(label("Last seen: ${device.lastSeenAt ?: "Not yet reported"}", 13f, "#6B7280"))
             addView(MaterialButton(requireContext()).apply {
                 text = "Revoke this device"
@@ -147,3 +161,4 @@ class MyDevicesFragment : Fragment() {
         emptyText?.visibility = View.VISIBLE
     }
 }
+

@@ -1,4 +1,4 @@
-package com.safenest.kids.service
+﻿package com.safenest.kids.service
 
 import android.content.Context
 import android.util.Log
@@ -27,6 +27,18 @@ class WebsitePolicySyncWorker(
             val snapshotResponse = ApiClient.apiService.getWebsitePolicy(deviceId, assignment.policyId)
             if (!snapshotResponse.isSuccessful) return Result.retry()
             val snapshot = snapshotResponse.body() ?: return Result.retry()
+            val binding = DeviceBindingDecider.decide(
+                localDeviceId = deviceId,
+                localChildId = prefs.getChildId(),
+                responseDeviceId = snapshot.deviceId,
+                responseChildId = snapshot.childId,
+                currentPolicyVersion = prefs.getWebsitePolicyVersion(),
+                incomingPolicyVersion = snapshot.version
+            )
+            if (binding != DeviceBindingDecider.Decision.APPLY) {
+                Log.w(TAG, "Rejecting website policy snapshot: $binding")
+                return if (binding == DeviceBindingDecider.Decision.STALE_POLICY) Result.success() else Result.retry()
+            }
             val json = Gson().toJson(snapshot)
             prefs.setWebsitePolicySnapshot(json, snapshot.version, snapshot.contentHash)
             if (!WebsiteDnsVpnService.startIfPermissionGranted(applicationContext)) {
