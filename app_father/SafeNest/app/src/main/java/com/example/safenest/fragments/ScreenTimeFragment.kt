@@ -12,8 +12,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.R
+import com.example.safenest.network.ApiClient
+import com.example.safenest.policy.ParentPolicyScope
+import com.example.safenest.policy.ParentPolicyScopeStore
+import com.example.safenest.policy.ParentScreenTimeScopeCoordinator
+import com.example.safenest.policy.ScopedScreenTimeMutation
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.MonitoringViewModel
 import com.google.android.material.button.MaterialButton
@@ -59,9 +65,19 @@ class ScreenTimeFragment : Fragment() {
 
         // Save button — requires ruleId from first successful fetch
         saveButton?.setOnClickListener {
-            val id = ruleId ?: return@setOnClickListener
             val minutes = screenTimeSlider?.value?.toInt() ?: return@setOnClickListener
-            viewModel.updateDigitalRule(id, maxScreenTime = minutes)
+            if (ParentPolicyScopeStore.state.value.scope == ParentPolicyScope.SELECTED_DEVICE) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    when (val mutation = ParentScreenTimeScopeCoordinator(ApiClient.apiService).saveSelectedDeviceLimit(minutes)) {
+                        ScopedScreenTimeMutation.Applied -> Toast.makeText(context, "Screen Time override saved for the selected device", Toast.LENGTH_SHORT).show()
+                        is ScopedScreenTimeMutation.Blocked -> Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                        is ScopedScreenTimeMutation.Failed -> Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+            } else {
+                val id = ruleId ?: return@setOnClickListener
+                viewModel.updateDigitalRule(id, maxScreenTime = minutes)
+            }
         }
 
         return view

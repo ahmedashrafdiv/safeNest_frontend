@@ -284,5 +284,10 @@ interface SafeNestApiService {
     suspend fun deletePhoneTrackingForDevice(
         @Path("child_id") childId: String,
         @Path("device_id") deviceId: String,
+    ): Response<Unit>
+    @POST("api/children/{child_id}/screen-time-policy")
+    suspend fun createScreenTimePolicy(
+        @Path("child_id") childId: String,
+        @Body request: ScreenTimePolicyCreateRequest,
     ): Response<Unit>}
 
