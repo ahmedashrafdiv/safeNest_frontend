@@ -157,6 +157,6 @@ Detailed documentation for each application is available here:
 
 This directory is the root of the independent `safeNest_frontend` repository. It contains the Parent and Child Android applications, their Gradle projects, and the Frontend-specific App Blocking Reliability feature under `specs/frontend-app-blocking-reliability/`. The active Frontend selector is `.specify/feature.json`.
 
-The shared Backend-to-Android behavior is documented in [`../APP_BLOCKING_INTEGRATION_CONTRACT.md`](../APP_BLOCKING_INTEGRATION_CONTRACT.md). Parent submits the server-provided `ruleId`; Child receives `RULES_UPDATED`, synchronizes through WorkManager, stores the local policy, and enforces blocked packages through AccessibilityService.
+The shared Backend-to-Android behavior is documented in [`../docs/contracts/APP_BLOCKING_INTEGRATION_CONTRACT.md`](../docs/contracts/APP_BLOCKING_INTEGRATION_CONTRACT.md). Parent submits the server-provided `ruleId`; Child receives `RULES_UPDATED`, synchronizes through WorkManager, stores the local policy, and enforces blocked packages through AccessibilityService.
 
 No live Firebase or paired-Child latency test is claimed by a successful local build. Gradle build outputs, local SDK paths, logs, keystores, Firebase configuration, generated APKs, and other machine-local artifacts are excluded through the repository `.gitignore`. The canonical remote is `https://github.com/ahmedashrafdiv/safeNest_frontend.git`.
