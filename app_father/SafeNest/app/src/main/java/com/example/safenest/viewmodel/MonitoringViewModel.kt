@@ -73,7 +73,9 @@ class MonitoringViewModel(application: Application) : AndroidViewModel(applicati
         ruleId: String,
         maxScreenTime: Int? = null,
         blockedApp: List<String>? = null,
-        appTimeLimits: Map<String, Int>? = null
+        allowedApp: List<String>? = null,
+        appTimeLimits: Map<String, Int>? = null,
+        appControlMode: String? = null
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             _updateDigitalRuleState.value = Result.Loading
@@ -81,7 +83,9 @@ class MonitoringViewModel(application: Application) : AndroidViewModel(applicati
                 ruleId,
                 maxScreenTime,
                 blockedApp,
-                appTimeLimits
+                allowedApp,
+                appTimeLimits,
+                appControlMode
             )
         }
     }

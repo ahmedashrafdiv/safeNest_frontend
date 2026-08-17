@@ -54,6 +54,67 @@
                 android:textColor="@color/gray_medium"
                 android:textSize="13sp" />
 
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/appControlModeCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/teal_brand"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/lemonada_bold"
+                        android:text="طريقة التحكم في التطبيقات"
+                        android:textColor="@color/navy_brand"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/appControlModeGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <RadioButton
+                            android:id="@+id/allowlistMode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:text="السماح بالتطبيقات المختارة فقط"
+                            android:textColor="@color/navy_brand"
+                            android:textSize="14sp" />
+
+                        <RadioButton
+                            android:id="@+id/blocklistMode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:text="حظر التطبيقات المختارة فقط"
+                            android:textColor="@color/navy_brand"
+                            android:textSize="14sp" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/appControlModeSummary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/gray_medium"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Progress Bar -->
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -108,7 +169,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="اختر تطبيقًا لعمل حظر أو تحديد وقت استخدام."
+                        android:text="في وضع السماح اختر التطبيقات التي ستعمل، وفي وضع الحظر اختر التطبيقات التي سيتم قفلها. يمكنك أيضًا تحديد وقت لكل تطبيق."
                         android:textColor="@color/gray_medium"
                         android:textSize="13sp" />
 
@@ -201,7 +262,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/lemonada_bold"
-                        android:text="التطبيقات المسموح بها"
+                        android:text="حدود وقت الاستخدام لكل تطبيق"
                         android:textColor="@color/orange_accent"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -223,7 +284,7 @@
                         android:layout_gravity="center"
                         android:layout_marginTop="12dp"
                         android:fontFamily="@font/lemonada_bold"
-                        android:text="أضف تطبيق مسموح"
+                        android:text="أضف تطبيقًا بحد زمني"
                         android:textSize="12sp"
                         app:backgroundTint="@color/orange_accent"
                         app:cornerRadius="20dp" />

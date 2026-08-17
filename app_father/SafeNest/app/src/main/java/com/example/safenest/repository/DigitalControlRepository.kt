@@ -13,8 +13,23 @@ class DigitalControlRepository : BaseRepository() {
 
     private val api = ApiClient.apiService
 
-    suspend fun createDigitalRule(childId: String, maxScreenTime: Int? = null, blockedApp: List<String> = emptyList()): Result<DigitalRuleResponse> =
-        safeApiCall { api.createDigitalRule(DigitalRuleCreateRequest(childId = childId, maxScreenTime = maxScreenTime, blockedApp = blockedApp)) }
+    suspend fun createDigitalRule(
+        childId: String,
+        maxScreenTime: Int? = null,
+        blockedApp: List<String> = emptyList(),
+        allowedApp: List<String> = emptyList(),
+        appControlMode: String = "blocklist"
+    ): Result<DigitalRuleResponse> = safeApiCall {
+        api.createDigitalRule(
+            DigitalRuleCreateRequest(
+                childId = childId,
+                maxScreenTime = maxScreenTime,
+                blockedApp = blockedApp,
+                allowedApp = allowedApp,
+                appControlMode = appControlMode
+            )
+        )
+    }
 
     suspend fun getDigitalRule(childId: String): Result<DigitalRuleResponse> =
         safeApiCall { api.getDigitalRule(childId) }
@@ -23,7 +38,9 @@ class DigitalControlRepository : BaseRepository() {
         ruleId: String,
         maxScreenTime: Int? = null,
         blockedApp: List<String>? = null,
-        appTimeLimits: Map<String, Int>? = null
+        allowedApp: List<String>? = null,
+        appTimeLimits: Map<String, Int>? = null,
+        appControlMode: String? = null
     ): Result<DigitalRuleResponse> =
         safeApiCall {
             api.updateDigitalRule(
@@ -31,7 +48,9 @@ class DigitalControlRepository : BaseRepository() {
                 DigitalRuleUpdateRequest(
                     maxScreenTime = maxScreenTime,
                     blockedApp = blockedApp,
-                    appTimeLimits = appTimeLimits
+                    allowedApp = allowedApp,
+                    appTimeLimits = appTimeLimits,
+                    appControlMode = appControlMode
                 )
             )
         }

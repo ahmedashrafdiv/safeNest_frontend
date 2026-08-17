@@ -89,7 +89,9 @@ On a successful response, `PrefsHelper` stores values including:
 | `device_access_token` | Token used by later child-originated API requests. |
 | `is_paired` | Whether the local onboarding flow considers the device paired. |
 | `just_paired` | One-time post-pairing state used by onboarding behavior. |
-| `blocked_apps` | Locally cached blocked package names. |
+| `blocked_apps` | Locally cached blocked package names for blocklist mode. |
+| `allowed_apps` | Locally cached allowed package names for allowlist mode. |
+| `app_control_mode` | `allowlist` or `blocklist`; missing/unknown values fall back to blocklist. |
 | `app_time_limits_json` | Serialized per-package minute limits. |
 | `last_apps_sent` | Local reporting state for installed applications. |
 | `installed_apps_fingerprint` | Fingerprint of the last successfully uploaded launchable-app inventory. |
@@ -114,7 +116,7 @@ Usage Access and AccessibilityService are enabled by the user through Android sy
 
 ## Policy Synchronization
 
-`RuleSyncWorker` calls `GET /api/digital-control/device/rules`, reads the returned blocked-app and per-app time-limit values, and writes them to `PrefsHelper`. It returns a retry result after a network/API failure and a success result after policy persistence.
+`RuleSyncWorker` calls `GET /api/digital-control/device/rules`, reads the returned app-control mode, allowed packages, blocked packages, and per-app time-limit values, and persists the complete local policy snapshot. Missing or unknown mode values use legacy `blocklist` semantics. It returns a retry result after a network/API failure and a success result after policy persistence.
 
 `SafeNestFirebaseService` can trigger the same policy-refresh behavior after receiving an appropriate data message. The periodic worker and the FCM path write to the same local preference cache so that `AppBlockerAccessibilityService` can make decisions without a network call.
 
@@ -130,7 +132,7 @@ The current implementation reports aggregate usage. It does not yet implement th
 
 `AppBlockerAccessibilityService` listens for window-state changes and identifies the foreground package. It deliberately ignores the child application itself, Android system surfaces, known launcher packages, and content-change events that would otherwise produce repeated processing.
 
-For a blocked package, the service launches `BlockedAppActivity` with the package name and a `blocked` reason. For a package whose locally calculated usage has reached its configured per-app limit, it launches the same activity with a `time_limit` reason. A short two-second rate limit prevents rapid repeated launches for the same package.
+For a blocked package, the service launches `BlockedAppActivity` with the package name and a `blocked` reason. In `allowlist` mode, every non-protected package not present in `allowed_apps` is blocked immediately, including newly installed packages, with an `allowlist` reason. In `blocklist` mode, only packages in `blocked_apps` are blocked. For a package whose locally calculated usage has reached its configured per-app limit, it launches the same activity with a `time_limit` reason. A short two-second rate limit prevents rapid repeated launches for the same package.
 
 `BlockedAppActivity` is excluded from recents and presents the child-facing blocking screen. The service does not make a network call for each foreground event; it reads locally cached policy values and usage information.
 
@@ -186,7 +188,7 @@ The child app should fail closed or use an explicitly defined safe default when 
 
 ## Current Limitations
 
-The child application currently supports foreground application blocking and local per-app time limits. It does not provide complete browser URL filtering, complete browser-history collection, or complete YouTube monitoring. Those capabilities require additional Android mechanisms and platform-compliant product decisions.
+The child application currently supports explicit blocklist mode, strict allowlist mode for selected packages, foreground application blocking, and local per-app time limits. It does not provide complete browser URL filtering, complete browser-history collection, or complete YouTube monitoring. Those capabilities require additional Android mechanisms and platform-compliant product decisions.
 
 The pairing flow still uses `link-device` rather than the newer secure claim/trust lifecycle. The app also uses the legacy rule shape rather than a versioned daily policy with timezone, stable usage-event IDs, policy acknowledgement, server decisions, and extra-time grants.
 

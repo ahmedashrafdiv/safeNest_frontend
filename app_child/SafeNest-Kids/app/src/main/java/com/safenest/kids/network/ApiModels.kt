@@ -23,6 +23,8 @@ data class DigitalRuleResponse(
     @SerializedName("ruleId") val ruleId: String?,
     @SerializedName("max_screen_time") val maxScreenTime: Int?,
     @SerializedName("blockedApp") val blockedApp: List<String>?,
+    @SerializedName("allowedApp") val allowedApp: List<String>? = null,
+    @SerializedName("appControlMode") val appControlMode: String? = "blocklist",
     @SerializedName("dailyUsageLog") val dailyUsageLog: Map<String, Int>?,
     @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Int>? = null
 )

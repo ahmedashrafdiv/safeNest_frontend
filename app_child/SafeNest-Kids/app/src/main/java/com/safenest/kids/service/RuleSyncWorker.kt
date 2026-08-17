@@ -26,13 +26,13 @@ class RuleSyncWorker(
                 val body = response.body()
                 if (body != null) {
                     val blockedApps = body.blockedApp?.toSet() ?: emptySet()
-                    prefsHelper.setBlockedApps(blockedApps)
-
+                    val allowedApps = body.allowedApp?.toSet() ?: emptySet()
+                    val mode = if (body.appControlMode == "allowlist") "allowlist" else "blocklist"
                     val limitsJson = JSONObject(body.appTimeLimits ?: emptyMap<String, Int>()).toString()
-                    prefsHelper.setAppTimeLimits(limitsJson)
+                    prefsHelper.setAppPolicy(mode, allowedApps, blockedApps, limitsJson)
 
                     val now = System.currentTimeMillis()
-                    Log.d(TAG, "Rule sync successful at $now. Blocked apps: $blockedApps, Time limits: $limitsJson")
+                    Log.d(TAG, "Rule sync successful at $now. Mode: $mode, allowed: ${allowedApps.size}, blocked: ${blockedApps.size}, time limits: $limitsJson")
                 }
                 Result.success()
             } else {

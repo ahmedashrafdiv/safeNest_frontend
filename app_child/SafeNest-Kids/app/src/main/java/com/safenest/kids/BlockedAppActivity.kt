@@ -22,6 +22,10 @@ class BlockedAppActivity : AppCompatActivity() {
             tvTitle.text = "انتهى وقت هذا التطبيق"
             tvSubtitle.text = "لقد استنفدت الوقت المخصص لهذا التطبيق اليوم"
             tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.orange_accent))
+        } else if (reason == "allowlist") {
+            tvTitle.text = "هذا التطبيق غير مسموح"
+            tvSubtitle.text = "يسمح ولي الأمر بتطبيقات محددة فقط على هذا الجهاز"
+            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
         } else {
             tvTitle.text = "هذا التطبيق محظور"
             tvSubtitle.text = "تواصل مع ولي الأمر لمزيد من المعلومات"

@@ -70,53 +70,36 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         // Never block ourselves
         if (pkg == packageName) return
 
-        // Skip core Android system surfaces
-        if (pkg == "android" || pkg.startsWith("com.android.systemui")) return
-
-        // Skip known system launchers
-        val pkgLower = pkg.lowercase()
-        if (LAUNCHER_TOKENS.any { pkgLower.contains(it) }) return
-
         // Local-only read — no network call
         val blockedApps = prefsHelper.getBlockedApps()
+        val allowedApps = prefsHelper.getAllowedApps()
+        val appControlMode = prefsHelper.getAppControlMode()
 
-        if (pkg in blockedApps) {
-            // Rate limit: skip duplicate block for same app within 2 seconds
-            val now = System.currentTimeMillis()
-            if (pkg == lastBlockedPkg && now - lastBlockedTime < 2000) {
-                return
-            }
-            lastBlockedPkg = pkg
-            lastBlockedTime = now
-
-            Log.d(TAG, "Blocking foreground app: $pkg")
-            val intent = Intent(this, BlockedAppActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                putExtra("blocked_package", pkg)
-                putExtra("blocked_reason", "blocked")
-            }
-            startActivity(intent)
+        if (AppPolicyDecider.shouldBlock(pkg, packageName, appControlMode, allowedApps, blockedApps)) {
+            blockPackage(pkg, if (appControlMode == "allowlist") "allowlist" else "blocked")
             return
         }
 
         // ── Per-app time-limit enforcement ─────────────────────────
         if (isAppOverTimeLimit(pkg, this)) {
             Log.d(TAG, "Time limit exceeded for: $pkg")
-            val now = System.currentTimeMillis()
-            if (pkg == lastBlockedPkg && now - lastBlockedTime < 2000L) {
-                return
-            }
-            lastBlockedPkg = pkg
-            lastBlockedTime = now
-
-            val intent = Intent(this, BlockedAppActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                putExtra("blocked_package", pkg)
-                putExtra("blocked_reason", "time_limit")
-            }
-            startActivity(intent)
+            blockPackage(pkg, "time_limit")
             return
         }
+    }
+
+    private fun blockPackage(pkg: String, reason: String) {
+        val now = System.currentTimeMillis()
+        if (pkg == lastBlockedPkg && now - lastBlockedTime < 2000L) return
+        lastBlockedPkg = pkg
+        lastBlockedTime = now
+        Log.d(TAG, "Blocking foreground app: $pkg, reason=$reason")
+        val intent = Intent(this, BlockedAppActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            putExtra("blocked_package", pkg)
+            putExtra("blocked_reason", reason)
+        }
+        startActivity(intent)
     }
 
     override fun onInterrupt() {

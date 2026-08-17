@@ -40,6 +40,27 @@ class PrefsHelper(context: Context) {
 
     fun getBlockedApps(): Set<String> = prefs.getStringSet("blocked_apps", emptySet()) ?: emptySet()
 
+    fun setAllowedApps(apps: Set<String>) {
+        prefs.edit().putStringSet("allowed_apps", apps).apply()
+    }
+
+    fun getAllowedApps(): Set<String> = prefs.getStringSet("allowed_apps", emptySet()) ?: emptySet()
+
+    fun setAppControlMode(mode: String) {
+        prefs.edit().putString("app_control_mode", if (mode == "allowlist") "allowlist" else "blocklist").apply()
+    }
+
+    fun getAppControlMode(): String = prefs.getString("app_control_mode", "blocklist") ?: "blocklist"
+
+    fun setAppPolicy(mode: String, allowedApps: Set<String>, blockedApps: Set<String>, limitsJson: String) {
+        prefs.edit()
+            .putString("app_control_mode", if (mode == "allowlist") "allowlist" else "blocklist")
+            .putStringSet("allowed_apps", allowedApps)
+            .putStringSet("blocked_apps", blockedApps)
+            .putString("app_time_limits_json", limitsJson)
+            .apply()
+    }
+
     fun setLastAppsSent(sent: Boolean) {
         prefs.edit().putBoolean("last_apps_sent", sent).apply()
     }

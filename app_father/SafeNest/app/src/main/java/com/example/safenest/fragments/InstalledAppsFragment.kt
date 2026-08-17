@@ -45,7 +45,11 @@ class InstalledAppsFragment : Fragment() {
 
     private var blockedApps: MutableList<String> = mutableListOf()
     private var allowedApps: MutableList<AllowedAppItem> = mutableListOf()
+    private var allowedPackages: MutableList<String> = mutableListOf()
     private var installedApps: List<InstalledAppItem> = emptyList()
+    private var appControlMode: String = "blocklist"
+    private var modeGroup: android.widget.RadioGroup? = null
+    private var modeSummary: TextView? = null
 
     // Holds the DigitalRule rule ID returned from the server, needed for updates
     private var ruleId: String? = null
@@ -68,6 +72,19 @@ class InstalledAppsFragment : Fragment() {
         allowedAppsList = view.findViewById(R.id.allowedAppsList)
         addBlockedAppBtn = view.findViewById(R.id.addBlockedAppBtn)
         addAllowedAppBtn = view.findViewById(R.id.addAllowedAppBtn)
+        modeGroup = view.findViewById(R.id.appControlModeGroup)
+        modeSummary = view.findViewById(R.id.appControlModeSummary)
+        modeGroup?.setOnCheckedChangeListener { _, checkedId ->
+            val selectedMode = if (checkedId == R.id.allowlistMode) "allowlist" else "blocklist"
+            if (selectedMode != appControlMode) {
+                appControlMode = selectedMode
+                renderAvailableApps()
+                updateModeSummary()
+                saveChangesToServer()
+            }
+        }
+        modeGroup?.check(R.id.blocklistMode)
+        updateModeSummary()
 
         view.findViewById<MaterialButton>(R.id.backButton).setOnClickListener {
             parentFragmentManager.popBackStack()
@@ -131,7 +148,22 @@ class InstalledAppsFragment : Fragment() {
                                 // Blocked apps come from the DigitalRule API
                                 blockedApps.clear()
                                 blockedApps.addAll(state.data.blockedApp)
-                                // Prefer server-synchronized per-app limits, then fall back to local cache.
+                                allowedPackages.clear()
+                                allowedPackages.addAll(state.data.allowedApp)
+                                appControlMode = if (state.data.appControlMode == "allowlist") "allowlist" else "blocklist"
+                                modeGroup?.setOnCheckedChangeListener(null)
+                                modeGroup?.check(if (appControlMode == "allowlist") R.id.allowlistMode else R.id.blocklistMode)
+                                modeGroup?.setOnCheckedChangeListener { _, checkedId ->
+                                    val selectedMode = if (checkedId == R.id.allowlistMode) "allowlist" else "blocklist"
+                                    if (selectedMode != appControlMode) {
+                                        appControlMode = selectedMode
+                                        renderAvailableApps()
+                                        updateModeSummary()
+                                        saveChangesToServer()
+                                    }
+                                }
+                                updateModeSummary()
+                                // Per-app time limits are independent from the allowlist.
                                 val childId = viewModel.getSelectedChildId()
                                 if (state.data.appTimeLimits.isNotEmpty()) {
                                     allowedApps.clear()
@@ -256,9 +288,15 @@ class InstalledAppsFragment : Fragment() {
             row.addView(info)
 
             row.addView(MaterialButton(ctx).apply {
-                text = if (blockedApps.contains(packageName)) "إلغاء الحظر" else "حظر"
+                text = if (appControlMode == "allowlist") {
+                    if (allowedPackages.contains(packageName)) "إلغاء السماح" else "السماح"
+                } else {
+                    if (blockedApps.contains(packageName)) "إلغاء الحظر" else "حظر"
+                }
                 isAllCaps = false
-                setOnClickListener { toggleBlockedApp(app) }
+                setOnClickListener {
+                    if (appControlMode == "allowlist") toggleAllowedPackage(app) else toggleBlockedApp(app)
+                }
             })
             row.addView(MaterialButton(ctx).apply {
                 text = "وقت"
@@ -267,6 +305,15 @@ class InstalledAppsFragment : Fragment() {
             })
             list.addView(row)
         }
+    }
+
+    private fun toggleAllowedPackage(app: InstalledAppItem) {
+        if (allowedPackages.contains(app.packageName)) {
+            allowedPackages.remove(app.packageName)
+        } else {
+            allowedPackages.add(app.packageName)
+        }
+        saveChangesToServer()
     }
 
     private fun toggleBlockedApp(app: InstalledAppItem) {
@@ -301,7 +348,7 @@ class InstalledAppsFragment : Fragment() {
     private fun renderLists() {
         renderAvailableApps()
         val ctx = requireContext()
-        blockedAppsCard?.visibility = View.VISIBLE
+        blockedAppsCard?.visibility = if (appControlMode == "blocklist") View.VISIBLE else View.GONE
         allowedAppsCard?.visibility = View.VISIBLE
         blockedAppsList?.removeAllViews()
         allowedAppsList?.removeAllViews()
@@ -394,6 +441,7 @@ class InstalledAppsFragment : Fragment() {
     private fun addApp(appPackage: String, isBlocked: Boolean) {
         if (isBlocked) {
             if (!blockedApps.contains(appPackage)) blockedApps.add(appPackage)
+            allowedPackages.remove(appPackage)
             allowedApps.removeAll { it.name == appPackage }
         } else {
             if (allowedApps.none { it.name == appPackage }) allowedApps.add(AllowedAppItem(appPackage, 60))
@@ -402,18 +450,40 @@ class InstalledAppsFragment : Fragment() {
         saveChangesToServer()
     }
 
-    private fun saveChangesToServer() {
+    private fun updateModeSummary() {
+        modeSummary?.text = if (appControlMode == "allowlist") {
+            "التطبيقات التي تختارها من قائمة جهاز الطفل فقط ستعمل. أي تطبيق جديد سيتم قفله تلقائيًا."
+        } else {
+            "سيتم قفل التطبيقات التي تختارها من قائمة جهاز الطفل فقط. التطبيقات الجديدة ستظل متاحة."
+        }
+        val blocklistVisible = appControlMode == "blocklist"
+        blockedAppsCard?.visibility = if (blocklistVisible) View.VISIBLE else View.GONE
+        addBlockedAppBtn?.visibility = if (blocklistVisible) View.VISIBLE else View.GONE
+    }
+
+    private fun saveChangesToServer(confirmEmptyAllowlist: Boolean = true) {
         if (policyUpdateInFlight) return
         val childId = viewModel.getSelectedChildId() ?: return
         renderLists()
         // Persist a local fallback and send the authoritative policy to the Backend.
         saveAllowedApps(childId, allowedApps)
         val id = ruleId ?: return
+        if (confirmEmptyAllowlist && appControlMode == "allowlist" && allowedPackages.isEmpty()) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("قائمة السماح فارغة")
+                .setMessage("سيتم قفل كل تطبيقات الطرف الثالث، بما فيها التطبيقات التي سيتم تثبيتها لاحقًا. هل تريد المتابعة؟")
+                .setNegativeButton(getString(R.string.cancel), null)
+                .setPositiveButton("متابعة") { _, _ -> saveChangesToServer(confirmEmptyAllowlist = false) }
+                .show()
+            return
+        }
         policyUpdateInFlight = true
         viewModel.updateDigitalRule(
             id,
             blockedApp = blockedApps,
-            appTimeLimits = allowedApps.associate { it.name to it.timeLimitMinutes }
+            allowedApp = allowedPackages,
+            appTimeLimits = allowedApps.associate { it.name to it.timeLimitMinutes },
+            appControlMode = appControlMode
         )
     }
 
