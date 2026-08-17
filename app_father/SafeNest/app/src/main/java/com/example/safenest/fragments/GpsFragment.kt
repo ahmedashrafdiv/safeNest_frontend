@@ -104,6 +104,12 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
         lastUpdateTv = view.findViewById(R.id.lastUpdateText)
         batteryTv = view.findViewById(R.id.batteryText)
         statusTv = view.findViewById(R.id.statusText)
+        val scopeState = ParentPolicyScopeStore.state.value
+        phoneTrackingSwitch.text = if (scopeState.scope == ParentPolicyScope.SELECTED_DEVICE) {
+            "Phone Location â€¢ Device override: ${scopeState.selectedDevice?.label ?: "Selected device"}"
+        } else {
+            "Phone Location â€¢ Inherited from child default"
+        }
 
         bottomNavBar.selectedItemId = R.id.nav_gps
 

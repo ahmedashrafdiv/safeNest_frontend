@@ -461,6 +461,14 @@ class InstalledAppsFragment : Fragment() {
         } else {
             "سيتم قفل التطبيقات التي تختارها من قائمة جهاز الطفل فقط. التطبيقات الجديدة ستظل متاحة."
         }
+        val scopeState = ParentPolicyScopeStore.state.value
+        val provenance = if (scopeState.scope == ParentPolicyScope.SELECTED_DEVICE) {
+            "Device override â€¢ ${scopeState.selectedDevice?.label ?: "Selected device"}"
+        } else {
+            "Inherited from child default"
+        }
+        modeSummary?.text = "${modeSummary?.text}${System.lineSeparator()}$provenance"
+
         val blocklistVisible = appControlMode == "blocklist"
         blockedAppsCard?.visibility = if (blocklistVisible) View.VISIBLE else View.GONE
         addBlockedAppBtn?.visibility = if (blocklistVisible) View.VISIBLE else View.GONE
