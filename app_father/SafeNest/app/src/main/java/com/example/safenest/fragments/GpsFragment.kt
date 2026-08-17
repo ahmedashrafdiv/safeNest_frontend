@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -13,6 +14,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.MainActivity
 import com.example.safenest.R
+import com.example.safenest.network.ApiClient
+import com.example.safenest.policy.ParentPhoneLocationScopeCoordinator
+import com.example.safenest.policy.ParentPolicyScope
+import com.example.safenest.policy.ParentPolicyScopeStore
+import com.example.safenest.policy.ScopedLocationMutation
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.GpsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -25,7 +31,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.materialswitch.MaterialSwitch
-import android.widget.Toast
 import kotlinx.coroutines.launch
 
 class GpsFragment : Fragment(), OnMapReadyCallback {
@@ -63,10 +68,36 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
         phoneTrackingSwitch = view.findViewById(R.id.switch_phone_tracking)
         phoneTrackingSwitch.setOnCheckedChangeListener { _, enabled ->
             if (phoneTrackingRequestInFlight) return@setOnCheckedChangeListener
-            val childId = viewModel.getSelectedChildId() ?: return@setOnCheckedChangeListener
             phoneTrackingRequestInFlight = true
             phoneTrackingSwitch.isEnabled = false
-            viewModel.setPhoneTracking(childId, enabled)
+            if (ParentPolicyScopeStore.state.value.scope == ParentPolicyScope.SELECTED_DEVICE) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    when (val mutation = ParentPhoneLocationScopeCoordinator(ApiClient.apiService).setSelectedDeviceTracking(enabled)) {
+                        ScopedLocationMutation.Applied -> {
+                            Toast.makeText(context, "Phone Location updated for the selected device", Toast.LENGTH_SHORT).show()
+                        }
+                        is ScopedLocationMutation.Blocked -> {
+                            phoneTrackingSwitch.isChecked = !enabled
+                            Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                        }
+                        is ScopedLocationMutation.Failed -> {
+                            phoneTrackingSwitch.isChecked = !enabled
+                            Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    phoneTrackingRequestInFlight = false
+                    phoneTrackingSwitch.isEnabled = true
+                }
+            } else {
+                val childId = viewModel.getSelectedChildId()
+                if (childId == null) {
+                    phoneTrackingSwitch.isChecked = !enabled
+                    phoneTrackingRequestInFlight = false
+                    phoneTrackingSwitch.isEnabled = true
+                    return@setOnCheckedChangeListener
+                }
+                viewModel.setPhoneTracking(childId, enabled)
+            }
         }
         progressBar = view.findViewById(R.id.progressBar)
         locationTv = view.findViewById(R.id.locationText)
