@@ -1,10 +1,11 @@
-package com.safenest.kids
+﻿package com.safenest.kids
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.safenest.kids.network.ApiClient
 import com.safenest.kids.util.PermissionsHelper
 import com.safenest.kids.util.PrefsHelper
+import com.safenest.kids.security.ProtectionPolicyManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,6 +17,9 @@ class MainActivity : AppCompatActivity() {
 
         ApiClient.init(this)
         prefsHelper = PrefsHelper(this)
+        // Apply uninstall/lock-task policy only when Android confirms managed ownership.
+        // Consumer mode remains functional and explicitly reports no guarantee.
+        ProtectionPolicyManager.apply(this)
 
         if (savedInstanceState == null) {
             if (!prefsHelper.isPaired()) {
@@ -36,3 +40,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
+

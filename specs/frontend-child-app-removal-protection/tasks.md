@@ -7,8 +7,8 @@
 
 ## Phase 2: Android management
 
-- [ ] FT003 Add DeviceAdminReceiver/DPC capability detection.
-- [ ] FT004 Add confirmed uninstall-policy and lock-task status reporting.
+- [x] FT003 Add DeviceAdminReceiver/DPC capability detection.
+- [x] FT004 Add confirmed uninstall-policy and lock-task status reporting.
 - [ ] FT005 Add tests for unsupported and policy-failure paths.
 
 ## Phase 3: Recovery and health
@@ -22,5 +22,6 @@
 - [ ] FT009 Run test-guard on changed tests.
 - [ ] FT010 Run spec-review/review-fix and local code review.
 - [ ] FT011 Run Child unit tests and assembleDebug.
+
 
 
