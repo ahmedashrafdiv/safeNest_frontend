@@ -8,11 +8,12 @@
 - Child build command: `gradlew.bat assembleDebug --no-daemon`
 - Unit tests: no dedicated Android unit-test command was configured for this feature.
 - Baseline commit before orchestration: `ea16bd6`
-- Phase 1: READY; contract and inventory model requirements documented as implemented from source evidence.
-- Phase 2: OPEN; duplicate policy-submission prevention requires verification or implementation.
-- Phase 3: OPEN; focused parsing, payload, and UI-state tests are not yet present; builds have passed.
-- Phase 4: OPEN; quality gates pending.
-- Verification evidence: Parent and Child debug builds completed successfully in the current validation run.
+- Phase 1: DONE; contract and inventory model requirements verified.
+- Phase 2: DONE; duplicate policy submissions are guarded by `policyUpdateInFlight`.
+- Phase 3: PARTIAL; Parent and Child debug builds passed, but dedicated Android parsing/payload/UI-state tests are not configured.
+- Phase 4: BLOCKED; spec review remains PARTIAL because live paired-device verification is unavailable and Android feature tests are not configured.
+- Verification evidence: Parent and Child debug builds completed successfully; the Parent invocation reported a stale machine-local SDK path warning from ignored `local.properties`.
+- Local phase commit: `d773356`.
 - Live device verification: not completed because no Android device was available through ADB.
 - External publication: none; no push performed.
 
