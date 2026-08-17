@@ -272,5 +272,17 @@ interface SafeNestApiService {
     suspend fun getEffectiveAppBlockingPolicy(
         @Path("child_id") childId: String,
         @Path("device_id") deviceId: String,
-    ): Response<EffectiveAppBlockingPolicyResponse>}
+    ): Response<EffectiveAppBlockingPolicyResponse>
+    @PATCH("api/child-devices/{child_id}/devices/{device_id}/phone-location")
+    suspend fun setPhoneTrackingForDevice(
+        @Path("child_id") childId: String,
+        @Path("device_id") deviceId: String,
+        @Query("enabled") enabled: Boolean,
+    ): Response<Unit>
+
+    @DELETE("api/child-devices/{child_id}/devices/{device_id}/phone-location")
+    suspend fun deletePhoneTrackingForDevice(
+        @Path("child_id") childId: String,
+        @Path("device_id") deviceId: String,
+    ): Response<Unit>}
 
