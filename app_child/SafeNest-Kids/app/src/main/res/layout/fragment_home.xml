@@ -49,6 +49,16 @@
                 android:textStyle="bold"
                 android:gravity="center" />
 
+            <TextView
+                android:id="@+id/tv_website_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="حماية المواقع غير متاحة"
+                android:textColor="@color/red_warning"
+                android:textSize="14sp"
+                android:gravity="center" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_fix_permissions"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"

@@ -178,6 +178,38 @@ interface SafeNestApiService {
         @Body request: AccessRequestRejectRequest
     ): Response<AccessRequestItem>
 
+    // ============ Website Filtering ============
+
+    @POST("api/website-policies")
+    suspend fun createWebsitePolicy(@Body request: WebsitePolicyCreateRequest): Response<WebsitePolicyResponse>
+
+    @GET("api/website-policies")
+    suspend fun listWebsitePolicies(): Response<WebsitePolicyListResponse>
+
+    @PATCH("api/website-policies/{policy_id}")
+    suspend fun updateWebsitePolicy(
+        @Path("policy_id") policyId: String,
+        @Body request: WebsitePolicyUpdateRequest
+    ): Response<WebsitePolicyResponse>
+
+    @POST("api/website-policies/{policy_id}/rules")
+    suspend fun createWebsiteRule(
+        @Path("policy_id") policyId: String,
+        @Body request: WebsiteRuleCreateRequest
+    ): Response<WebsiteRuleResponse>
+
+    @GET("api/website-policies/{policy_id}/rules")
+    suspend fun listWebsiteRules(@Path("policy_id") policyId: String): Response<WebsiteRuleListResponse>
+
+    @POST("api/website-policies/{policy_id}/publish")
+    suspend fun publishWebsitePolicy(@Path("policy_id") policyId: String): Response<WebsitePublishResponse>
+
+    @POST("api/website-policies/{policy_id}/assignments")
+    suspend fun assignWebsitePolicy(
+        @Path("policy_id") policyId: String,
+        @Body request: WebsiteAssignmentRequest
+    ): Response<Map<String, Any>>
+
     // ============ Alerts ============
 
     @GET("api/alerts")

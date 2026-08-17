@@ -85,6 +85,10 @@ class MonitoringFragment : Fragment() {
             confirmClearUsageLog()
         }
 
+        view.findViewById<MaterialCardView?>(R.id.websiteProtectionCard)?.setOnClickListener {
+            (activity as MainActivity).navigateToFragment(WebsiteProtectionFragment())
+        }
+
         view.findViewById<MaterialCardView?>(R.id.videoHistoryCard)?.setOnClickListener {
             (activity as MainActivity).navigateToFragment(VideoHistoryFragment())
         }

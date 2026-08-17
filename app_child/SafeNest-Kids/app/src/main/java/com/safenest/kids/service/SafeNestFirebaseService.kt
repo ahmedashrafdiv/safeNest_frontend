@@ -72,9 +72,19 @@ class SafeNestFirebaseService : FirebaseMessagingService() {
             if (title == "RULES_UPDATED") {
                 Log.d(TAG, "Parent updated rules — triggering immediate sync via WorkManager")
                 triggerImmediateSync()
+                triggerWebsitePolicySync()
                 // Do NOT show any visible notification to the child
             }
         }
+    }
+
+    private fun triggerWebsitePolicySync() {
+        val syncRequest = OneTimeWorkRequestBuilder<WebsitePolicySyncWorker>().build()
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+            WebsitePolicySyncWorker.UNIQUE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            syncRequest
+        )
     }
 
     private fun triggerImmediateSync() {

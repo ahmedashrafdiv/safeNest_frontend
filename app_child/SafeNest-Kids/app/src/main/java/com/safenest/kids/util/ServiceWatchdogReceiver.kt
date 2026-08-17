@@ -16,6 +16,8 @@ import androidx.work.ExistingWorkPolicy
 import com.safenest.kids.R
 import com.safenest.kids.service.RuleSyncWorker
 import com.safenest.kids.service.InstalledAppsSyncWorker
+import com.safenest.kids.service.WebsitePolicySyncWorker
+import com.safenest.kids.service.WebsiteDnsVpnService
 
 /**
  * Fires on BOOT_COMPLETED and MY_PACKAGE_REPLACED to check whether
@@ -47,10 +49,23 @@ class ServiceWatchdogReceiver : BroadcastReceiver() {
         // Rule and inventory synchronization are both durable WorkManager jobs.
         triggerImmediateSync(context)
         InstalledAppsSyncWorker.enqueue(context)
+        val websiteSync = OneTimeWorkRequestBuilder<WebsitePolicySyncWorker>().build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            WebsitePolicySyncWorker.UNIQUE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            websiteSync
+        )
 
         // Accessibility recovery notifications are relevant only after boot/app replacement,
         // not after every unrelated application install or removal.
         if (isLifecycleRecovery) {
+            if (PermissionsHelper.hasVpnPermission(context) &&
+                prefsHelper.getWebsitePolicySnapshotJson() != null &&
+                prefsHelper.getWebsiteVpnHealth() != PrefsHelper.WEBSITE_VPN_ACTIVE
+            ) {
+                WebsiteDnsVpnService.startIfPermissionGranted(context)
+            }
+
             val enabled = PermissionsHelper.hasAccessibilityService(context)
             if (!enabled) {
                 Log.w(TAG, "Accessibility service not enabled — showing notification")

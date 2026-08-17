@@ -92,6 +92,38 @@ class PrefsHelper(context: Context) {
         prefs.edit().putString("app_time_limits_json", limitsJson).apply()
     }
 
-    fun getAppTimeLimitsJson(): String? =
-        prefs.getString("app_time_limits_json", null)
+    fun getAppTimeLimitsJson(): String? = prefs.getString("app_time_limits_json", null)
+
+    fun setWebsitePolicyId(policyId: String) {
+        prefs.edit().putString("website_policy_id", policyId).apply()
+    }
+
+    fun getWebsitePolicyId(): String? = prefs.getString("website_policy_id", null)
+
+    fun setWebsitePolicySnapshot(snapshotJson: String, version: Int, contentHash: String) {
+        prefs.edit()
+            .putString("website_policy_snapshot_json", snapshotJson)
+            .putInt("website_policy_version", version)
+            .putString("website_policy_content_hash", contentHash)
+            .apply()
+    }
+
+    fun getWebsitePolicySnapshotJson(): String? = prefs.getString("website_policy_snapshot_json", null)
+    fun getWebsitePolicyVersion(): Int = prefs.getInt("website_policy_version", 0)
+    fun getWebsitePolicyContentHash(): String? = prefs.getString("website_policy_content_hash", null)
+
+    fun setWebsiteVpnHealth(health: String) {
+        prefs.edit().putString("website_vpn_health", health).apply()
+    }
+
+    fun getWebsiteVpnHealth(): String =
+        prefs.getString("website_vpn_health", WEBSITE_VPN_UNAVAILABLE) ?: WEBSITE_VPN_UNAVAILABLE
+
+    companion object {
+        const val WEBSITE_VPN_ACTIVE = "active"
+        const val WEBSITE_VPN_UNAVAILABLE = "unavailable"
+        const val WEBSITE_VPN_DENIED = "permission_denied"
+        const val WEBSITE_VPN_FAILED = "failed"
+    }
+
 }

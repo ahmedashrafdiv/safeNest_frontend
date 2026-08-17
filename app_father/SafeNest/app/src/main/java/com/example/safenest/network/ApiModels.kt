@@ -224,6 +224,84 @@ data class ZoneResponse(
     @SerializedName("radius_meters") val radiusMeters: Int
 )
 
+// ============ Website Policy Models ============
+
+data class WebsitePolicyCreateRequest(
+    @SerializedName("name") val name: String,
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("default_action") val defaultAction: String = "allow_with_logging",
+    @SerializedName("timezone") val timezone: String = "UTC",
+    @SerializedName("age_profile") val ageProfile: String? = null,
+    @SerializedName("website_control_mode") val websiteControlMode: String = "blocklist",
+    @SerializedName("mandatory_blocked_categories") val mandatoryBlockedCategories: List<String> = emptyList()
+)
+
+data class WebsitePolicyUpdateRequest(
+    @SerializedName("name") val name: String? = null,
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("default_action") val defaultAction: String? = null,
+    @SerializedName("timezone") val timezone: String? = null,
+    @SerializedName("age_profile") val ageProfile: String? = null,
+    @SerializedName("website_control_mode") val websiteControlMode: String? = null,
+    @SerializedName("mandatory_blocked_categories") val mandatoryBlockedCategories: List<String>? = null
+)
+
+data class WebsitePolicyResponse(
+    @SerializedName("policy_id") val policyId: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("description") val description: String?,
+    @SerializedName("default_action") val defaultAction: String,
+    @SerializedName("timezone") val timezone: String,
+    @SerializedName("website_control_mode") val websiteControlMode: String = "blocklist",
+    @SerializedName("mandatory_blocked_categories") val mandatoryBlockedCategories: List<String> = emptyList(),
+    @SerializedName("status") val status: String,
+    @SerializedName("current_version") val currentVersion: Int = 0,
+    @SerializedName("published_version") val publishedVersion: Int? = null
+)
+
+data class WebsitePolicyListResponse(
+    @SerializedName("items") val items: List<WebsitePolicyResponse> = emptyList()
+)
+
+data class WebsiteRuleCreateRequest(
+    @SerializedName("scope") val scope: String,
+    @SerializedName("pattern") val pattern: String,
+    @SerializedName("match_mode") val matchMode: String,
+    @SerializedName("action") val action: String,
+    @SerializedName("category") val category: String? = null,
+    @SerializedName("priority") val priority: Int = 500,
+    @SerializedName("enabled") val enabled: Boolean = true,
+    @SerializedName("schedule_id") val scheduleId: String? = null,
+    @SerializedName("daily_budget_seconds") val dailyBudgetSeconds: Int? = null
+)
+
+data class WebsiteRuleResponse(
+    @SerializedName("rule_id") val ruleId: String,
+    @SerializedName("normalized_pattern") val normalizedPattern: String,
+    @SerializedName("scope") val scope: String,
+    @SerializedName("match_mode") val matchMode: String,
+    @SerializedName("action") val action: String,
+    @SerializedName("category") val category: String?,
+    @SerializedName("priority") val priority: Int,
+    @SerializedName("daily_budget_seconds") val dailyBudgetSeconds: Int? = null
+)
+
+data class WebsiteRuleListResponse(
+    @SerializedName("items") val items: List<WebsiteRuleResponse> = emptyList()
+)
+
+data class WebsitePublishResponse(
+    @SerializedName("policy_id") val policyId: String,
+    @SerializedName("version") val version: Int,
+    @SerializedName("content_hash") val contentHash: String,
+    @SerializedName("assigned_device_count") val assignedDeviceCount: Int
+)
+
+data class WebsiteAssignmentRequest(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String
+)
+
 // ============ Alert Models ============
 
 data class AlertOut(

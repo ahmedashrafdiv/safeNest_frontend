@@ -2,6 +2,7 @@ package com.safenest.kids.util
 
 import android.app.AppOpsManager
 import android.content.Context
+import android.net.VpnService
 import android.os.PowerManager
 import android.os.Process
 import android.provider.Settings
@@ -43,6 +44,8 @@ object PermissionsHelper {
         }
         return false
     }
+
+    fun hasVpnPermission(context: Context): Boolean = VpnService.prepare(context) == null
 
     fun hasBatteryOptimizationExemption(context: Context): Boolean {
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager

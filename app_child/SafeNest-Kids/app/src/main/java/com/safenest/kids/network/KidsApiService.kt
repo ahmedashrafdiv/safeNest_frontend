@@ -14,6 +14,22 @@ interface KidsApiService {
     @GET("api/digital-control/device/rules")
     suspend fun getDeviceRules(): Response<DigitalRuleResponse>
 
+    @GET("api/child-devices/{device_id}/website-policies")
+    suspend fun listWebsiteAssignments(@Path("device_id") deviceId: String): Response<WebsiteAssignmentListResponse>
+
+    @GET("api/child-devices/{device_id}/website-policies/{policy_id}")
+    suspend fun getWebsitePolicy(
+        @Path("device_id") deviceId: String,
+        @Path("policy_id") policyId: String
+    ): Response<WebsitePolicySyncResponse>
+
+    @POST("api/child-devices/{device_id}/website-policies/{policy_id}/ack")
+    suspend fun acknowledgeWebsitePolicy(
+        @Path("device_id") deviceId: String,
+        @Path("policy_id") policyId: String,
+        @Body request: WebsitePolicyAckRequest
+    ): Response<Map<String, Any>>
+
     // TODO: The exact request/response body shape for installed-apps is NOT fully documented.
     // Verify against the live Swagger UI at https://safe-nest-deployment.vercel.app/docs
     // before relying on it in production.

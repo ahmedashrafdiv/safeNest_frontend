@@ -63,6 +63,15 @@
         </receiver>
 
         <service
+            android:name=".service.WebsiteDnsVpnService"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+
+        <service
             android:name=".service.SafeNestFirebaseService"
             android:exported="false">
             <intent-filter>

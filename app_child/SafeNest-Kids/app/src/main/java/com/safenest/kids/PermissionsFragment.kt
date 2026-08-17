@@ -2,6 +2,7 @@ package com.safenest.kids
 
 import android.content.Intent
 import android.net.Uri
+import android.net.VpnService
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import com.safenest.kids.network.ApiClient
 import com.safenest.kids.network.InstalledApp
 import com.safenest.kids.network.InstalledAppsRequest
+import com.safenest.kids.service.WebsiteDnsVpnService
 import com.safenest.kids.util.InstalledAppsHelper
 import com.safenest.kids.util.PermissionsHelper
 import com.safenest.kids.util.PrefsHelper
@@ -28,9 +30,11 @@ class PermissionsFragment : Fragment() {
     private lateinit var tvUsageStatus: TextView
     private lateinit var tvAccessibilityStatus: TextView
     private lateinit var tvBatteryStatus: TextView
+    private lateinit var tvWebsiteVpnStatus: TextView
     private lateinit var btnEnableUsage: Button
     private lateinit var btnEnableAccessibility: Button
     private lateinit var btnEnableBattery: Button
+    private lateinit var btnEnableWebsiteVpn: Button
     private lateinit var btnContinue: Button
     private lateinit var progressSync: ProgressBar
     private lateinit var prefsHelper: PrefsHelper
@@ -46,9 +50,11 @@ class PermissionsFragment : Fragment() {
         tvUsageStatus = view.findViewById(R.id.tv_usage_status)
         tvAccessibilityStatus = view.findViewById(R.id.tv_accessibility_status)
         tvBatteryStatus = view.findViewById(R.id.tv_battery_status)
+        tvWebsiteVpnStatus = view.findViewById(R.id.tv_website_vpn_status)
         btnEnableUsage = view.findViewById(R.id.btn_enable_usage)
         btnEnableAccessibility = view.findViewById(R.id.btn_enable_accessibility)
         btnEnableBattery = view.findViewById(R.id.btn_enable_battery)
+        btnEnableWebsiteVpn = view.findViewById(R.id.btn_enable_website_vpn)
         btnContinue = view.findViewById(R.id.btn_continue)
         progressSync = view.findViewById(R.id.progress_sync)
 
@@ -60,6 +66,15 @@ class PermissionsFragment : Fragment() {
         btnEnableAccessibility.setOnClickListener {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             startActivity(intent)
+        }
+
+        btnEnableWebsiteVpn.setOnClickListener {
+            val consentIntent = VpnService.prepare(requireContext())
+            if (consentIntent != null) {
+                startActivityForResult(consentIntent, VPN_PERMISSION_REQUEST)
+            } else {
+                startWebsiteVpnIfReady()
+            }
         }
 
         btnEnableBattery.setOnClickListener {
@@ -83,6 +98,7 @@ class PermissionsFragment : Fragment() {
         val hasUsage = PermissionsHelper.hasUsageAccess(requireContext())
         val hasAccessibility = PermissionsHelper.hasAccessibilityService(requireContext())
         val hasBattery = PermissionsHelper.hasBatteryOptimizationExemption(requireContext())
+        val hasVpn = PermissionsHelper.hasVpnPermission(requireContext())
 
         if (hasUsage) {
             tvUsageStatus.text = "✓"
@@ -102,6 +118,17 @@ class PermissionsFragment : Fragment() {
             tvAccessibilityStatus.text = "✗"
             tvAccessibilityStatus.setTextColor(resources.getColor(R.color.red_warning, null))
             btnEnableAccessibility.isEnabled = true
+        }
+
+        if (hasVpn) {
+            tvWebsiteVpnStatus.text = "✓"
+            tvWebsiteVpnStatus.setTextColor(resources.getColor(R.color.green_success, null))
+            btnEnableWebsiteVpn.isEnabled = false
+            if (prefsHelper.getWebsitePolicySnapshotJson() != null) startWebsiteVpnIfReady()
+        } else {
+            tvWebsiteVpnStatus.text = "✗"
+            tvWebsiteVpnStatus.setTextColor(resources.getColor(R.color.red_warning, null))
+            btnEnableWebsiteVpn.isEnabled = true
         }
 
         if (hasBattery) {
@@ -153,9 +180,23 @@ class PermissionsFragment : Fragment() {
         }
     }
 
+    private fun startWebsiteVpnIfReady() {
+        if (prefsHelper.getWebsitePolicySnapshotJson() == null) {
+            prefsHelper.setWebsiteVpnHealth(PrefsHelper.WEBSITE_VPN_UNAVAILABLE)
+            return
+        }
+        if (!WebsiteDnsVpnService.startIfPermissionGranted(requireContext())) {
+            prefsHelper.setWebsiteVpnHealth(PrefsHelper.WEBSITE_VPN_DENIED)
+        }
+    }
+
     private fun navigateToHome() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, HomeFragment())
             .commit()
+    }
+
+    companion object {
+        private const val VPN_PERMISSION_REQUEST = 4202
     }
 }

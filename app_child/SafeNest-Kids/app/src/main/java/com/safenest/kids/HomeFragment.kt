@@ -20,6 +20,7 @@ import com.safenest.kids.network.InstalledApp
 import com.safenest.kids.network.InstalledAppsRequest
 import com.safenest.kids.service.AppUsageReportWorker
 import com.safenest.kids.service.RuleSyncWorker
+import com.safenest.kids.service.WebsiteDnsVpnService
 import com.safenest.kids.util.InstalledAppsHelper
 import com.safenest.kids.util.PermissionsHelper
 import com.safenest.kids.util.PrefsHelper
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit
 class HomeFragment : Fragment() {
 
     private lateinit var tvProtectionStatus: TextView
+    private lateinit var tvWebsiteStatus: TextView
     private lateinit var btnFixPermissions: Button
     private lateinit var btnRefreshApps: Button
     private lateinit var btnTestUsage: Button      // DEBUG: remove before release
@@ -46,6 +48,7 @@ class HomeFragment : Fragment() {
         prefsHelper = PrefsHelper(requireContext())
 
         tvProtectionStatus = view.findViewById(R.id.tv_protection_status)
+        tvWebsiteStatus = view.findViewById(R.id.tv_website_status)
         btnFixPermissions = view.findViewById(R.id.btn_fix_permissions)
         btnRefreshApps = view.findViewById(R.id.btn_refresh_apps)
         progressSync = view.findViewById(R.id.progress_sync)
@@ -86,16 +89,45 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateProtectionStatus() {
-        val allGranted = PermissionsHelper.hasAllPermissions(requireContext())
+        val context = requireContext()
+        val allGranted = PermissionsHelper.hasAllPermissions(context)
         if (allGranted) {
-            tvProtectionStatus.text = "الحماية مفعّلة ✓"
+            tvProtectionStatus.text = "حماية التطبيقات مفعّلة ✓"
             tvProtectionStatus.setTextColor(resources.getColor(R.color.green_success, null))
-            btnFixPermissions.visibility = View.GONE
         } else {
-            tvProtectionStatus.text = "الحماية متوقفة ✗"
+            tvProtectionStatus.text = "حماية التطبيقات متوقفة ✗"
             tvProtectionStatus.setTextColor(resources.getColor(R.color.red_warning, null))
-            btnFixPermissions.visibility = View.VISIBLE
         }
+
+        if (PermissionsHelper.hasVpnPermission(context) && prefsHelper.getWebsitePolicySnapshotJson() != null) {
+            if (prefsHelper.getWebsiteVpnHealth() != PrefsHelper.WEBSITE_VPN_ACTIVE) {
+                WebsiteDnsVpnService.startIfPermissionGranted(context)
+            }
+        }
+        when (prefsHelper.getWebsiteVpnHealth()) {
+            PrefsHelper.WEBSITE_VPN_ACTIVE -> {
+                tvWebsiteStatus.text = "حماية المواقع مفعّلة (DNS) ✓"
+                tvWebsiteStatus.setTextColor(resources.getColor(R.color.green_success, null))
+            }
+            PrefsHelper.WEBSITE_VPN_DENIED -> {
+                tvWebsiteStatus.text = "حماية المواقع غير متاحة: إذن VPN مطلوب ✗"
+                tvWebsiteStatus.setTextColor(resources.getColor(R.color.red_warning, null))
+            }
+            PrefsHelper.WEBSITE_VPN_FAILED -> {
+                tvWebsiteStatus.text = "حماية المواقع غير متاحة: تعذر تشغيل VPN ✗"
+                tvWebsiteStatus.setTextColor(resources.getColor(R.color.red_warning, null))
+            }
+            else -> {
+                if (prefsHelper.getWebsitePolicySnapshotJson() == null) {
+                    tvWebsiteStatus.text = "حماية المواقع في انتظار سياسة الوالد"
+                    tvWebsiteStatus.setTextColor(resources.getColor(R.color.gray_medium, null))
+                } else {
+                    tvWebsiteStatus.text = "حماية المواقع غير متاحة حالياً ✗"
+                    tvWebsiteStatus.setTextColor(resources.getColor(R.color.red_warning, null))
+                }
+            }
+        }
+        btnFixPermissions.visibility = if (!allGranted || prefsHelper.getWebsiteVpnHealth() != PrefsHelper.WEBSITE_VPN_ACTIVE) View.VISIBLE else View.GONE
     }
 
     private fun registerRuleSyncWorker() {
