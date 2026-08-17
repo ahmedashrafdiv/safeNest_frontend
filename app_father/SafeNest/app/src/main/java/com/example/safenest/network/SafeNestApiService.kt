@@ -116,6 +116,26 @@ interface SafeNestApiService {
 
     // ============ Devices ============
 
+    /** Child-scoped device-management APIs; selected-device actions never fan out implicitly. */
+    @GET("api/children/{child_id}/devices")
+    suspend fun listChildDevices(
+        @Path("child_id") childId: String,
+    ): Response<List<ChildDeviceSummary>>
+
+    @POST("api/children/{child_id}/devices/pairing")
+    suspend fun createChildDevicePairing(
+        @Path("child_id") childId: String,
+        @Body request: ChildDevicePairingRequest,
+    ): Response<ChildDevicePairingResponse>
+
+    @POST("api/children/{child_id}/devices/{device_id}/revoke")
+    suspend fun revokeChildDevice(
+        @Path("child_id") childId: String,
+        @Path("device_id") deviceId: String,
+        @Body request: ChildDeviceRevokeRequest,
+    ): Response<ChildDeviceAuditResult>
+
+
     @POST("api/devices/pair")
     suspend fun pairDevice(@Body request: DevicePairingRequest): Response<DeviceOut>
 
