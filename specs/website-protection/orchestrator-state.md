@@ -29,7 +29,8 @@
 
 ## Local commit state
 
-- Commit is pending final validation and will remain local.
+- Local commit: `d8ec58a4f3120a807f797db5cc28834875eb7177` (`feat: add Layngo website protection`).
+- Working tree is clean after the commit.
 - GitHub push is intentionally not performed.
 
 ## Next step
