@@ -58,4 +58,6 @@ interface KidsApiService {
      */
     @PUT("api/devices/fcm-token")
     suspend fun updateDeviceFcmToken(@Body request: UpdateFcmTokenRequest): Response<Unit>
-}
+
+    @GET("api/children/device-effective/app-blocking")
+    suspend fun getEffectiveAppBlockingPolicy(): Response<EffectiveAppBlockingPolicyResponse>}

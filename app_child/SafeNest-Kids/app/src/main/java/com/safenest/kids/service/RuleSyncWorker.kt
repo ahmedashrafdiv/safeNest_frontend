@@ -12,36 +12,48 @@ class RuleSyncWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
+    private val prefsHelper = PrefsHelper(applicationContext)
+
+    override suspend fun doWork(): Result {
+        val deviceId = prefsHelper.getDeviceId() ?: return Result.retry()
+        val childId = prefsHelper.getChildId()
+
+        return try {
+            val response = ApiClient.apiService.getEffectiveAppBlockingPolicy()
+            if (!response.isSuccessful) {
+                return if (response.code() == 404) Result.success() else Result.retry()
+            }
+
+            val policy = response.body() ?: return Result.retry()
+            val binding = DeviceBindingDecider.decide(
+                localDeviceId = deviceId,
+                localChildId = childId,
+                responseDeviceId = policy.deviceId,
+                responseChildId = policy.childId,
+                currentPolicyVersion = prefsHelper.getAppPolicyVersion(),
+                incomingPolicyVersion = policy.policyVersion,
+            )
+            if (binding != DeviceBindingDecider.Decision.APPLY) {
+                Log.w(TAG, "Ignoring App Blocking policy response: $binding")
+                return Result.success()
+            }
+
+            prefsHelper.setAppPolicy(
+                mode = policy.values.appControlMode,
+                allowedApps = policy.values.allowedApp.toSet(),
+                blockedApps = policy.values.blockedApp.toSet(),
+                limitsJson = JSONObject(policy.values.appTimeLimits).toString(),
+                policyVersion = policy.policyVersion,
+            )
+            Log.i(TAG, "App Blocking policy synchronized v${policy.policyVersion}")
+            Result.success()
+        } catch (error: Exception) {
+            Log.e(TAG, "App Blocking policy sync failed", error)
+            Result.retry()
+        }
+    }
 
     companion object {
         private const val TAG = "RuleSyncWorker"
-    }
-
-    override suspend fun doWork(): Result {
-        val prefsHelper = PrefsHelper(applicationContext)
-
-        return try {
-            val response = ApiClient.apiService.getDeviceRules()
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    val blockedApps = body.blockedApp?.toSet() ?: emptySet()
-                    val allowedApps = body.allowedApp?.toSet() ?: emptySet()
-                    val mode = if (body.appControlMode == "allowlist") "allowlist" else "blocklist"
-                    val limitsJson = JSONObject(body.appTimeLimits ?: emptyMap<String, Int>()).toString()
-                    prefsHelper.setAppPolicy(mode, allowedApps, blockedApps, limitsJson)
-
-                    val now = System.currentTimeMillis()
-                    Log.d(TAG, "Rule sync successful at $now. Mode: $mode, allowed: ${allowedApps.size}, blocked: ${blockedApps.size}, time limits: $limitsJson")
-                }
-                Result.success()
-            } else {
-                Log.e(TAG, "Rule sync failed: ${response.code()} ${response.message()}")
-                Result.retry()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Rule sync error", e)
-            Result.retry()
-        }
     }
 }

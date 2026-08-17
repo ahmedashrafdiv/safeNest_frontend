@@ -123,3 +123,19 @@ data class PhoneLocationPolicyResponse(
     @SerializedName("latest_captured_at") val latestCapturedAt: String? = null,
     @SerializedName("policy_version") val policyVersion: Int? = null
 )
+
+
+data class EffectiveAppBlockingValues(
+    @SerializedName("blockedApp") val blockedApp: List<String> = emptyList(),
+    @SerializedName("allowedApp") val allowedApp: List<String> = emptyList(),
+    @SerializedName("appControlMode") val appControlMode: String = "blocklist",
+    @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Int> = emptyMap(),
+)
+
+data class EffectiveAppBlockingPolicyResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("policy_version") val policyVersion: Int,
+    @SerializedName("scope") val scope: String,
+    @SerializedName("values") val values: EffectiveAppBlockingValues,
+)

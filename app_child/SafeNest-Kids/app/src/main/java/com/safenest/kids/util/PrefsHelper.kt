@@ -231,4 +231,15 @@ class PrefsHelper(context: Context) {
         const val PHONE_LOCATION_STATUS_UNAVAILABLE = "unavailable"
     }
 
-}
+
+    fun setAppPolicy(mode: String, allowedApps: Set<String>, blockedApps: Set<String>, limitsJson: String, policyVersion: Int) {
+        prefs.edit()
+            .putString("app_control_mode", if (mode == "allowlist") "allowlist" else "blocklist")
+            .putStringSet("allowed_apps", allowedApps)
+            .putStringSet("blocked_apps", blockedApps)
+            .putString("app_time_limits_json", limitsJson)
+            .putInt("app_policy_version", policyVersion)
+            .apply()
+    }
+
+    fun getAppPolicyVersion(): Int = prefs.getInt("app_policy_version", 0)}
