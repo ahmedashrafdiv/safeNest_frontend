@@ -14,15 +14,15 @@
 - [x] Render an explicit error/retry state for failed inventory requests.
 - [x] Provide direct block/unblock actions per installed package.
 - [x] Provide per-app time-limit actions using `app_time_limits` keyed by package name.
-- [ ] Prevent duplicate policy submissions while an action is in flight.
+- [x] Prevent duplicate policy submissions while an action is in flight.
 
 ## Phase 3: Automated and build verification
 
 - [ ] Add focused tests for installed-app JSON parsing and package-name identity.
 - [ ] Add focused tests for block/unblock and per-app-limit payload construction.
 - [ ] Add focused tests for loading, empty, and error UI states where supported.
-- [ ] Build the Parent debug APK.
-- [ ] Build the Child debug APK.
+- [x] Build the Parent debug APK.
+- [x] Build the Child debug APK.
 - [ ] Run configured Android unit tests.
 
 ## Phase 4: Quality gate

@@ -49,6 +49,7 @@ class InstalledAppsFragment : Fragment() {
 
     // Holds the DigitalRule rule ID returned from the server, needed for updates
     private var ruleId: String? = null
+    private var policyUpdateInFlight: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -164,11 +165,13 @@ class InstalledAppsFragment : Fragment() {
                     viewModel.updateDigitalRuleState.collect { state ->
                         when (state) {
                             is Result.Loading -> {
+                                policyUpdateInFlight = true
                                 progressBar?.visibility = View.VISIBLE
                                 addBlockedAppBtn?.isEnabled = false
                                 addAllowedAppBtn?.isEnabled = false
                             }
                             is Result.Success -> {
+                                policyUpdateInFlight = false
                                 progressBar?.visibility = View.GONE
                                 addBlockedAppBtn?.isEnabled = true
                                 addAllowedAppBtn?.isEnabled = true
@@ -179,6 +182,7 @@ class InstalledAppsFragment : Fragment() {
                                 viewModel.clearUpdateDigitalRuleState()
                             }
                             is Result.Error -> {
+                                policyUpdateInFlight = false
                                 progressBar?.visibility = View.GONE
                                 addBlockedAppBtn?.isEnabled = true
                                 addAllowedAppBtn?.isEnabled = true
@@ -399,11 +403,13 @@ class InstalledAppsFragment : Fragment() {
     }
 
     private fun saveChangesToServer() {
+        if (policyUpdateInFlight) return
         val childId = viewModel.getSelectedChildId() ?: return
         renderLists()
         // Persist a local fallback and send the authoritative policy to the Backend.
         saveAllowedApps(childId, allowedApps)
         val id = ruleId ?: return
+        policyUpdateInFlight = true
         viewModel.updateDigitalRule(
             id,
             blockedApp = blockedApps,
