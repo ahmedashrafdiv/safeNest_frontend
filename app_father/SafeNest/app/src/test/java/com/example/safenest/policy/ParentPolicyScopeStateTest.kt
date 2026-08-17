@@ -44,4 +44,18 @@ class ParentPolicyScopeStateTest {
 
         assertFalse(ParentPolicyScopeStore.state.value.canWriteDeviceOverride)
     }
+
+    @Test
+    fun test_clearing_revoked_selected_device_restores_child_default_scope() {
+        ParentPolicyScopeStore.selectDevice(
+            childId = "child-1",
+            device = SelectedPolicyDevice("device-1", "Old phone", "revoked"),
+        )
+
+        ParentPolicyScopeStore.clearUnavailableDevice("device-1")
+
+        val state = ParentPolicyScopeStore.state.value
+        assertEquals(ParentPolicyScope.CHILD_DEFAULT, state.scope)
+        assertFalse(state.canWriteDeviceOverride)
+    }
 }
