@@ -1,4 +1,4 @@
-﻿package com.example.safenest.repository
+package com.example.safenest.repository
 
 import com.example.safenest.network.ApiClient
 import com.example.safenest.network.ChildDeviceAuditResult
@@ -6,6 +6,7 @@ import com.example.safenest.network.ChildDevicePairingRequest
 import com.example.safenest.network.ChildDevicePairingResponse
 import com.example.safenest.network.ChildDeviceRevokeRequest
 import com.example.safenest.network.ChildDeviceSummary
+import com.example.safenest.network.EffectiveAppBlockingPolicyResponse
 import com.example.safenest.util.Result
 
 /** Selected-device operations always include the owning child. */
@@ -32,5 +33,10 @@ class ChildDeviceRepository : BaseRepository() {
         request: com.example.safenest.network.DevicePolicyOverrideRequest,
     ): Result<com.example.safenest.network.DevicePolicyOverrideResponse> =
         safeApiCall { api.putDevicePolicyOverride(childId, deviceId, policyFamily, request) }
-}
+
+    suspend fun getEffectiveAppBlockingPolicy(
+        childId: String,
+        deviceId: String,
+    ): Result<EffectiveAppBlockingPolicyResponse> =
+        safeApiCall { api.getEffectiveAppBlockingPolicy(childId, deviceId) }}
 
