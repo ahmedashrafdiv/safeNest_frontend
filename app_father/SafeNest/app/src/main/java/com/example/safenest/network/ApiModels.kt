@@ -235,6 +235,41 @@ data class AlertUpdateRequest(
     @SerializedName("isResolved") val isResolved: Boolean
 )
 
+// ============ Child Access Request Models ============
+
+enum class AccessRequestType {
+    EXTRA_TIME, ACCESS_OVERRIDE
+}
+
+data class AccessRequestItem(
+    @SerializedName("request_id") val requestId: String,
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("request_type") val requestType: String,
+    @SerializedName("scope_type") val scopeType: String,
+    @SerializedName("scope_value") val scopeValue: String,
+    @SerializedName("requested_seconds") val requestedSeconds: Int,
+    @SerializedName("reason") val reason: String?,
+    @SerializedName("status") val status: String,
+    @SerializedName("requested_at") val requestedAt: String,
+    @SerializedName("request_expires_at") val requestExpiresAt: String?,
+    @SerializedName("child_name") val childName: String? = null
+)
+
+data class AccessRequestListResponse(
+    @SerializedName("items") val items: List<AccessRequestItem> = emptyList(),
+    @SerializedName("next_cursor") val nextCursor: String? = null
+)
+
+data class AccessRequestApproveRequest(
+    @SerializedName("granted_seconds") val grantedSeconds: Int? = null,
+    @SerializedName("decision_reason") val decisionReason: String? = null
+)
+
+data class AccessRequestRejectRequest(
+    @SerializedName("decision_reason") val decisionReason: String? = null
+)
+
 // ============ Error Models ============
 
 data class ErrorResponse(

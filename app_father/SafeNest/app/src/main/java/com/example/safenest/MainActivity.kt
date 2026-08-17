@@ -45,11 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         // Check if user is already logged in
         if (SessionManager(this).isLoggedIn()) {
-            showHomeFragment()
-            // Start periodic location sync
-            scheduleLocationSync()
-            // Proactively push current FCM token to server
-            refreshAndPushFcmToken()
+            showStartupInbox()
         } else {
             showLoginFragment()
         }
@@ -63,6 +59,17 @@ class MainActivity : AppCompatActivity() {
     private fun showHomeFragment() {
         val homeFragment = HomeFragment()
         replaceFragment(homeFragment)
+    }
+
+    private fun showStartupInbox() {
+        replaceFragment(com.example.safenest.fragments.ParentInboxFragment())
+        scheduleLocationSync()
+        refreshAndPushFcmToken()
+    }
+
+    fun showHomeFromInbox() {
+        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        showHomeFragment()
     }
 
     private fun replaceFragment(fragment: Fragment) {
@@ -82,9 +89,7 @@ class MainActivity : AppCompatActivity() {
     // Go to home after successful login (clears back stack)
     fun goToHome() {
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-        showHomeFragment()
-        scheduleLocationSync()
-        refreshAndPushFcmToken()
+        showStartupInbox()
     }
 
     // Go back to login (for logout or 401)

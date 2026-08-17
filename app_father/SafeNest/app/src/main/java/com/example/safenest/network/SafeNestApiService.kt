@@ -157,6 +157,27 @@ interface SafeNestApiService {
     @DELETE("api/zones/{zone_id}")
     suspend fun deleteZone(@Path("zone_id") zoneId: String): Response<Unit>
 
+    // ============ Child Access Requests ============
+
+    @GET("api/children/{child_id}/access-requests")
+    suspend fun listChildAccessRequests(
+        @Path("child_id") childId: String,
+        @Query("status") status: String = "pending",
+        @Query("limit") limit: Int = 50
+    ): Response<AccessRequestListResponse>
+
+    @POST("api/child-access-requests/{request_id}/approve")
+    suspend fun approveChildAccessRequest(
+        @Path("request_id") requestId: String,
+        @Body request: AccessRequestApproveRequest
+    ): Response<AccessRequestItem>
+
+    @POST("api/child-access-requests/{request_id}/reject")
+    suspend fun rejectChildAccessRequest(
+        @Path("request_id") requestId: String,
+        @Body request: AccessRequestRejectRequest
+    ): Response<AccessRequestItem>
+
     // ============ Alerts ============
 
     @GET("api/alerts")
