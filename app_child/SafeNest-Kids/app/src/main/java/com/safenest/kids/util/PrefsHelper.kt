@@ -46,6 +46,13 @@ class PrefsHelper(context: Context) {
 
     fun getLastAppsSent(): Boolean = prefs.getBoolean("last_apps_sent", false)
 
+    fun setInstalledAppsFingerprint(fingerprint: String) {
+        prefs.edit().putString("installed_apps_fingerprint", fingerprint).apply()
+    }
+
+    fun getInstalledAppsFingerprint(): String? =
+        prefs.getString("installed_apps_fingerprint", null)
+
     fun setDeviceToken(token: String?) {
         prefs.edit().putString("device_access_token", token).apply()
     }

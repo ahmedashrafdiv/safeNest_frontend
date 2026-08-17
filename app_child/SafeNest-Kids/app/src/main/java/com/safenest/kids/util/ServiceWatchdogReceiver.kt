@@ -15,6 +15,7 @@ import androidx.work.WorkManager
 import androidx.work.ExistingWorkPolicy
 import com.safenest.kids.R
 import com.safenest.kids.service.RuleSyncWorker
+import com.safenest.kids.service.InstalledAppsSyncWorker
 
 /**
  * Fires on BOOT_COMPLETED and MY_PACKAGE_REPLACED to check whether
@@ -30,24 +31,32 @@ class ServiceWatchdogReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        when (intent.action) {
-            Intent.ACTION_BOOT_COMPLETED,
-            Intent.ACTION_MY_PACKAGE_REPLACED -> {
-                Log.d(TAG, "Received ${intent.action}. Triggering immediate sync and checking status...")
+        val action = intent.action ?: return
+        val isPackageChange = action == Intent.ACTION_PACKAGE_ADDED ||
+            action == Intent.ACTION_PACKAGE_REMOVED ||
+            action == Intent.ACTION_PACKAGE_REPLACED
+        val isLifecycleRecovery = action == Intent.ACTION_BOOT_COMPLETED ||
+            action == Intent.ACTION_MY_PACKAGE_REPLACED
 
-                val prefsHelper = PrefsHelper(context)
-                if (prefsHelper.isPaired()) {
-                    // Trigger immediate rule sync to ensure we have the latest policies after boot/update
-                    triggerImmediateSync(context)
+        if (!isPackageChange && !isLifecycleRecovery) return
 
-                    val enabled = PermissionsHelper.hasAccessibilityService(context)
-                    if (!enabled) {
-                        Log.w(TAG, "Accessibility service not enabled — showing notification")
-                        showReEnableNotification(context)
-                    } else {
-                        Log.d(TAG, "Accessibility service still enabled")
-                    }
-                }
+        Log.d(TAG, "Received $action. Triggering synchronization.")
+        val prefsHelper = PrefsHelper(context)
+        if (!prefsHelper.isPaired()) return
+
+        // Rule and inventory synchronization are both durable WorkManager jobs.
+        triggerImmediateSync(context)
+        InstalledAppsSyncWorker.enqueue(context)
+
+        // Accessibility recovery notifications are relevant only after boot/app replacement,
+        // not after every unrelated application install or removal.
+        if (isLifecycleRecovery) {
+            val enabled = PermissionsHelper.hasAccessibilityService(context)
+            if (!enabled) {
+                Log.w(TAG, "Accessibility service not enabled — showing notification")
+                showReEnableNotification(context)
+            } else {
+                Log.d(TAG, "Accessibility service still enabled")
             }
         }
     }

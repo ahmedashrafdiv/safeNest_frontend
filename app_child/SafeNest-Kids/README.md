@@ -65,7 +65,7 @@ app/src/main/
 └── AndroidManifest.xml
 ```
 
-The manifest registers the main activity, the blocked-app activity, the accessibility enforcement service, the boot/package-replacement watchdog receiver, and the Firebase messaging service.
+The manifest registers the main activity, the blocked-app activity, the accessibility enforcement service, the boot/package-replacement/package-lifecycle watchdog receiver, the installed-app synchronization worker path, and the Firebase messaging service.
 
 ## Application Flow
 
@@ -92,6 +92,7 @@ On a successful response, `PrefsHelper` stores values including:
 | `blocked_apps` | Locally cached blocked package names. |
 | `app_time_limits_json` | Serialized per-package minute limits. |
 | `last_apps_sent` | Local reporting state for installed applications. |
+| `installed_apps_fingerprint` | Fingerprint of the last successfully uploaded launchable-app inventory. |
 
 This state is stored through ordinary `SharedPreferences` in the `SafeNestKidsPrefs` preference file. It is the local input to enforcement and must be treated as sensitive device state.
 
@@ -133,7 +134,7 @@ For a blocked package, the service launches `BlockedAppActivity` with the packag
 
 `BlockedAppActivity` is excluded from recents and presents the child-facing blocking screen. The service does not make a network call for each foreground event; it reads locally cached policy values and usage information.
 
-`ServiceWatchdogReceiver` reacts to boot and package-replacement broadcasts and checks whether the AccessibilityService remains enabled. It can present a system notification or guide the user when the service is not active.
+`ServiceWatchdogReceiver` reacts to boot, Child-app replacement, package-added, package-removed, and package-replaced broadcasts. It triggers the durable `InstalledAppsSyncWorker`, which rescans the full launchable-app inventory, skips unchanged fingerprints, retries failed uploads, and updates the fingerprint only after a successful Backend response. Accessibility-service health notifications remain limited to boot and Child-app replacement recovery.
 
 ## Firebase Messaging
 
@@ -189,7 +190,7 @@ The child application currently supports foreground application blocking and loc
 
 The pairing flow still uses `link-device` rather than the newer secure claim/trust lifecycle. The app also uses the legacy rule shape rather than a versioned daily policy with timezone, stable usage-event IDs, policy acknowledgement, server decisions, and extra-time grants.
 
-The background workers are periodic and best-effort. They are not a replacement for a real-time channel, and Android may defer work based on battery, standby, connectivity, or system policy.
+The background workers are periodic and best-effort. Installed-app change broadcasts trigger a durable one-time sync, but Android may defer work based on battery, standby, connectivity, or system policy. The Child keeps the previous fingerprint until an upload succeeds, so deferred or offline changes remain retryable.
 
 ## Source Map
 
@@ -199,6 +200,7 @@ The background workers are periodic and best-effort. They are not a replacement 
 | Child API | `app/src/main/java/com/safenest/kids/network/KidsApiService.kt`, `ApiClient.kt`, `ApiModels.kt` |
 | Local state | `app/src/main/java/com/safenest/kids/util/PrefsHelper.kt` |
 | Usage collection | `app/src/main/java/com/safenest/kids/util/AppUsageHelper.kt` |
+| Installed-app synchronization | `service/InstalledAppsSyncWorker.kt`, `util/InstalledAppsHelper.kt`, `util/ServiceWatchdogReceiver.kt` |
 | Installed applications | `app/src/main/java/com/safenest/kids/util/InstalledAppsHelper.kt` |
 | Enforcement | `app/src/main/java/com/safenest/kids/service/AppBlockerAccessibilityService.kt`, `BlockedAppActivity.kt` |
 | Background work | `service/RuleSyncWorker.kt`, `service/AppUsageReportWorker.kt` |

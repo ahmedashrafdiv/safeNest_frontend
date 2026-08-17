@@ -10,10 +10,12 @@
 - Baseline commit before orchestration: `ea16bd6`
 - Phase 1: DONE; contract and inventory model requirements verified.
 - Phase 2: DONE; duplicate policy submissions are guarded by `policyUpdateInFlight`.
-- Phase 3: PARTIAL; Parent and Child debug builds passed, but dedicated Android parsing/payload/UI-state tests are not configured.
-- Phase 4: BLOCKED; spec review remains PARTIAL because live paired-device verification is unavailable and Android feature tests are not configured.
-- Verification evidence: Parent and Child debug builds completed successfully; the Parent invocation reported a stale machine-local SDK path warning from ignored `local.properties`.
-- Local phase commit: `d773356`.
+- Phase 3: DONE; Child fingerprint tests, Parent/Child builds, and Backend regression suite passed.
+- Phase 4: DONE; `InstalledAppsSyncWorker`, fingerprint persistence, retry handling, and package lifecycle triggers implemented.
+- Phase 5: PARTIAL; automated fingerprint tests passed; worker-level fake-API tests and live ADB verification remain open.
+- Phase 6: BLOCKED by environment-dependent live-device verification; no Android device was available through ADB.
+- Verification evidence: Child `testDebugUnitTest assembleDebug` succeeded; Backend `175 passed, 0 failed`; Parent `assembleDebug` succeeded in the validation run.
+- Local phase commit: pending after final review.
 - Live device verification: not completed because no Android device was available through ADB.
 - External publication: none; no push performed.
 

@@ -25,7 +25,25 @@
 - [x] Build the Child debug APK.
 - [ ] Run configured Android unit tests.
 
-## Phase 4: Quality gate
+## Phase 4: Automatic inventory synchronization
+
+- [x] Add a durable `InstalledAppsSyncWorker` that scans and uploads the current inventory.
+- [x] Persist the last successful inventory fingerprint and skip unchanged snapshots.
+- [x] Retry failed uploads without advancing the persisted fingerprint.
+- [x] Add package-added, package-removed, and package-replaced broadcast handling.
+- [x] Coalesce rapid package events through unique WorkManager work.
+- [x] Reuse the inventory worker for boot and Child-app replacement recovery.
+- [ ] Route manual refresh through the same synchronization path where practical.
+
+## Phase 5: Verification
+
+- [x] Add tests for inventory normalization and fingerprint changes.
+- [ ] Add worker tests for unpaired, unchanged, changed, success, and retry cases where supported.
+- [x] Verify Parent and Child debug builds.
+- [x] Run the configured Android test tasks.
+- [ ] Perform live ADB verification for install, remove, replace, offline retry, and reboot recovery.
+
+## Phase 6: Quality gate
 
 - [ ] Complete spec-review and review-fix.
 - [ ] Complete local code review for this feature.

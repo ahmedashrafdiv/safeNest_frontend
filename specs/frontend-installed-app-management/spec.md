@@ -10,6 +10,14 @@ The Frontend owns Retrofit model alignment, inventory loading and refresh, loadi
 
 ## Requirements
 
+### R0. Automatic package-change detection
+
+The Child SHALL detect launchable application installation, removal, and replacement events without requiring the Child UI to be opened. It SHALL trigger a durable inventory synchronization through WorkManager and continue using the existing `{ package_name, app_name }` Backend contract.
+
+### R0.1. Reliable synchronization state
+
+The Child SHALL persist an inventory fingerprint and update it only after a successful upload. Unchanged inventories SHALL not create unnecessary network requests, while failed uploads SHALL remain retryable.
+
 ### R1. Contract alignment
 
 The Parent client parses `GET /api/children/{child_id}/installed-apps` items as `{ package_name, app_name }`, retains `package_name` for policy actions, and displays `app_name` when available.
@@ -34,10 +42,14 @@ The Frontend treats the Backend rule as authoritative and does not claim that a 
 
 The screen remains understandable when the inventory is empty, loading, or unavailable. Actions provide visible success/failure feedback and avoid duplicate submissions while a request is in flight.
 
+### R7. Lifecycle recovery
+
+Boot completion and Child-app replacement SHALL reuse the same inventory synchronization path so the Parent can recover from missed package broadcasts or stale local state.
+
 ## Non-goals
 
 Backend route implementation, AccessibilityService internals, Android permission onboarding, browser URL filtering, YouTube monitoring, notification workers, IoT sensors/routes, and live paired-device verification.
 
 ## Acceptance criteria
 
-Installed apps appear as selectable Parent inventory items after Child reporting. Block/unblock and time-limit actions use package names rather than labels. Loading, empty, error, and retry states are explicit. Parent and Child debug builds succeed, and automated parsing/payload tests exist where supported by the Android test setup.
+Installed apps appear as selectable Parent inventory items after Child reporting. Block/unblock and time-limit actions use package names rather than labels. Loading, empty, error, and retry states are explicit. Parent and Child debug builds succeed, and automated parsing/payload tests exist where supported by the Android test setup. Package-added, package-removed, and package-replaced events trigger a coalesced inventory scan and upload, with fingerprint persistence and retry behavior verified.
