@@ -1,4 +1,4 @@
-package com.example.safenest.network
+﻿package com.example.safenest.network
 
 import retrofit2.Response
 import retrofit2.http.Body
@@ -127,6 +127,14 @@ interface SafeNestApiService {
         @Path("child_id") childId: String,
         @Body request: ChildDevicePairingRequest,
     ): Response<ChildDevicePairingResponse>
+
+    @PUT("api/children/{child_id}/devices/{device_id}/policy-overrides/{policy_family}")
+    suspend fun putDevicePolicyOverride(
+        @Path("child_id") childId: String,
+        @Path("device_id") deviceId: String,
+        @Path("policy_family") policyFamily: String,
+        @Body request: DevicePolicyOverrideRequest,
+    ): Response<DevicePolicyOverrideResponse>
 
     @POST("api/children/{child_id}/devices/{device_id}/revoke")
     suspend fun revokeChildDevice(
@@ -260,3 +268,4 @@ interface SafeNestApiService {
     @DELETE("api/alerts/{alert_id}")
     suspend fun deleteAlert(@Path("alert_id") alertId: String): Response<Map<String, Any>>
 }
+

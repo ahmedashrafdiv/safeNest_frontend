@@ -25,4 +25,12 @@ class ChildDeviceRepository : BaseRepository() {
     ): Result<ChildDeviceAuditResult> = safeApiCall {
         api.revokeChildDevice(childId, deviceId, ChildDeviceRevokeRequest(reasonCode))
     }
+    suspend fun putDevicePolicyOverride(
+        childId: String,
+        deviceId: String,
+        policyFamily: String,
+        request: com.example.safenest.network.DevicePolicyOverrideRequest,
+    ): Result<com.example.safenest.network.DevicePolicyOverrideResponse> =
+        safeApiCall { api.putDevicePolicyOverride(childId, deviceId, policyFamily, request) }
 }
+

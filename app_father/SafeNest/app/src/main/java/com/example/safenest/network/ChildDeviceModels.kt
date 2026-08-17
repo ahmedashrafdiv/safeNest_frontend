@@ -1,6 +1,7 @@
-﻿package com.example.safenest.network
+package com.example.safenest.network
 
 import com.google.gson.annotations.SerializedName
+import java.util.UUID
 
 /** Device data is always explicitly scoped to one child. */
 data class ChildDeviceSummary(
@@ -40,4 +41,19 @@ data class ChildDeviceAuditResult(
     @SerializedName("result") val result: String,
     @SerializedName("reason_code") val reasonCode: String? = null,
     @SerializedName("occurred_at") val occurredAt: String? = null,
+)
+
+data class DevicePolicyOverrideRequest(
+    @SerializedName("patch") val patch: Map<String, Any?> = emptyMap(),
+    @SerializedName("expected_version") val expectedVersion: Int = 0,
+    @SerializedName("idempotency_key") val idempotencyKey: String = UUID.randomUUID().toString(),
+    @SerializedName("clear") val clear: Boolean = false,
+)
+
+data class DevicePolicyOverrideResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("policy_family") val policyFamily: String,
+    @SerializedName("policy_version") val policyVersion: Int,
+    @SerializedName("patch") val patch: Map<String, Any?> = emptyMap(),
 )
