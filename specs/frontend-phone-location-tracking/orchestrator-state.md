@@ -37,6 +37,7 @@
 
 - Child: `testDebugUnitTest assembleDebug --no-daemon --console=plain` passed.
 - Parent: `assembleDebug --no-daemon --console=plain` passed.
+- Frontend implementation commit: `9caefd60bf330f3bb0d5649305c2b7183509d964` (local only; working tree was clean after commit).
 - Child pure decision tests cover invalid/future coordinates, duplicate suppression, movement threshold, permission-denied, offline, and stale states.
 - T018 is deferred because the module has no Retrofit/WorkManager test harness; runtime behavior is covered by the paired-device gate.
 - T026/T031 remain pending until real Child/Parent devices and deployed Backend authentication are exercised.
