@@ -1,4 +1,4 @@
-﻿package com.example.safenest.fragments
+package com.example.safenest.fragments
 
 import android.app.AlertDialog
 import android.graphics.Color
@@ -15,6 +15,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.safenest.R
 import com.example.safenest.network.ChildDeviceSummary
+import com.example.safenest.policy.ParentPolicyScope
+import com.example.safenest.policy.ParentPolicyScopeStore
+import com.example.safenest.policy.SelectedPolicyDevice
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.ChildDevicesViewModel
 import com.google.android.material.button.MaterialButton
@@ -30,6 +33,7 @@ class MyDevicesFragment : Fragment() {
     private var progressBar: ProgressBar? = null
     private var emptyText: TextView? = null
     private var devicesContainer: LinearLayout? = null
+    private var scopeContextText: TextView? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.fragment_my_devices, container, false)
@@ -39,6 +43,7 @@ class MyDevicesFragment : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
         emptyText = view.findViewById(R.id.emptyText)
         devicesContainer = view.findViewById(R.id.devicesContainer)
+        scopeContextText = view.findViewById(R.id.scopeContextText)
         view.findViewById<View>(R.id.backButton).setOnClickListener { parentFragmentManager.popBackStack() }
         addPairingAction(view)
         observeState()
@@ -123,6 +128,7 @@ class MyDevicesFragment : Fragment() {
         setCardBackgroundColor(Color.WHITE)
         strokeWidth = 1
         strokeColor = Color.parseColor("#D6E0EB")
+        setOnClickListener { selectDeviceForPolicyScope(device) }
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 16 }
         addView(LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
@@ -160,5 +166,29 @@ class MyDevicesFragment : Fragment() {
         emptyText?.text = message
         emptyText?.visibility = View.VISIBLE
     }
-}
+
+    private fun selectDeviceForPolicyScope(device: ChildDeviceSummary) {
+        ParentPolicyScopeStore.selectDevice(
+            childId = viewModel.selectedChildId(),
+            device = SelectedPolicyDevice(
+                deviceId = device.deviceId,
+                label = device.model,
+                status = device.status,
+            ),
+        )
+        requireView().findViewById<com.google.android.material.button.MaterialButton>(R.id.scopeSelectedDevice).isChecked = true
+        renderScopeContext()
+        Toast.makeText(requireContext(), "Selected ${device.model} for device-specific policies", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun renderScopeContext() {
+        val state = ParentPolicyScopeStore.state.value
+        scopeContextText?.text = when (state.scope) {
+            ParentPolicyScope.CHILD_DEFAULT -> "Child default Â· applies to every active device unless overridden"
+            ParentPolicyScope.SELECTED_DEVICE -> state.selectedDevice?.let { device ->
+                if (device.isEligible) "Device override Â· ${device.label}"
+                else "Device override unavailable Â· ${device.label} is not active"
+            } ?: "Device override Â· select an active device"
+        }
+    }}
 
