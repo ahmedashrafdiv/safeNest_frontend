@@ -1,4 +1,9 @@
 package com.example.safenest.fragments
+import com.example.safenest.policy.ParentAppBlockingScopeCoordinator
+import com.example.safenest.policy.ParentPolicyScope
+import com.example.safenest.policy.ParentPolicyScopeStore
+import com.example.safenest.policy.ScopedPolicyMutation
+import com.example.safenest.repository.ChildDeviceRepository
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -478,13 +483,45 @@ class InstalledAppsFragment : Fragment() {
             return
         }
         policyUpdateInFlight = true
-        viewModel.updateDigitalRule(
-            id,
-            blockedApp = blockedApps,
-            allowedApp = allowedPackages,
-            appTimeLimits = allowedApps.associate { it.name to it.timeLimitMinutes },
-            appControlMode = appControlMode
-        )
+        if (ParentPolicyScopeStore.state.value.scope == ParentPolicyScope.SELECTED_DEVICE) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val scope = ParentPolicyScopeStore.state.value
+                val child = scope.childId
+                val device = scope.selectedDevice
+                if (child.isNullOrBlank() || device == null || !scope.canWriteDeviceOverride) {
+                    Toast.makeText(context, scope.blockedReason ?: "Select an active device before saving App Blocking.", Toast.LENGTH_LONG).show()
+                } else {
+                    when (val effective = ChildDeviceRepository().getEffectiveAppBlockingPolicy(child, device.deviceId)) {
+                        is Result.Success -> {
+                            val patch = mapOf<String, Any?>(
+                                "blocked_app" to blockedApps.toList(),
+                                "allowed_app" to allowedPackages.toList(),
+                                "app_time_limits" to allowedApps.associate { it.name to it.timeLimitMinutes },
+                                "app_control_mode" to appControlMode,
+                            )
+                            when (val mutation = ParentAppBlockingScopeCoordinator(ChildDeviceRepository()).saveSelectedDeviceOverride(patch, effective.data.version)) {
+                                is ScopedPolicyMutation.Applied -> Toast.makeText(context, "App Blocking override saved for the selected device", Toast.LENGTH_SHORT).show()
+                                is ScopedPolicyMutation.Blocked -> Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                                is ScopedPolicyMutation.Failed -> Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        is Result.Error -> Toast.makeText(context, effective.message ?: "Unable to load the current device policy. No changes were saved.", Toast.LENGTH_LONG).show()
+                        Result.Loading -> Unit
+                    }
+                }
+                policyUpdateInFlight = false
+                addBlockedAppBtn?.isEnabled = true
+                addAllowedAppBtn?.isEnabled = true
+            }
+        } else {
+            viewModel.updateDigitalRule(
+                id,
+                blockedApp = blockedApps,
+                allowedApp = allowedPackages,
+                appTimeLimits = allowedApps.associate { it.name to it.timeLimitMinutes },
+                appControlMode = appControlMode
+            )
+        }
     }
 
     // ─── Local SharedPreferences cache (UI-layer only, not business logic) ────
