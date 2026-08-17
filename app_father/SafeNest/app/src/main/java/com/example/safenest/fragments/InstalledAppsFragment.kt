@@ -511,6 +511,18 @@ class InstalledAppsFragment : Fragment() {
                                 is ScopedPolicyMutation.Applied -> Toast.makeText(context, "App Blocking override saved for the selected device", Toast.LENGTH_SHORT).show()
                                 is ScopedPolicyMutation.Blocked -> Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
                                 is ScopedPolicyMutation.Failed -> Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                                is ScopedPolicyMutation.Conflict -> {
+                                    policyUpdateInFlight = false
+                                    addBlockedAppBtn?.isEnabled = true
+                                    addAllowedAppBtn?.isEnabled = true
+                                    val source = if (mutation.latest.inherited) "Inherited from child default" else "Overridden for this device"
+                                    AlertDialog.Builder(requireContext())
+                                        .setTitle("Policy version conflict")
+                                        .setMessage("This device policy changed elsewhere. Latest source: $source. Latest version: ${mutation.latest.version}. Review the latest policy or explicitly apply your changes against that version.")
+                                        .setNegativeButton("Review latest", null)
+                                        .setPositiveButton("Apply anyway") { _, _ -> saveChangesToServer(confirmEmptyAllowlist = false) }
+                                        .show()
+                                }
                             }
                         }
                         is Result.Error -> Toast.makeText(context, effective.message ?: "Unable to load the current device policy. No changes were saved.", Toast.LENGTH_LONG).show()

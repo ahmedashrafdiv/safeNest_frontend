@@ -2,6 +2,7 @@ package com.example.safenest.policy
 
 import com.example.safenest.network.DevicePolicyOverrideRequest
 import com.example.safenest.network.DevicePolicyOverrideResponse
+import com.example.safenest.network.EffectiveAppBlockingPolicyResponse
 import com.example.safenest.repository.ChildDeviceRepository
 import com.example.safenest.util.Result
 import java.util.UUID
@@ -10,6 +11,7 @@ sealed interface ScopedPolicyMutation {
     data class Applied(val response: DevicePolicyOverrideResponse) : ScopedPolicyMutation
     data class Blocked(val message: String) : ScopedPolicyMutation
     data class Failed(val message: String) : ScopedPolicyMutation
+    data class Conflict(val latest: EffectiveAppBlockingPolicyResponse) : ScopedPolicyMutation
 }
 
 /**
@@ -33,21 +35,37 @@ class ParentAppBlockingScopeCoordinator(
                 state.blockedReason ?: "Select an active device before saving a device override.",
             )
         }
-        return when (
-            val result = deviceRepository.putDevicePolicyOverride(
-                childId = childId,
-                deviceId = device.deviceId,
-                policyFamily = "app_blocking",
-                request = DevicePolicyOverrideRequest(
-                    patch = patch,
-                    expectedVersion = expectedVersion,
-                    idempotencyKey = idempotencyKey,
-                ),
+        val request = DevicePolicyOverrideRequest(
+            patch = patch,
+            expectedVersion = expectedVersion,
+            idempotencyKey = idempotencyKey,
+        )
+        return try {
+            val response = deviceRepository.putDevicePolicyOverrideRaw(
+                childId,
+                device.deviceId,
+                "app_blocking",
+                request,
             )
-        ) {
-            is Result.Success -> ScopedPolicyMutation.Applied(result.data)
-            is Result.Error -> ScopedPolicyMutation.Failed(result.message)
-            Result.Loading -> ScopedPolicyMutation.Failed("Policy save did not finish.")
+            when {
+                response.isSuccessful && response.body() != null -> {
+                    ScopedPolicyMutation.Applied(response.body()!!)
+                }
+                response.code() == 409 -> {
+                    when (val refreshed = deviceRepository.getEffectiveAppBlockingPolicy(childId, device.deviceId)) {
+                        is Result.Success -> ScopedPolicyMutation.Conflict(refreshed.data)
+                        is Result.Error -> ScopedPolicyMutation.Failed(
+                            "Policy changed, but the latest version could not be loaded: ${refreshed.message}",
+                        )
+                        Result.Loading -> ScopedPolicyMutation.Failed(
+                            "Policy changed. Review the current policy before trying again.",
+                        )
+                    }
+                }
+                else -> ScopedPolicyMutation.Failed("Policy save failed (${response.code()}).")
+            }
+        } catch (error: Exception) {
+            ScopedPolicyMutation.Failed(error.message ?: "Network error while saving policy.")
         }
     }
 }

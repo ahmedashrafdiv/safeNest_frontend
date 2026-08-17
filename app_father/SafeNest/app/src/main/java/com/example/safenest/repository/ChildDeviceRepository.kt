@@ -34,6 +34,13 @@ class ChildDeviceRepository : BaseRepository() {
     ): Result<com.example.safenest.network.DevicePolicyOverrideResponse> =
         safeApiCall { api.putDevicePolicyOverride(childId, deviceId, policyFamily, request) }
 
+    suspend fun putDevicePolicyOverrideRaw(
+        childId: String,
+        deviceId: String,
+        policyFamily: String,
+        request: com.example.safenest.network.DevicePolicyOverrideRequest,
+    ): retrofit2.Response<com.example.safenest.network.DevicePolicyOverrideResponse> =
+        api.putDevicePolicyOverride(childId, deviceId, policyFamily, request)
     suspend fun getEffectiveAppBlockingPolicy(
         childId: String,
         deviceId: String,
