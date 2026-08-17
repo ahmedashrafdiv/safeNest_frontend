@@ -81,9 +81,16 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         }
 
         // ── Per-app time-limit enforcement ─────────────────────────
+        if (AppPolicyDecider.isProtectedPackage(pkg, packageName)) return
+
         if (isAppOverTimeLimit(pkg, this)) {
             Log.d(TAG, "Time limit exceeded for: $pkg")
             blockPackage(pkg, "time_limit")
+            return
+        }
+        if (isDailyScreenTimeLimitReached(this)) {
+            Log.d(TAG, "Daily Screen Time limit exceeded")
+            blockPackage(pkg, "daily_screen_time_limit")
             return
         }
     }
@@ -132,4 +139,10 @@ class AppBlockerAccessibilityService : AccessibilityService() {
 
         return usedMinutes >= limitMinutes
     }
-}
+
+    fun isDailyScreenTimeLimitReached(context: Context): Boolean {
+        val limitSeconds = PrefsHelper(context).getDailyScreenTimeLimitSeconds()
+        if (limitSeconds <= 0) return false
+        val usedSeconds = AppUsageHelper.getTodayUsageStats(context).values.sum() * 60L
+        return usedSeconds >= limitSeconds
+    }}

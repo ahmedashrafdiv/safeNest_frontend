@@ -139,3 +139,16 @@ data class EffectiveAppBlockingPolicyResponse(
     @SerializedName("scope") val scope: String,
     @SerializedName("values") val values: EffectiveAppBlockingValues,
 )
+
+data class ScreenTimePolicyPayload(
+    @SerializedName("policy_id") val policyId: String,
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String? = null,
+    @SerializedName("version") val version: Int,
+    @SerializedName("daily_limit_seconds") val dailyLimitSeconds: Int,
+)
+
+data class ScreenTimePolicySyncPayload(
+    @SerializedName("policy") val policy: ScreenTimePolicyPayload,
+    @SerializedName("policy_hash") val policyHash: String,
+)

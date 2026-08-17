@@ -60,4 +60,8 @@ interface KidsApiService {
     suspend fun updateDeviceFcmToken(@Body request: UpdateFcmTokenRequest): Response<Unit>
 
     @GET("api/children/device-effective/app-blocking")
-    suspend fun getEffectiveAppBlockingPolicy(): Response<EffectiveAppBlockingPolicyResponse>}
+    suspend fun getEffectiveAppBlockingPolicy(): Response<EffectiveAppBlockingPolicyResponse>
+    @GET("api/child-devices/{device_id}/screen-time-policy")
+    suspend fun getScreenTimePolicy(
+        @Path("device_id") deviceId: String,
+    ): Response<ScreenTimePolicySyncPayload>}

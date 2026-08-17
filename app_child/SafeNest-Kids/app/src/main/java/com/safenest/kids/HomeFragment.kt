@@ -21,6 +21,7 @@ import com.safenest.kids.network.InstalledAppsRequest
 import com.safenest.kids.service.AppUsageReportWorker
 import com.safenest.kids.service.PhoneLocationService
 import com.safenest.kids.service.RuleSyncWorker
+import com.safenest.kids.service.ScreenTimePolicySyncWorker
 import com.safenest.kids.service.WebsiteDnsVpnService
 import com.safenest.kids.util.InstalledAppsHelper
 import com.safenest.kids.util.PermissionsHelper
@@ -77,6 +78,7 @@ class HomeFragment : Fragment() {
         // Register periodic rule sync (idempotent — KEEP policy means this
         // is safe to call every time the fragment loads)
         registerRuleSyncWorker()
+        registerScreenTimePolicySyncWorker()
         registerAppUsageReportWorker()
 
         // Auto-send installed apps if this is a fresh pairing or if apps
@@ -229,4 +231,14 @@ class HomeFragment : Fragment() {
             }
         }
     }
-}
+
+    private fun registerScreenTimePolicySyncWorker() {
+        val syncRequest = PeriodicWorkRequestBuilder<ScreenTimePolicySyncWorker>(
+            15, TimeUnit.MINUTES
+        ).build()
+        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+            ScreenTimePolicySyncWorker.UNIQUE_WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            syncRequest
+        )
+    }}

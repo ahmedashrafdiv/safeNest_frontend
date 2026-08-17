@@ -242,4 +242,14 @@ class PrefsHelper(context: Context) {
             .apply()
     }
 
-    fun getAppPolicyVersion(): Int = prefs.getInt("app_policy_version", 0)}
+    fun getAppPolicyVersion(): Int = prefs.getInt("app_policy_version", 0)
+    fun setDailyScreenTimePolicy(dailyLimitSeconds: Int, policyVersion: Int) {
+        prefs.edit()
+            .putInt("daily_screen_time_limit_seconds", dailyLimitSeconds)
+            .putInt("daily_screen_time_policy_version", policyVersion)
+            .apply()
+    }
+
+    fun getDailyScreenTimeLimitSeconds(): Int = prefs.getInt("daily_screen_time_limit_seconds", 0)
+
+    fun getDailyScreenTimePolicyVersion(): Int = prefs.getInt("daily_screen_time_policy_version", 0)}
