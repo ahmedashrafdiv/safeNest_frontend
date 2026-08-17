@@ -1,4 +1,4 @@
-﻿package com.example.safenest.fragments
+package com.example.safenest.fragments
 
 import android.app.AlertDialog
 import android.graphics.Color
@@ -99,6 +99,8 @@ class MyDevicesFragment : Fragment() {
         devicesContainer?.removeAllViews()
         if (devices.isEmpty()) { showEmpty("No devices are paired to this child yet"); return }
         emptyText?.visibility = View.GONE
+        val activeCount = devices.count { it.status.equals("active", ignoreCase = true) }
+        devicesContainer?.addView(label("$activeCount of ${devices.size} devices active", 14f, "#15385F"))
         devices.forEach { devicesContainer?.addView(deviceCard(it)) }
     }
 
