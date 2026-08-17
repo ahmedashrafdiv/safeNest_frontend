@@ -1,6 +1,5 @@
 {
-  "feature": "frontend-app-blocking-reliability",
-  "directory": "specs/frontend-app-blocking-reliability",
-  "description": "Android FCM reception, WorkManager policy synchronization, token refresh, boot recovery, and AccessibilityService app enforcement.",
-  "status": "ready-for-review"
+  "feature": "frontend-phone-location-tracking",
+  "feature_directory": "specs/frontend-phone-location-tracking",
+  "description": "Child phone location collection and Parent location display with explicit permission and stale-state UX."
 }
