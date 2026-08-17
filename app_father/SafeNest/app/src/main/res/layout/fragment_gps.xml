@@ -211,7 +211,25 @@
                     android:textColor="@color/gray_light"
                     android:textSize="12sp" />
 
+                                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_phone_tracking"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="تتبع موقع هاتف الطفل"
+                    android:textColor="@color/purple_dark"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/phone_tracking_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="يتحكم هذا الخيار في موقع الهاتف فقط؛ GPS الخارجي مسار مستقل."
+                    android:textColor="@color/gray_light"
+                    android:textSize="12sp" />
+
                 <!-- Location Title with Gray Container Background -->
+
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

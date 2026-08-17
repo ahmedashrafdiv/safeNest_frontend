@@ -2,6 +2,8 @@ package com.safenest.kids.util
 
 import android.app.AppOpsManager
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import android.net.VpnService
 import android.os.PowerManager
 import android.os.Process
@@ -46,6 +48,18 @@ object PermissionsHelper {
     }
 
     fun hasVpnPermission(context: Context): Boolean = VpnService.prepare(context) == null
+
+    fun hasLocationPermission(context: Context): Boolean {
+        val fine = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return fine || coarse
+    }
 
     fun hasBatteryOptimizationExemption(context: Context): Boolean {
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager

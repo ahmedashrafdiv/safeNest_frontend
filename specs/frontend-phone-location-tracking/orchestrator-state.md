@@ -19,19 +19,27 @@
 | Clarify | DONE | Clarifications session recorded in `spec.md`; no critical ambiguity remains |
 | Plan | DONE | `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, and `contracts.md` created |
 | Tasks | DONE | `tasks.md` contains dependency-ordered T001–T031 checklist |
-| Implement | READY | Start with foundational models and pure location decision tests |
-| Review/Fix | PENDING | Run after each implementation phase |
+| Implement | SOFTWARE COMPLETE | Child consent/service/upload/recovery and Parent typed map/control integration are implemented; T001–T017, T019–T025, T027–T030 complete |
+| Review/Fix | READY | Review software implementation now; physical device gate remains pending |
 
 ## Implementation phases
 
 | Phase | Scope | Status |
 |---|---|---|
-| Phase 1 | Setup and foundational models/state/tests | READY |
-| Phase 2 | Child permission and visible foreground service | PENDING |
-| Phase 3 | Child upload, retry, and lifecycle recovery | PENDING |
-| Phase 4 | Parent typed location envelope and map states | PENDING |
-| Phase 5 | Parent tracking control and source isolation | PENDING |
-| Phase 6 | Builds, review gates, and live device verification | PENDING |
+| Phase 1 | Setup and foundational models/state/tests | DONE |
+| Phase 2 | Child permission and visible foreground service | DONE |
+| Phase 3 | Child upload, retry, and lifecycle recovery | DONE; HARNESS DEFERRED |
+| Phase 4 | Parent typed location envelope and map states | DONE |
+| Phase 5 | Parent tracking control and source isolation | DONE |
+| Phase 6 | Builds, review gates, and live device verification | SOFTWARE DONE; LIVE PENDING |
+
+## Validation evidence
+
+- Child: `testDebugUnitTest assembleDebug --no-daemon --console=plain` passed.
+- Parent: `assembleDebug --no-daemon --console=plain` passed.
+- Child pure decision tests cover invalid/future coordinates, duplicate suppression, movement threshold, permission-denied, offline, and stale states.
+- T018 is deferred because the module has no Retrofit/WorkManager test harness; runtime behavior is covered by the paired-device gate.
+- T026/T031 remain pending until real Child/Parent devices and deployed Backend authentication are exercised.
 
 ## Commit policy
 

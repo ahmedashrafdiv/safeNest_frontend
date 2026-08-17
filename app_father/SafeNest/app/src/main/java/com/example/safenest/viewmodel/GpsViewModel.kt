@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.safenest.network.ChildResponse
+import com.example.safenest.network.ParentLocationEnvelope
+import com.example.safenest.network.PhoneTrackingPolicyResponse
 import com.example.safenest.repository.LocationRepository
 import com.example.safenest.repository.ChildRepository
 import com.example.safenest.util.Result
@@ -20,8 +22,11 @@ class GpsViewModel(application: Application) : AndroidViewModel(application) {
     private val childRepository = ChildRepository()
     private val sessionManager = SessionManager(application)
 
-    private val _locationState = MutableStateFlow<Result<Map<String, Any>>?>(null)
-    val locationState: StateFlow<Result<Map<String, Any>>?> = _locationState.asStateFlow()
+    private val _locationState = MutableStateFlow<Result<ParentLocationEnvelope>?>(null)
+    val locationState: StateFlow<Result<ParentLocationEnvelope>?> = _locationState.asStateFlow()
+
+    private val _phoneTrackingPolicyState = MutableStateFlow<Result<PhoneTrackingPolicyResponse>?>(null)
+    val phoneTrackingPolicyState: StateFlow<Result<PhoneTrackingPolicyResponse>?> = _phoneTrackingPolicyState.asStateFlow()
 
     private val _childState = MutableStateFlow<Result<ChildResponse>?>(null)
     val childState: StateFlow<Result<ChildResponse>?> = _childState.asStateFlow()
@@ -35,6 +40,17 @@ class GpsViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearLocationState() {
         _locationState.value = null
+    }
+
+    fun setPhoneTracking(childId: String, enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _phoneTrackingPolicyState.value = Result.Loading
+            _phoneTrackingPolicyState.value = locationRepository.setPhoneTracking(childId, enabled)
+        }
+    }
+
+    fun clearPhoneTrackingPolicyState() {
+        _phoneTrackingPolicyState.value = null
     }
 
     fun getChild(childId: String) {

@@ -1,7 +1,14 @@
 package com.example.safenest.network
 
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface SafeNestApiService {
 
@@ -135,10 +142,19 @@ interface SafeNestApiService {
     @DELETE("gps/{child_id}")
     suspend fun deleteGps(@Path("child_id") childId: String): Response<Unit>
 
+    @PATCH("api/child-devices/{child_id}/phone-location")
+    suspend fun setPhoneTracking(
+        @Path("child_id") childId: String,
+        @Query("enabled") enabled: Boolean
+    ): Response<PhoneTrackingPolicyResponse>
+
+    @DELETE("api/child-devices/{child_id}/phone-location")
+    suspend fun deletePhoneTracking(@Path("child_id") childId: String): Response<Unit>
+
     // ============ Location ============
 
     @GET("location/live/{child_id}")
-    suspend fun getChildLocation(@Path("child_id") childId: String): Response<Map<String, Any>>
+    suspend fun getChildLocation(@Path("child_id") childId: String): Response<ParentLocationEnvelope>
 
     // ============ Zones ============
 

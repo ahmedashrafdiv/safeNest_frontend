@@ -19,6 +19,7 @@ import com.safenest.kids.network.ApiClient
 import com.safenest.kids.network.InstalledApp
 import com.safenest.kids.network.InstalledAppsRequest
 import com.safenest.kids.service.AppUsageReportWorker
+import com.safenest.kids.service.PhoneLocationService
 import com.safenest.kids.service.RuleSyncWorker
 import com.safenest.kids.service.WebsiteDnsVpnService
 import com.safenest.kids.util.InstalledAppsHelper
@@ -33,6 +34,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var tvProtectionStatus: TextView
     private lateinit var tvWebsiteStatus: TextView
+    private lateinit var tvPhoneLocationStatus: TextView
     private lateinit var btnFixPermissions: Button
     private lateinit var btnRefreshApps: Button
     private lateinit var btnTestUsage: Button      // DEBUG: remove before release
@@ -49,6 +51,7 @@ class HomeFragment : Fragment() {
 
         tvProtectionStatus = view.findViewById(R.id.tv_protection_status)
         tvWebsiteStatus = view.findViewById(R.id.tv_website_status)
+        tvPhoneLocationStatus = view.findViewById(R.id.tv_phone_location_status)
         btnFixPermissions = view.findViewById(R.id.btn_fix_permissions)
         btnRefreshApps = view.findViewById(R.id.btn_refresh_apps)
         progressSync = view.findViewById(R.id.progress_sync)
@@ -104,6 +107,8 @@ class HomeFragment : Fragment() {
                 WebsiteDnsVpnService.startIfPermissionGranted(context)
             }
         }
+        updatePhoneLocationStatus(context)
+
         when (prefsHelper.getWebsiteVpnHealth()) {
             PrefsHelper.WEBSITE_VPN_ACTIVE -> {
                 tvWebsiteStatus.text = "حماية المواقع مفعّلة (DNS) ✓"
@@ -127,7 +132,42 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        btnFixPermissions.visibility = if (!allGranted || prefsHelper.getWebsiteVpnHealth() != PrefsHelper.WEBSITE_VPN_ACTIVE) View.VISIBLE else View.GONE
+        val phoneNeedsAttention = prefsHelper.getPhoneTrackingStatus() != PrefsHelper.PHONE_LOCATION_STATUS_ACTIVE
+        btnFixPermissions.visibility = if (!allGranted || phoneNeedsAttention || prefsHelper.getWebsiteVpnHealth() != PrefsHelper.WEBSITE_VPN_ACTIVE) View.VISIBLE else View.GONE
+    }
+
+    private fun updatePhoneLocationStatus(context: android.content.Context) {
+        if (prefsHelper.isPaired() && PermissionsHelper.hasLocationPermission(context) &&
+            prefsHelper.getPhoneTrackingServiceState() != PrefsHelper.PHONE_LOCATION_SERVICE_ACTIVE
+        ) {
+            PhoneLocationService.startIfPermissionGranted(context)
+        }
+        when (prefsHelper.getPhoneTrackingStatus()) {
+            PrefsHelper.PHONE_LOCATION_STATUS_ACTIVE -> {
+                tvPhoneLocationStatus.text = "تتبع موقع الهاتف مفعّل ✓"
+                tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.green_success, null))
+            }
+            PrefsHelper.PHONE_LOCATION_STATUS_PERMISSION_DENIED -> {
+                tvPhoneLocationStatus.text = "تتبع الموقع غير متاح: إذن الموقع مطلوب ✗"
+                tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.red_warning, null))
+            }
+            PrefsHelper.PHONE_LOCATION_STATUS_OFFLINE -> {
+                tvPhoneLocationStatus.text = "تتبع الموقع ينتظر الاتصال؛ آخر تحديث قديم ✗"
+                tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.orange_accent, null))
+            }
+            PrefsHelper.PHONE_LOCATION_STATUS_STALE -> {
+                tvPhoneLocationStatus.text = "تتبع الموقع: آخر نقطة قديمة ✗"
+                tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.orange_accent, null))
+            }
+            PrefsHelper.PHONE_LOCATION_STATUS_DISABLED -> {
+                tvPhoneLocationStatus.text = "تتبع موقع الهاتف متوقف حسب سياسة الوالد"
+                tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.gray_medium, null))
+            }
+            else -> {
+                tvPhoneLocationStatus.text = "تتبع موقع الهاتف غير متاح حالياً ✗"
+                tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.red_warning, null))
+            }
+        }
     }
 
     private fun registerRuleSyncWorker() {

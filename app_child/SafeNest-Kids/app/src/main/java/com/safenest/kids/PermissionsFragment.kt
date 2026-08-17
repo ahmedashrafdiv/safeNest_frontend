@@ -1,9 +1,11 @@
 package com.safenest.kids
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.net.VpnService
 import android.os.Bundle
+import android.content.pm.PackageManager
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.safenest.kids.network.ApiClient
 import com.safenest.kids.network.InstalledApp
 import com.safenest.kids.network.InstalledAppsRequest
+import com.safenest.kids.service.PhoneLocationService
 import com.safenest.kids.service.WebsiteDnsVpnService
 import com.safenest.kids.util.InstalledAppsHelper
 import com.safenest.kids.util.PermissionsHelper
@@ -31,10 +34,12 @@ class PermissionsFragment : Fragment() {
     private lateinit var tvAccessibilityStatus: TextView
     private lateinit var tvBatteryStatus: TextView
     private lateinit var tvWebsiteVpnStatus: TextView
+    private lateinit var tvPhoneLocationStatus: TextView
     private lateinit var btnEnableUsage: Button
     private lateinit var btnEnableAccessibility: Button
     private lateinit var btnEnableBattery: Button
     private lateinit var btnEnableWebsiteVpn: Button
+    private lateinit var btnEnablePhoneLocation: Button
     private lateinit var btnContinue: Button
     private lateinit var progressSync: ProgressBar
     private lateinit var prefsHelper: PrefsHelper
@@ -51,10 +56,12 @@ class PermissionsFragment : Fragment() {
         tvAccessibilityStatus = view.findViewById(R.id.tv_accessibility_status)
         tvBatteryStatus = view.findViewById(R.id.tv_battery_status)
         tvWebsiteVpnStatus = view.findViewById(R.id.tv_website_vpn_status)
+        tvPhoneLocationStatus = view.findViewById(R.id.tv_phone_location_status)
         btnEnableUsage = view.findViewById(R.id.btn_enable_usage)
         btnEnableAccessibility = view.findViewById(R.id.btn_enable_accessibility)
         btnEnableBattery = view.findViewById(R.id.btn_enable_battery)
         btnEnableWebsiteVpn = view.findViewById(R.id.btn_enable_website_vpn)
+        btnEnablePhoneLocation = view.findViewById(R.id.btn_enable_phone_location)
         btnContinue = view.findViewById(R.id.btn_continue)
         progressSync = view.findViewById(R.id.progress_sync)
 
@@ -75,6 +82,10 @@ class PermissionsFragment : Fragment() {
             } else {
                 startWebsiteVpnIfReady()
             }
+        }
+
+        btnEnablePhoneLocation.setOnClickListener {
+            requestPhoneLocationPermission()
         }
 
         btnEnableBattery.setOnClickListener {
@@ -99,6 +110,7 @@ class PermissionsFragment : Fragment() {
         val hasAccessibility = PermissionsHelper.hasAccessibilityService(requireContext())
         val hasBattery = PermissionsHelper.hasBatteryOptimizationExemption(requireContext())
         val hasVpn = PermissionsHelper.hasVpnPermission(requireContext())
+        val hasPhoneLocation = PermissionsHelper.hasLocationPermission(requireContext())
 
         if (hasUsage) {
             tvUsageStatus.text = "✓"
@@ -129,6 +141,17 @@ class PermissionsFragment : Fragment() {
             tvWebsiteVpnStatus.text = "✗"
             tvWebsiteVpnStatus.setTextColor(resources.getColor(R.color.red_warning, null))
             btnEnableWebsiteVpn.isEnabled = true
+        }
+
+        if (hasPhoneLocation) {
+            tvPhoneLocationStatus.text = "✓"
+            tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.green_success, null))
+            btnEnablePhoneLocation.isEnabled = false
+            startPhoneLocationIfReady()
+        } else {
+            tvPhoneLocationStatus.text = "✗"
+            tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.red_warning, null))
+            btnEnablePhoneLocation.isEnabled = true
         }
 
         if (hasBattery) {
@@ -180,6 +203,37 @@ class PermissionsFragment : Fragment() {
         }
     }
 
+    private fun requestPhoneLocationPermission() {
+        requestPermissions(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            LOCATION_PERMISSION_REQUEST
+        )
+    }
+
+    private fun startPhoneLocationIfReady() {
+        if (!prefsHelper.isPaired()) return
+        if (!PhoneLocationService.startIfPermissionGranted(requireContext())) {
+            prefsHelper.setPhoneTrackingStatus(PrefsHelper.PHONE_LOCATION_STATUS_UNAVAILABLE)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            if (grantResults.any { it == PackageManager.PERMISSION_GRANTED }) {
+                prefsHelper.setPhoneTrackingPermissionState(PrefsHelper.PHONE_LOCATION_PERMISSION_GRANTED)
+                startPhoneLocationIfReady()
+            } else {
+                prefsHelper.setPhoneTrackingPermissionState(PrefsHelper.PHONE_LOCATION_PERMISSION_DENIED)
+                prefsHelper.setPhoneTrackingStatus(PrefsHelper.PHONE_LOCATION_STATUS_PERMISSION_DENIED)
+            }
+            checkPermissions()
+        }
+    }
+
     private fun startWebsiteVpnIfReady() {
         if (prefsHelper.getWebsitePolicySnapshotJson() == null) {
             prefsHelper.setWebsiteVpnHealth(PrefsHelper.WEBSITE_VPN_UNAVAILABLE)
@@ -198,5 +252,6 @@ class PermissionsFragment : Fragment() {
 
     companion object {
         private const val VPN_PERMISSION_REQUEST = 4202
+        private const val LOCATION_PERMISSION_REQUEST = 7302
     }
 }

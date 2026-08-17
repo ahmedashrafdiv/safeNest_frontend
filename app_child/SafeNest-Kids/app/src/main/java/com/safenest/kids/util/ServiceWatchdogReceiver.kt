@@ -16,6 +16,7 @@ import androidx.work.ExistingWorkPolicy
 import com.safenest.kids.R
 import com.safenest.kids.service.RuleSyncWorker
 import com.safenest.kids.service.InstalledAppsSyncWorker
+import com.safenest.kids.service.PhoneLocationService
 import com.safenest.kids.service.WebsitePolicySyncWorker
 import com.safenest.kids.service.WebsiteDnsVpnService
 
@@ -59,6 +60,16 @@ class ServiceWatchdogReceiver : BroadcastReceiver() {
         // Accessibility recovery notifications are relevant only after boot/app replacement,
         // not after every unrelated application install or removal.
         if (isLifecycleRecovery) {
+            if (PermissionsHelper.hasLocationPermission(context) &&
+                prefsHelper.isPhoneTrackingEnabled() &&
+                prefsHelper.getPhoneTrackingServiceState() != PrefsHelper.PHONE_LOCATION_SERVICE_ACTIVE
+            ) {
+                PhoneLocationService.startIfPermissionGranted(context)
+            } else if (!PermissionsHelper.hasLocationPermission(context) && prefsHelper.isPhoneTrackingEnabled()) {
+                prefsHelper.setPhoneTrackingPermissionState(PrefsHelper.PHONE_LOCATION_PERMISSION_DENIED)
+                prefsHelper.setPhoneTrackingStatus(PrefsHelper.PHONE_LOCATION_STATUS_PERMISSION_DENIED)
+            }
+
             if (PermissionsHelper.hasVpnPermission(context) &&
                 prefsHelper.getWebsitePolicySnapshotJson() != null &&
                 prefsHelper.getWebsiteVpnHealth() != PrefsHelper.WEBSITE_VPN_ACTIVE

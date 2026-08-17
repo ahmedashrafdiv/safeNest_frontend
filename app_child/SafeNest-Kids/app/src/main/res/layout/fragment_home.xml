@@ -50,6 +50,16 @@
                 android:gravity="center" />
 
             <TextView
+                android:id="@+id/tv_phone_location_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="تتبع موقع الهاتف غير متاح"
+                android:textColor="@color/red_warning"
+                android:textSize="14sp"
+                android:gravity="center" />
+
+            <TextView
                 android:id="@+id/tv_website_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

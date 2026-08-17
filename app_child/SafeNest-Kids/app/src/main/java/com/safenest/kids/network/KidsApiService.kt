@@ -8,6 +8,12 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface KidsApiService {
+    @POST("api/child-devices/{device_id}/location")
+    suspend fun uploadPhoneLocation(
+        @Path("device_id") deviceId: String,
+        @Body request: PhoneLocationUploadRequest
+    ): Response<PhoneLocationUploadResponse>
+
     @POST("api/devices/link-device")
     suspend fun linkDevice(@Body request: LinkDeviceRequest): Response<LinkDeviceResponse>
 

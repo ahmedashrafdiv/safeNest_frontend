@@ -93,3 +93,33 @@ data class UpdateFcmTokenRequest(
     @SerializedName("fcm_token") val fcmToken: String
 )
 
+
+
+data class PhoneLocationUploadRequest(
+    @SerializedName("report_id") val reportId: String,
+    @SerializedName("latitude") val latitude: Double,
+    @SerializedName("longitude") val longitude: Double,
+    @SerializedName("accuracy_meters") val accuracyMeters: Float,
+    @SerializedName("altitude_meters") val altitudeMeters: Double? = null,
+    @SerializedName("speed_mps") val speedMps: Float? = null,
+    @SerializedName("captured_at") val capturedAt: String
+)
+
+data class PhoneLocationUploadResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("report_id") val reportId: String,
+    @SerializedName("source") val source: String,
+    @SerializedName("captured_at") val capturedAt: String,
+    @SerializedName("received_at") val receivedAt: String,
+    @SerializedName("status") val status: String
+)
+
+data class PhoneLocationPolicyResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("enabled") val enabled: Boolean,
+    @SerializedName("service_status") val serviceStatus: String,
+    @SerializedName("last_successful_upload_at") val lastSuccessfulUploadAt: String? = null,
+    @SerializedName("latest_captured_at") val latestCapturedAt: String? = null,
+    @SerializedName("policy_version") val policyVersion: Int? = null
+)

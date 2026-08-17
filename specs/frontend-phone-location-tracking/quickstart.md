@@ -2,17 +2,30 @@
 
 ## Automated checks
 
-From the Child project, run:
+On the Windows build machine, set the available SDK/JDK paths first:
 
 ```powershell
-.\gradlew.bat testDebugUnitTest assembleDebug --no-daemon --console=plain
+$env:ANDROID_HOME = 'D:\\Android\\sdk'
+$env:ANDROID_SDK_ROOT = 'D:\\Android\\sdk'
+$env:JAVA_HOME = 'D:\\Android\\jdk\\temurin-17'
+$env:Path = "$env:JAVA_HOME\\bin;$env:Path"
 ```
 
-From the Parent project, run:
+From `frontend_app\\app_child\\SafeNest-Kids`, run:
 
 ```powershell
-.\gradlew.bat assembleDebug --no-daemon --console=plain
+.\\gradlew.bat testDebugUnitTest assembleDebug --no-daemon --console=plain
 ```
+
+The Child APK is produced at `app\\build\\outputs\\apk\\debug\\app-debug.apk`.
+
+From `frontend_app\\app_father\\SafeNest`, run:
+
+```powershell
+.\\gradlew.bat assembleDebug --no-daemon --console=plain
+```
+
+The Parent APK is produced at `app\\build\\outputs\\apk\\debug\\app-debug.apk`.
 
 ## Child permission and service scenario
 
@@ -36,4 +49,19 @@ From the Parent project, run:
 
 ## Release gate
 
-The paired-device scenario is required because local JVM tests and APK compilation cannot prove real Android permission behavior, foreground-service execution, OEM battery behavior, network retries, deployed authentication, or map refresh timing.
+Record each result as `PASS`, `FAIL`, or `BLOCKED` with timestamp, device model, Android version, APK version, and Backend URL. The paired-device scenario is required because local JVM tests and APK compilation cannot prove real Android permission behavior, foreground-service execution, OEM battery behavior, network retries, deployed authentication, or map refresh timing.
+
+The gate is not complete until the following cases are run on a real paired Child/Parent set:
+
+| Case | Expected result |
+|---|---|
+| Location permission denied | Child reports denied/unavailable; no active claim and no successful upload |
+| Approximate or precise permission granted | Foreground location notification appears; Child status becomes active only after service startup |
+| Real upload | Backend accepts a valid report; Parent map shows source `phone`, age, and accuracy |
+| Duplicate retry | Same `report_id` is idempotent; no duplicate latest-state corruption |
+| Network loss and recovery | Child shows offline/retrying/stale; a later connected run succeeds |
+| Reboot/app replacement | Watchdog restarts only when paired, enabled, and permission remains granted |
+| Phone tracking disabled by Parent | Parent shows disabled; Child stops active reporting; external GPS state remains unchanged |
+| Fresh external GPS fallback | Parent labels source `external_gps` when phone state is absent/stale and external data is fresh |
+| Stale phone point | Parent never labels it live/current |
+| Unauthorized Parent | Backend rejects another Parent's read/control request |

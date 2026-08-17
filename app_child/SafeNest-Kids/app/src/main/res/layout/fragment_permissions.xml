@@ -301,6 +301,76 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Step 5: Phone location tracking -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_phone_location"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/card_website_vpn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_phone_location_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="تتبع موقع الهاتف"
+                android:textColor="@color/navy_brand"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_phone_location_status"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tv_phone_location_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✗"
+                android:textColor="@color/red_warning"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/tv_phone_location_title"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_phone_location_desc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="يتطلب إذن الموقع وإشعاراً دائماً لتحديث موقع الهاتف. لن يعمل التتبع إذا رفض الطفل الإذن أو أوقف النظام الخدمة."
+                android:textColor="@color/gray_medium"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_phone_location_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_enable_phone_location"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="تفعيل تتبع الموقع"
+                android:textColor="@color/navy_brand"
+                app:strokeColor="@color/teal_brand"
+                app:cornerRadius="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_phone_location_desc"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <ProgressBar
         android:id="@+id/progress_sync"
         android:layout_width="wrap_content"

@@ -1,6 +1,8 @@
 package com.example.safenest.repository
 
 import com.example.safenest.network.ApiClient
+import com.example.safenest.network.ParentLocationEnvelope
+import com.example.safenest.network.PhoneTrackingPolicyResponse
 import com.example.safenest.util.Result
 
 class LocationRepository : BaseRepository() {
@@ -16,6 +18,12 @@ class LocationRepository : BaseRepository() {
     suspend fun deleteGps(childId: String): Result<Unit> =
         safeApiCall { api.deleteGps(childId) }
 
-    suspend fun getChildLocation(childId: String): Result<Map<String, Any>> =
+    suspend fun setPhoneTracking(childId: String, enabled: Boolean): Result<PhoneTrackingPolicyResponse> =
+        safeApiCall { api.setPhoneTracking(childId, enabled) }
+
+    suspend fun deletePhoneTracking(childId: String): Result<Unit> =
+        safeApiCall { api.deletePhoneTracking(childId) }
+
+    suspend fun getChildLocation(childId: String): Result<ParentLocationEnvelope> =
         safeApiCall { api.getChildLocation(childId) }
 }

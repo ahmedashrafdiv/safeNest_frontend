@@ -24,6 +24,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.materialswitch.MaterialSwitch
+import android.widget.Toast
 import kotlinx.coroutines.launch
 
 class GpsFragment : Fragment(), OnMapReadyCallback {
@@ -37,6 +39,8 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
     private lateinit var bottomNavBar: BottomNavigationView
     private lateinit var alertCard: MaterialCardView
     private lateinit var mapCard: MaterialCardView
+    private lateinit var phoneTrackingSwitch: MaterialSwitch
+    private var phoneTrackingRequestInFlight = false
     private var progressBar: ProgressBar? = null
     private var locationTv: TextView? = null
     private var lastUpdateTv: TextView? = null
@@ -56,6 +60,14 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
         bottomNavBar = view.findViewById(R.id.bottomNavBar)
         alertCard = view.findViewById(R.id.alertCard)
         mapCard = view.findViewById(R.id.mapCard)
+        phoneTrackingSwitch = view.findViewById(R.id.switch_phone_tracking)
+        phoneTrackingSwitch.setOnCheckedChangeListener { _, enabled ->
+            if (phoneTrackingRequestInFlight) return@setOnCheckedChangeListener
+            val childId = viewModel.getSelectedChildId() ?: return@setOnCheckedChangeListener
+            phoneTrackingRequestInFlight = true
+            phoneTrackingSwitch.isEnabled = false
+            viewModel.setPhoneTracking(childId, enabled)
+        }
         progressBar = view.findViewById(R.id.progressBar)
         locationTv = view.findViewById(R.id.locationText)
         lastUpdateTv = view.findViewById(R.id.lastUpdateText)
@@ -103,33 +115,42 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
                             is Result.Success -> {
                                 progressBar?.visibility = View.GONE
                                 val locationData = state.data
-
-                                val lat = (locationData["latitude"] as? Double)
-                                    ?: (locationData["lat"] as? Double)
-                                    ?: (locationData["latitude"] as? Number)?.toDouble()
-                                    ?: (locationData["lat"] as? Number)?.toDouble()
-
-                                val lng = (locationData["longitude"] as? Double)
-                                    ?: (locationData["lng"] as? Double)
-                                    ?: (locationData["longitude"] as? Number)?.toDouble()
-                                    ?: (locationData["lng"] as? Number)?.toDouble()
-
-                                val lastUpdate = locationData["last_updated"]?.toString()
-                                    ?: locationData["timestamp"]?.toString()
-
-                                if (lat != null && lng != null) {
-                                    lastKnownLat = lat
-                                    lastKnownLng = lng
-                                    locationTv?.text = "الموقع: %.6f, %.6f".format(lat, lng)
-                                    statusTv?.text = "متصل ✓"
-                                    updateMapLocation(lat, lng)
-                                } else {
-                                    locationTv?.text = "لا يوجد موقع محدد"
-                                    statusTv?.text = "انتظار الجهاز..."
+                                locationData.trackingActive?.let { enabled ->
+                                    phoneTrackingRequestInFlight = true
+                                    phoneTrackingSwitch.isChecked = enabled
+                                    phoneTrackingRequestInFlight = false
+                                }
+                                val coordinate = locationData.effectiveCoordinate()
+                                val sourceLabel = when (locationData.effectiveSource()) {
+                                    "phone" -> "هاتف الطفل"
+                                    "external_gps" -> "GPS خارجي"
+                                    else -> "مصدر غير معروف"
+                                }
+                                val freshnessLabel = when {
+                                    locationData.availabilityStatus == "available" && !locationData.isStale -> "متصل ✓"
+                                    locationData.availabilityStatus == "stale" || locationData.isStale -> "آخر نقطة قديمة ✗"
+                                    locationData.availabilityStatus == "disabled" -> "تتبع الهاتف متوقف"
+                                    else -> "الموقع غير متاح ✗"
                                 }
 
+                                if (coordinate != null && locationData.availabilityStatus != "unavailable") {
+                                    lastKnownLat = coordinate.latitude
+                                    lastKnownLng = coordinate.longitude
+                                    locationTv?.text = "الموقع: %.6f, %.6f\nالمصدر: $sourceLabel".format(coordinate.latitude, coordinate.longitude)
+                                    statusTv?.text = freshnessLabel
+                                    updateMapLocation(coordinate.latitude, coordinate.longitude, sourceLabel, locationData.isStale)
+                                } else {
+                                    locationTv?.text = "لا يوجد موقع محدد\nالحالة: $freshnessLabel"
+                                    statusTv?.text = freshnessLabel
+                                }
+
+                                val lastUpdate = locationData.capturedAt
+                                    ?: locationData.receivedAt
+                                    ?: locationData.legacyLastUpdate
                                 if (lastUpdate != null) {
-                                    lastUpdateTv?.text = "آخر تحديث: $lastUpdate"
+                                    val age = locationData.ageSeconds?.let { " (العمر: ${it}s)" } ?: ""
+                                    val accuracy = locationData.accuracyMeters?.let { " | الدقة: %.0fm".format(it) } ?: ""
+                                    lastUpdateTv?.text = "آخر تحديث: $lastUpdate$age$accuracy"
                                 }
                                 viewModel.clearLocationState()
                             }
@@ -138,6 +159,30 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
                                 locationTv?.text = "لا يوجد موقع متاح"
                                 statusTv?.text = "الجهاز غير متصل"
                                 viewModel.clearLocationState()
+                            }
+                            null -> Unit
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.phoneTrackingPolicyState.collect { policyState ->
+                        when (policyState) {
+                            is Result.Loading -> Unit
+                            is Result.Success -> {
+                                phoneTrackingRequestInFlight = true
+                                phoneTrackingSwitch.isChecked = policyState.data.enabled
+                                phoneTrackingRequestInFlight = false
+                                phoneTrackingSwitch.isEnabled = true
+                                Toast.makeText(requireContext(), if (policyState.data.enabled) "تم تفعيل تتبع الهاتف" else "تم إيقاف تتبع الهاتف", Toast.LENGTH_SHORT).show()
+                                viewModel.clearPhoneTrackingPolicyState()
+                                viewModel.getChildLocation(viewModel.getSelectedChildId() ?: return@collect)
+                            }
+                            is Result.Error -> {
+                                phoneTrackingRequestInFlight = false
+                                phoneTrackingSwitch.isEnabled = true
+                                Toast.makeText(requireContext(), "تعذر تحديث سياسة تتبع الهاتف", Toast.LENGTH_SHORT).show()
+                                viewModel.clearPhoneTrackingPolicyState()
                             }
                             null -> Unit
                         }
@@ -182,14 +227,14 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun updateMapLocation(lat: Double, lng: Double) {
+    private fun updateMapLocation(lat: Double, lng: Double, source: String = "موقع الطفل", isStale: Boolean = false) {
         val position = LatLng(lat, lng)
         googleMap?.clear()
         googleMap?.addMarker(
             MarkerOptions()
                 .position(position)
-                .title("موقع الطفل")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                .title(if (isStale) "$source — قديم" else source)
+                .icon(BitmapDescriptorFactory.defaultMarker(if (isStale) BitmapDescriptorFactory.HUE_ORANGE else BitmapDescriptorFactory.HUE_VIOLET))
         )
         googleMap?.animateCamera(
             CameraUpdateFactory.newLatLngZoom(position, 15f)

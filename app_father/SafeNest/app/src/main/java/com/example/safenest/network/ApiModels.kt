@@ -367,3 +367,49 @@ data class ErrorResponse(
         }
     }
 }
+
+
+data class ParentLocationCoordinate(
+    @SerializedName("latitude") val latitude: Double,
+    @SerializedName("longitude") val longitude: Double
+)
+
+data class ParentLocationEnvelope(
+    @SerializedName("availability_status") val availabilityStatus: String = "unavailable",
+    @SerializedName("source") val source: String? = null,
+    @SerializedName("coordinate") val coordinate: ParentLocationCoordinate? = null,
+    @SerializedName("accuracy_meters") val accuracyMeters: Double? = null,
+    @SerializedName("captured_at") val capturedAt: String? = null,
+    @SerializedName("received_at") val receivedAt: String? = null,
+    @SerializedName("age_seconds") val ageSeconds: Long? = null,
+    @SerializedName("is_stale") val isStale: Boolean = false,
+    @SerializedName("fallback_source") val fallbackSource: String? = null,
+    @SerializedName("message_code") val messageCode: String? = null,
+    @SerializedName("location_name") val locationName: String? = null,
+    @SerializedName("gps_active") val gpsActive: Boolean? = null,
+    @SerializedName("tracking_active") val trackingActive: Boolean? = null,
+    @SerializedName("last_update") val legacyLastUpdate: String? = null
+) {
+    fun effectiveCoordinate(): ParentLocationCoordinate? = coordinate
+
+    fun effectiveSource(): String = when {
+        source != null -> source
+        gpsActive == true -> "external_gps"
+        coordinate != null -> "external_gps"
+        else -> "unknown"
+    }
+
+    fun effectiveAgeSeconds(): Long? = ageSeconds ?: 0L
+}
+
+
+data class PhoneTrackingUpdateRequest(
+    @SerializedName("enabled") val enabled: Boolean
+)
+
+data class PhoneTrackingPolicyResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("enabled") val enabled: Boolean,
+    @SerializedName("service_status") val serviceStatus: String,
+    @SerializedName("policy_version") val policyVersion: Int? = null
+)
