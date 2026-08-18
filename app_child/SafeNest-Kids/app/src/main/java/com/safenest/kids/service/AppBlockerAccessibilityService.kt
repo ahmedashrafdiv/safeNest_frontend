@@ -9,6 +9,7 @@ import android.view.accessibility.AccessibilityEvent
 import com.safenest.kids.BlockedAppActivity
 import com.safenest.kids.util.AppUsageHelper
 import com.safenest.kids.util.PrefsHelper
+import com.safenest.kids.security.UninstallAttemptClassifier
 import org.json.JSONObject
 
 class AppBlockerAccessibilityService : AccessibilityService() {
@@ -54,18 +55,20 @@ class AppBlockerAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
-        // Ignore CONTENT_CHANGED events entirely — they cause launcher spam
-        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+        val pkg = event.packageName?.toString() ?: return
+        val visibleText = buildString {
+            event.text?.forEach { append(it).append(' ') }
+            event.contentDescription?.let { append(it) }
+        }
+        if (UninstallAttemptClassifier.isLayngoUninstallAttempt(pkg, visibleText, packageName)) {
+            Log.w(TAG, "UNINSTALL_ATTEMPT_DETECTED source=$pkg")
+            blockPackage(packageName, "uninstall_protection")
             return
         }
 
-        val pkg = event.packageName?.toString() ?: return
-        Log.e(TAG, "EVENT pkg=$pkg type=${event.eventType} — service alive")
-
-        // Only act on actual window-state changes
+        // Content changes are processed only for the explicit uninstall classifier above.
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
-
-
+        Log.e(TAG, "EVENT pkg=$pkg type=${event.eventType} — service alive")
 
         // Never block ourselves
         if (pkg == packageName) return

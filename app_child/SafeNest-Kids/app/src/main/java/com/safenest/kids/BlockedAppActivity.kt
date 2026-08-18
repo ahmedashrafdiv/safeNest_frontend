@@ -16,7 +16,11 @@ class BlockedAppActivity : AppCompatActivity() {
         val tvTitle = findViewById<TextView>(R.id.tv_blocked_title)
         val tvSubtitle = findViewById<TextView>(R.id.tv_blocked_subtitle)
 
-        if (reason == "time_limit") {
+        if (reason == "uninstall_protection") {
+            tvTitle.text = "Parent authorization is required"
+            tvSubtitle.text = "Layngo removal is protected on this device. Ask a parent to approve recovery."
+            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
+        } else if (reason == "time_limit") {
             tvTitle.text = "انتهى وقت هذا التطبيق"
             tvSubtitle.text = "لقد استنفدت الوقت المخصص لهذا التطبيق اليوم"
             tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.orange_accent))
