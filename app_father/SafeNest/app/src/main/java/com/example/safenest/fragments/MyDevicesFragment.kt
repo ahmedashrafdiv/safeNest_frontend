@@ -18,6 +18,7 @@ import com.example.safenest.network.ChildDeviceSummary
 import com.example.safenest.policy.ParentPolicyScope
 import com.example.safenest.policy.ParentPolicyScopeStore
 import com.example.safenest.policy.SelectedPolicyDevice
+import com.example.safenest.protection.DeviceProtectionStatusFormatter
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.ChildDevicesViewModel
 import com.google.android.material.button.MaterialButton
@@ -136,6 +137,12 @@ class MyDevicesFragment : Fragment() {
             addView(label("${device.model} Â· ${device.platform}", 18f, "#15385F"))
             addView(label("${device.status.replaceFirstChar { it.uppercase() }} Â· ${device.trustState.replaceFirstChar { it.uppercase() }}", 14f, "#2CA39D"))
             addView(label("Last seen: ${device.lastSeenAt ?: "Not yet reported"}", 13f, "#6B7280"))
+            val protectionStatus = DeviceProtectionStatusFormatter.format(
+                health = device.protectionHealth,
+                mode = device.protectionMode,
+                uninstallProtectionConfirmed = device.uninstallProtectionConfirmed,
+            )
+            addView(label(protectionStatus.text, 13f, protectionStatus.colorHex))
             addView(MaterialButton(requireContext()).apply {
                 text = "Revoke this device"
                 setTextColor(Color.WHITE)

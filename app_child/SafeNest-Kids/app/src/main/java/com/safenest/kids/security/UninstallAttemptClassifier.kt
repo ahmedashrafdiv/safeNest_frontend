@@ -1,8 +1,9 @@
 package com.safenest.kids.security
 
 /**
- * Identifies only visible package-installer flows that explicitly name this Child app.
- * It deliberately does not classify general Settings or a generic app-management screen.
+ * Identifies visible removal surfaces that explicitly target this Child app.
+ * General Settings remains available: a Settings event is classified only when the
+ * visible page names Layngo and exposes an explicit removal action.
  */
 object UninstallAttemptClassifier {
     private val installerPackages = setOf(
@@ -14,16 +15,34 @@ object UninstallAttemptClassifier {
         "com.oplus.safecenter",
     )
 
-    fun isLayngoUninstallAttempt(
+    private val settingsPackages = setOf(
+        "com.android.settings",
+        "com.coloros.settings",
+        "com.oplus.settings",
+    )
+
+    private val removalActionTokens = setOf(
+        "uninstall",
+        "remove",
+        "delete",
+        "إلغاء التثبيت",
+        "ازالة التثبيت",
+        "حذف",
+    )
+
+    fun isLayngoRemovalAttempt(
         sourcePackage: String,
         visibleText: String,
         ownPackage: String,
         appLabel: String = "Layngo Kids",
     ): Boolean {
-        if (!isInstallerOrSecurityCenter(sourcePackage)) return false
         val normalized = visibleText.lowercase()
-        return normalized.contains(ownPackage.lowercase()) ||
+        val targetsLayngo = normalized.contains(ownPackage.lowercase()) ||
             normalized.contains(appLabel.lowercase())
+        if (!targetsLayngo) return false
+
+        return isInstallerOrSecurityCenter(sourcePackage) ||
+            (sourcePackage in settingsPackages && removalActionTokens.any(normalized::contains))
     }
 
     private fun isInstallerOrSecurityCenter(sourcePackage: String): Boolean {

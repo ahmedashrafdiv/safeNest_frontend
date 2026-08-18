@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import com.safenest.kids.BlockedAppActivity
 import com.safenest.kids.util.AppUsageHelper
 import com.safenest.kids.util.PrefsHelper
@@ -16,9 +17,9 @@ class AppBlockerAccessibilityService : AccessibilityService() {
 
     private lateinit var prefsHelper: PrefsHelper
 
-    // Rate-limiting: prevent rapid-fire blocking of the same app
-    private var lastBlockedPkg = ""
-    private var lastBlockedTime = 0L
+    // Style note: Layngo protection is explicit and narrow; repeated accessibility
+    // events must not reopen the same block screen continuously.
+    private val blockEventDeduplicator = BlockEventDeduplicator()
 
     companion object {
         private const val TAG = "AppBlocker"
@@ -59,10 +60,12 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         val visibleText = buildString {
             event.text?.forEach { append(it).append(' ') }
             event.contentDescription?.let { append(it) }
+            append(extractNodeText(event.source))
+            append(extractNodeText(rootInActiveWindow))
         }
-        if (UninstallAttemptClassifier.isLayngoUninstallAttempt(pkg, visibleText, packageName)) {
-            Log.w(TAG, "UNINSTALL_ATTEMPT_DETECTED source=$pkg")
-            blockPackage(packageName, "uninstall_protection")
+        if (UninstallAttemptClassifier.isLayngoRemovalAttempt(pkg, visibleText, packageName)) {
+            Log.w(TAG, "LAYNGO_REMOVAL_ATTEMPT_DETECTED source=$pkg")
+            blockPackage(packageName, "uninstall_protection", event.eventType)
             return
         }
 
@@ -109,11 +112,21 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun blockPackage(pkg: String, reason: String) {
-        val now = System.currentTimeMillis()
-        if (pkg == lastBlockedPkg && now - lastBlockedTime < 2000L) return
-        lastBlockedPkg = pkg
-        lastBlockedTime = now
+    private fun blockPackage(
+        pkg: String,
+        reason: String,
+        eventType: Int = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+    ) {
+        if (
+            !blockEventDeduplicator.shouldLaunch(
+                packageName = pkg,
+                reason = reason,
+                isWindowStateChange = eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+                nowMillis = System.currentTimeMillis(),
+            )
+        ) {
+            return
+        }
         Log.d(TAG, "Blocking foreground app: $pkg, reason=$reason")
         val intent = Intent(this, BlockedAppActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -121,6 +134,31 @@ class AppBlockerAccessibilityService : AccessibilityService() {
             putExtra("blocked_reason", reason)
         }
         startActivity(intent)
+    }
+
+    private fun extractNodeText(node: AccessibilityNodeInfo?): String {
+        if (node == null) return ""
+
+        val text = StringBuilder()
+        var remainingNodes = 96
+
+        fun visit(current: AccessibilityNodeInfo) {
+            if (remainingNodes-- <= 0) return
+            current.text?.let { text.append(it).append(' ') }
+            current.contentDescription?.let { text.append(it).append(' ') }
+            for (index in 0 until current.childCount) {
+                current.getChild(index)?.let { child ->
+                    try {
+                        visit(child)
+                    } finally {
+                        child.recycle()
+                    }
+                }
+            }
+        }
+
+        visit(node)
+        return text.toString()
     }
 
     override fun onInterrupt() {

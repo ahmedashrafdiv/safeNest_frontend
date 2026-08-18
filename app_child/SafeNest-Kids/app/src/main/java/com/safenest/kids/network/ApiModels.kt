@@ -89,6 +89,22 @@ data class AppUsageRequest(
     val usage: Map<String, Long>
 )
 
+data class DeviceProtectionHealthRequest(
+    @SerializedName("permission_states") val permissionStates: Map<String, String> = emptyMap(),
+    @SerializedName("capabilities") val capabilities: List<String>,
+    @SerializedName("reported_at") val reportedAt: String,
+    @SerializedName("protection_health") val protectionHealth: String,
+    @SerializedName("protection_mode") val protectionMode: String,
+    @SerializedName("management_authority_confirmed") val managementAuthorityConfirmed: Boolean,
+    @SerializedName("uninstall_protection_confirmed") val uninstallProtectionConfirmed: Boolean,
+    @SerializedName("lock_task_available") val lockTaskAvailable: Boolean,
+)
+
+data class DeviceProtectionHealthResponse(
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("reported_at") val reportedAt: String,
+)
+
 data class UpdateFcmTokenRequest(
     @SerializedName("fcm_token") val fcmToken: String
 )

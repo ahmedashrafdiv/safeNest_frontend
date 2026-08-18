@@ -36,6 +36,12 @@ interface KidsApiService {
         @Body request: WebsitePolicyAckRequest
     ): Response<Map<String, Any>>
 
+    @POST("api/child-devices/{device_id}/health")
+    suspend fun reportProtectionHealth(
+        @Path("device_id") deviceId: String,
+        @Body request: DeviceProtectionHealthRequest,
+    ): Response<DeviceProtectionHealthResponse>
+
     // TODO: The exact request/response body shape for installed-apps is NOT fully documented.
     // Verify against the live Swagger UI at https://safe-nest-deployment.vercel.app/docs
     // before relying on it in production.

@@ -15,6 +15,9 @@ data class ChildDeviceSummary(
     @SerializedName("last_seen_at") val lastSeenAt: String? = null,
     @SerializedName("last_policy_version") val lastPolicyVersion: Int? = null,
     @SerializedName("revoked_at") val revokedAt: String? = null,
+    @SerializedName("protection_health") val protectionHealth: String? = null,
+    @SerializedName("protection_mode") val protectionMode: String? = null,
+    @SerializedName("uninstall_protection_confirmed") val uninstallProtectionConfirmed: Boolean? = null,
 )
 
 data class ChildDevicePairingRequest(
