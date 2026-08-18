@@ -2,8 +2,6 @@ package com.safenest.kids
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -32,15 +30,8 @@ class BlockedAppActivity : AppCompatActivity() {
             tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
         }
 
-        // Auto-return to home after 2 seconds
-        Handler(Looper.getMainLooper()).postDelayed({
-            val homeIntent = Intent(Intent.ACTION_MAIN).apply {
-                addCategory(Intent.CATEGORY_HOME)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(homeIntent)
-            finish()
-        }, 2000)
+        // Keep the parent-authorized Layngo block screen visible until the child leaves it.
+        // Back still routes to the launcher below rather than reopening the blocked package.
     }
 
     // Prevent the user from pressing back to re-enter the blocked app

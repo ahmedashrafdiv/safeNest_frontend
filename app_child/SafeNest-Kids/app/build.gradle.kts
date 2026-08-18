@@ -17,7 +17,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"https://safe-nest-deployment.vercel.app/\"")
+        }
         release {
+            buildConfigField("String", "API_BASE_URL", "\"https://safe-nest-deployment.vercel.app/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -33,6 +37,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
 }

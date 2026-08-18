@@ -32,4 +32,16 @@ class AppPolicyDeciderTest {
         assertTrue(AppPolicyDecider.shouldBlock("com.tiktok", childPackage, "", emptySet(), setOf("com.tiktok")))
         assertFalse(AppPolicyDecider.shouldBlock("com.new.game", childPackage, "", emptySet(), setOf("com.tiktok")))
     }
-}
+
+    @Test
+    fun chromeInPersistedBlocklistIsBlocked_regression20260818() {
+        assertTrue(
+            AppPolicyDecider.shouldBlock(
+                "com.android.chrome",
+                childPackage,
+                "blocklist",
+                emptySet(),
+                setOf("com.android.chrome"),
+            ),
+        )
+    }}

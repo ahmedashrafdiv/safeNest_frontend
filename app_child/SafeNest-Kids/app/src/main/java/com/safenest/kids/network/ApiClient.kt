@@ -1,7 +1,8 @@
-package com.safenest.kids.network
+﻿package com.safenest.kids.network
 
 import android.content.Context
 import android.util.Log
+import com.safenest.kids.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -14,7 +15,7 @@ import com.safenest.kids.util.PrefsHelper
 
 object ApiClient {
     private const val TAG = "ApiClient"
-    private const val BASE_URL = "https://safe-nest-deployment.vercel.app/"
+    private val BASE_URL = BuildConfig.API_BASE_URL
 
     /** Paths that must remain unauthenticated (no Bearer token). */
     private val UNAUTHENTICATED_PATHS = listOf(
@@ -25,7 +26,7 @@ object ApiClient {
     private lateinit var prefsHelper: PrefsHelper
 
     /**
-     * Must be called once before any network calls are made — typically from
+     * Must be called once before any network calls are made â€” typically from
      * [MainActivity.onCreate] or a custom Application class.
      */
     fun init(context: Context) {
@@ -46,7 +47,7 @@ object ApiClient {
         val token: String? = if (::prefsHelper.isInitialized) {
             prefsHelper.getDeviceToken()
         } else {
-            Log.w(TAG, "ApiClient.init() has not been called yet — skipping auth header")
+            Log.w(TAG, "ApiClient.init() has not been called yet â€” skipping auth header")
             null
         }
 
@@ -56,7 +57,7 @@ object ApiClient {
                 .build()
             chain.proceed(authenticatedRequest)
         } else {
-            Log.w(TAG, "No device access token available — sending request without Authorization header")
+            Log.w(TAG, "No device access token available â€” sending request without Authorization header")
             chain.proceed(originalRequest)
         }
     }

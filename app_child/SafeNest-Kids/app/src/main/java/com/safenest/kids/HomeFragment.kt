@@ -1,4 +1,4 @@
-package com.safenest.kids
+﻿package com.safenest.kids
 
 import android.os.Bundle
 import android.util.Log
@@ -62,11 +62,11 @@ class HomeFragment : Fragment() {
             sendInstalledApps()
         }
 
-        // DEBUG: Manual trigger for testing app-usage reporting — remove before release
+        // DEBUG: Manual trigger for testing app-usage reporting â€” remove before release
         btnTestUsage.setOnClickListener {
             WorkManager.getInstance(requireContext())
                 .enqueue(OneTimeWorkRequestBuilder<AppUsageReportWorker>().build())
-            Toast.makeText(requireContext(), "تم إرسال طلب اختبار — تحقق من Logcat", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø·Ù„Ø¨ Ø§Ø®ØªØ¨Ø§Ø± â€” ØªØ­Ù‚Ù‚ Ù…Ù† Logcat", Toast.LENGTH_SHORT).show()
         }
 
         btnFixPermissions.setOnClickListener {
@@ -75,9 +75,11 @@ class HomeFragment : Fragment() {
                 .commit()
         }
 
-        // Register periodic rule sync (idempotent — KEEP policy means this
+        // Register periodic rule sync (idempotent â€” KEEP policy means this
         // is safe to call every time the fragment loads)
         registerRuleSyncWorker()
+        // A Parent policy write must not wait for the periodic interval before this Child can enforce it.
+        RuleSyncWorker.enqueueImmediate(requireContext())
         registerScreenTimePolicySyncWorker()
         registerAppUsageReportWorker()
 
@@ -97,10 +99,10 @@ class HomeFragment : Fragment() {
         val context = requireContext()
         val allGranted = PermissionsHelper.hasAllPermissions(context)
         if (allGranted) {
-            tvProtectionStatus.text = "حماية التطبيقات مفعّلة ✓"
+            tvProtectionStatus.text = "Ø­Ù…Ø§ÙŠØ© Ø§Ù„ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ù…ÙØ¹Ù‘Ù„Ø© âœ“"
             tvProtectionStatus.setTextColor(resources.getColor(R.color.green_success, null))
         } else {
-            tvProtectionStatus.text = "حماية التطبيقات متوقفة ✗"
+            tvProtectionStatus.text = "Ø­Ù…Ø§ÙŠØ© Ø§Ù„ØªØ·Ø¨ÙŠÙ‚Ø§Øª Ù…ØªÙˆÙ‚ÙØ© âœ—"
             tvProtectionStatus.setTextColor(resources.getColor(R.color.red_warning, null))
         }
 
@@ -113,23 +115,23 @@ class HomeFragment : Fragment() {
 
         when (prefsHelper.getWebsiteVpnHealth()) {
             PrefsHelper.WEBSITE_VPN_ACTIVE -> {
-                tvWebsiteStatus.text = "حماية المواقع مفعّلة (DNS) ✓"
+                tvWebsiteStatus.text = "Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ù…ÙˆØ§Ù‚Ø¹ Ù…ÙØ¹Ù‘Ù„Ø© (DNS) âœ“"
                 tvWebsiteStatus.setTextColor(resources.getColor(R.color.green_success, null))
             }
             PrefsHelper.WEBSITE_VPN_DENIED -> {
-                tvWebsiteStatus.text = "حماية المواقع غير متاحة: إذن VPN مطلوب ✗"
+                tvWebsiteStatus.text = "Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ù…ÙˆØ§Ù‚Ø¹ ØºÙŠØ± Ù…ØªØ§Ø­Ø©: Ø¥Ø°Ù† VPN Ù…Ø·Ù„ÙˆØ¨ âœ—"
                 tvWebsiteStatus.setTextColor(resources.getColor(R.color.red_warning, null))
             }
             PrefsHelper.WEBSITE_VPN_FAILED -> {
-                tvWebsiteStatus.text = "حماية المواقع غير متاحة: تعذر تشغيل VPN ✗"
+                tvWebsiteStatus.text = "Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ù…ÙˆØ§Ù‚Ø¹ ØºÙŠØ± Ù…ØªØ§Ø­Ø©: ØªØ¹Ø°Ø± ØªØ´ØºÙŠÙ„ VPN âœ—"
                 tvWebsiteStatus.setTextColor(resources.getColor(R.color.red_warning, null))
             }
             else -> {
                 if (prefsHelper.getWebsitePolicySnapshotJson() == null) {
-                    tvWebsiteStatus.text = "حماية المواقع في انتظار سياسة الوالد"
+                    tvWebsiteStatus.text = "Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ù…ÙˆØ§Ù‚Ø¹ ÙÙŠ Ø§Ù†ØªØ¸Ø§Ø± Ø³ÙŠØ§Ø³Ø© Ø§Ù„ÙˆØ§Ù„Ø¯"
                     tvWebsiteStatus.setTextColor(resources.getColor(R.color.gray_medium, null))
                 } else {
-                    tvWebsiteStatus.text = "حماية المواقع غير متاحة حالياً ✗"
+                    tvWebsiteStatus.text = "Ø­Ù…Ø§ÙŠØ© Ø§Ù„Ù…ÙˆØ§Ù‚Ø¹ ØºÙŠØ± Ù…ØªØ§Ø­Ø© Ø­Ø§Ù„ÙŠØ§Ù‹ âœ—"
                     tvWebsiteStatus.setTextColor(resources.getColor(R.color.red_warning, null))
                 }
             }
@@ -146,27 +148,27 @@ class HomeFragment : Fragment() {
         }
         when (prefsHelper.getPhoneTrackingStatus()) {
             PrefsHelper.PHONE_LOCATION_STATUS_ACTIVE -> {
-                tvPhoneLocationStatus.text = "تتبع موقع الهاتف مفعّل ✓"
+                tvPhoneLocationStatus.text = "ØªØªØ¨Ø¹ Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ù‡Ø§ØªÙ Ù…ÙØ¹Ù‘Ù„ âœ“"
                 tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.green_success, null))
             }
             PrefsHelper.PHONE_LOCATION_STATUS_PERMISSION_DENIED -> {
-                tvPhoneLocationStatus.text = "تتبع الموقع غير متاح: إذن الموقع مطلوب ✗"
+                tvPhoneLocationStatus.text = "ØªØªØ¨Ø¹ Ø§Ù„Ù…ÙˆÙ‚Ø¹ ØºÙŠØ± Ù…ØªØ§Ø­: Ø¥Ø°Ù† Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ù…Ø·Ù„ÙˆØ¨ âœ—"
                 tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.red_warning, null))
             }
             PrefsHelper.PHONE_LOCATION_STATUS_OFFLINE -> {
-                tvPhoneLocationStatus.text = "تتبع الموقع ينتظر الاتصال؛ آخر تحديث قديم ✗"
+                tvPhoneLocationStatus.text = "ØªØªØ¨Ø¹ Ø§Ù„Ù…ÙˆÙ‚Ø¹ ÙŠÙ†ØªØ¸Ø± Ø§Ù„Ø§ØªØµØ§Ù„Ø› Ø¢Ø®Ø± ØªØ­Ø¯ÙŠØ« Ù‚Ø¯ÙŠÙ… âœ—"
                 tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.orange_accent, null))
             }
             PrefsHelper.PHONE_LOCATION_STATUS_STALE -> {
-                tvPhoneLocationStatus.text = "تتبع الموقع: آخر نقطة قديمة ✗"
+                tvPhoneLocationStatus.text = "ØªØªØ¨Ø¹ Ø§Ù„Ù…ÙˆÙ‚Ø¹: Ø¢Ø®Ø± Ù†Ù‚Ø·Ø© Ù‚Ø¯ÙŠÙ…Ø© âœ—"
                 tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.orange_accent, null))
             }
             PrefsHelper.PHONE_LOCATION_STATUS_DISABLED -> {
-                tvPhoneLocationStatus.text = "تتبع موقع الهاتف متوقف حسب سياسة الوالد"
+                tvPhoneLocationStatus.text = "ØªØªØ¨Ø¹ Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ù‡Ø§ØªÙ Ù…ØªÙˆÙ‚Ù Ø­Ø³Ø¨ Ø³ÙŠØ§Ø³Ø© Ø§Ù„ÙˆØ§Ù„Ø¯"
                 tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.gray_medium, null))
             }
             else -> {
-                tvPhoneLocationStatus.text = "تتبع موقع الهاتف غير متاح حالياً ✗"
+                tvPhoneLocationStatus.text = "ØªØªØ¨Ø¹ Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ù‡Ø§ØªÙ ØºÙŠØ± Ù…ØªØ§Ø­ Ø­Ø§Ù„ÙŠØ§Ù‹ âœ—"
                 tvPhoneLocationStatus.setTextColor(resources.getColor(R.color.red_warning, null))
             }
         }
@@ -214,7 +216,7 @@ class HomeFragment : Fragment() {
                     Log.d("InstalledApps", "Successfully synced installed apps.")
                     prefsHelper.setLastAppsSent(true)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "تم التحديث بنجاح", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "ØªÙ… Ø§Ù„ØªØ­Ø¯ÙŠØ« Ø¨Ù†Ø¬Ø§Ø­", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     Log.e("InstalledApps", "Failed to sync installed apps: ${response.code()} ${response.message()}")

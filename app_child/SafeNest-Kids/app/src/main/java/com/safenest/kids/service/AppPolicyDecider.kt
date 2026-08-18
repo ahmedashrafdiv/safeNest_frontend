@@ -1,7 +1,7 @@
 package com.safenest.kids.service
 
 object AppPolicyDecider {
-    private val launcherTokens = listOf("launcher", "nexus", "pixel", "trebuchet", "systemui", "android")
+    private val launcherTokens = listOf("launcher", "nexus", "pixel", "trebuchet", "systemui")
     private val protectedPackages = setOf(
         "android",
         "com.android.settings",

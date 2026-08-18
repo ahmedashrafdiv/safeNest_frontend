@@ -74,8 +74,19 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         val blockedApps = prefsHelper.getBlockedApps()
         val allowedApps = prefsHelper.getAllowedApps()
         val appControlMode = prefsHelper.getAppControlMode()
+        val shouldBlock = AppPolicyDecider.shouldBlock(
+            pkg,
+            packageName,
+            appControlMode,
+            allowedApps,
+            blockedApps,
+        )
+        Log.i(
+            TAG,
+            "POLICY_DECISION pkg=$pkg mode=$appControlMode blocked=${blockedApps.contains(pkg)} allowed=${allowedApps.contains(pkg)} decision=${if (shouldBlock) "BLOCK" else "ALLOW"}",
+        )
 
-        if (AppPolicyDecider.shouldBlock(pkg, packageName, appControlMode, allowedApps, blockedApps)) {
+        if (shouldBlock) {
             blockPackage(pkg, if (appControlMode == "allowlist") "allowlist" else "blocked")
             return
         }
