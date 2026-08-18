@@ -43,7 +43,8 @@ class AppBlockerAccessibilityService : AccessibilityService() {
 
         serviceInfo = AccessibilityServiceInfo().apply {
             eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
-                         AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+                         AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or
+                         AccessibilityEvent.TYPE_WINDOWS_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or
                     AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
@@ -70,7 +71,7 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         }
 
         // Content changes are processed only for the explicit uninstall classifier above.
-        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        if (!AccessibilityEventDecider.isForegroundWindowEvent(event.eventType)) return
         Log.e(TAG, "EVENT pkg=$pkg type=${event.eventType} — service alive")
 
         // Never block ourselves
@@ -121,7 +122,7 @@ class AppBlockerAccessibilityService : AccessibilityService() {
             !blockEventDeduplicator.shouldLaunch(
                 packageName = pkg,
                 reason = reason,
-                isWindowStateChange = eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+                isWindowStateChange = AccessibilityEventDecider.isForegroundWindowEvent(eventType),
                 nowMillis = System.currentTimeMillis(),
             )
         ) {

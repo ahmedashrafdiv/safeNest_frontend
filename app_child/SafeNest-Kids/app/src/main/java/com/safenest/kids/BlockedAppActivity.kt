@@ -20,6 +20,10 @@ class BlockedAppActivity : AppCompatActivity() {
             tvTitle.text = "Parent authorization is required"
             tvSubtitle.text = "Layngo removal is protected on this device. Ask a parent to approve recovery."
             tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
+        } else if (reason == "child_app_launch_protection") {
+            tvTitle.text = "Layngo controls are protected"
+            tvSubtitle.text = "This area requires parent authorization."
+            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
         } else if (reason == "time_limit") {
             tvTitle.text = "انتهى وقت هذا التطبيق"
             tvSubtitle.text = "لقد استنفدت الوقت المخصص لهذا التطبيق اليوم"
