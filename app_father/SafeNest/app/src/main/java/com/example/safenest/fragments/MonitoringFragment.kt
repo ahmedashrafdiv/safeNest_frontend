@@ -2,9 +2,11 @@ package com.example.safenest.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -16,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.MainActivity
 import com.example.safenest.R
 import com.example.safenest.repository.DigitalControlRepository
+import com.example.safenest.util.DailyLimitConfirmationValidator
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.MonitoringViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -54,6 +57,7 @@ class MonitoringFragment : Fragment() {
         usedAppsCard = view.findViewById(R.id.usedAppsCard)
         progressBar = view.findViewById(R.id.progressBar)
         screenTimeTv = view.findViewById(R.id.screenTimeText)
+        screenTimeTv?.setOnClickListener { showDailyLimitConfirmation() }
 
         // Populate header from cache (same pattern as HomeFragment)
         val prefs = requireContext().getSharedPreferences("SafeNestPrefs", android.content.Context.MODE_PRIVATE)
@@ -194,11 +198,16 @@ class MonitoringFragment : Fragment() {
 
     private fun updateUI(dailyLimitMinutes: Int?, usedTodayMinutes: Int?, limitConfirmationRequired: Boolean) {
         screenTimeTv?.text = if (limitConfirmationRequired)
-            "الحد اليومي يحتاج إلى تأكيد"
+            "اضغط لتأكيد الحد اليومي"
         else if (dailyLimitMinutes != null)
             getString(R.string.screen_time_limit_format, dailyLimitMinutes)
         else
             getString(R.string.screen_time_not_set)
+        screenTimeTv?.contentDescription = if (limitConfirmationRequired) {
+            "تأكيد الحد اليومي. اضغط لإدخال عدد الدقائق الذي حدده الأب."
+        } else {
+            "الحد اليومي. اضغط لتعديله."
+        }
 
         // Update usage-time chip in header
         val usageTimeTv = view?.findViewById<TextView>(R.id.usageTime)
@@ -212,6 +221,37 @@ class MonitoringFragment : Fragment() {
         } else if (usageTimeTv != null) {
             usageTimeTv.text = "بانتظار تأكيد الحد"
         }
+    }
+
+    /**
+     * Legacy rules never reuse their mutable remaining-time value as a daily limit.
+     * The parent explicitly confirms the intended limit before new usage is accepted.
+     */
+    private fun showDailyLimitConfirmation() {
+        val ruleId = currentRuleId ?: run {
+            Toast.makeText(context, getString(R.string.error_no_active_rule), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val input = EditText(requireContext()).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER
+            hint = "مثال: 120"
+            contentDescription = "الحد اليومي بالدقائق"
+            setPadding(48, 16, 48, 16)
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle("تأكيد الحد اليومي")
+            .setMessage("أدخل عدد الدقائق الذي تريد السماح به يومياً. لن نستخدم الرقم القديم لأنه قد يكون وقتاً متبقياً وليس الحد الحقيقي.")
+            .setView(input)
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton("تأكيد") { _, _ ->
+                val minutes = DailyLimitConfirmationValidator.minutesOrNull(input.text.toString())
+                if (minutes == null) {
+                    Toast.makeText(context, "أدخل عدداً صحيحاً من الدقائق", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                viewModel.updateDigitalRule(ruleId = ruleId, maxScreenTime = minutes)
+            }
+            .show()
     }
 
     private fun confirmDeleteRule() {
