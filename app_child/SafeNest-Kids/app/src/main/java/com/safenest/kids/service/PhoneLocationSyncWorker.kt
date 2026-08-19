@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit
 
 class PhoneLocationSyncWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
+        ApiClient.init(applicationContext)
         val prefs = PrefsHelper(applicationContext)
         val childId = prefs.getChildId()
         val deviceId = prefs.getDeviceId()

@@ -56,6 +56,8 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         // it never performs a network call on the accessibility callback.
         RuleSyncWorker.enqueuePeriodic(this)
         RuleSyncWorker.enqueueImmediate(this)
+        PhoneLocationPolicySyncWorker.enqueuePeriodic(this)
+        PhoneLocationPolicySyncWorker.enqueueImmediate(this)
         Log.d(TAG, "Service connected — listening for window events")
     }
 

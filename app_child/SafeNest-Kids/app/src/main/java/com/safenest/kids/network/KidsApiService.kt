@@ -71,6 +71,9 @@ interface KidsApiService {
     @GET("api/children/device-effective/protection")
     suspend fun getEffectiveProtectionPolicy(): Response<EffectiveProtectionPolicyResponse>
 
+    @GET("api/child-devices/device-effective/phone-location")
+    suspend fun getEffectivePhoneLocationPolicy(): Response<PhoneLocationPolicyResponse>
+
     @GET("api/child-devices/{device_id}/screen-time-policy")
     suspend fun getScreenTimePolicy(
         @Path("device_id") deviceId: String,
