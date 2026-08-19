@@ -1,6 +1,7 @@
 package com.example.safenest.protection
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DeviceProtectionStatusFormatterTest {
@@ -26,5 +27,18 @@ class DeviceProtectionStatusFormatterTest {
         val status = DeviceProtectionStatusFormatter.format(null, null, null)
 
         assertEquals("Protection status not yet reported by this device", status.text)
+    }
+
+    @Test
+    fun protectedHomeRecoveryIsShownBeforeCoarseConsumerHealth() {
+        val status = DeviceProtectionStatusFormatter.format(
+            health = "consumer_best_effort",
+            mode = "device_admin_only",
+            uninstallProtectionConfirmed = false,
+            permissionStates = mapOf("protected_home" to "denied"),
+        )
+
+        assertTrue(status.text.contains("Protected Home needs reactivation"))
+        assertEquals("#B94040", status.colorHex)
     }
 }

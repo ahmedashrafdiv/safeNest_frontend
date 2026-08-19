@@ -18,6 +18,7 @@ data class ChildDeviceSummary(
     @SerializedName("protection_health") val protectionHealth: String? = null,
     @SerializedName("protection_mode") val protectionMode: String? = null,
     @SerializedName("uninstall_protection_confirmed") val uninstallProtectionConfirmed: Boolean? = null,
+    @SerializedName("permission_states") val permissionStates: Map<String, String> = emptyMap(),
 )
 
 data class ChildDevicePairingRequest(

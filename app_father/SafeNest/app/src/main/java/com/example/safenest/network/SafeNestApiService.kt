@@ -1,5 +1,6 @@
-package com.example.safenest.network
+﻿package com.example.safenest.network
 
+import com.example.safenest.BuildConfig
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -13,7 +14,7 @@ import retrofit2.http.Query
 interface SafeNestApiService {
 
     companion object {
-        const val BASE_URL = "https://safe-nest-deployment.vercel.app/"
+        val BASE_URL: String get() = BuildConfig.API_BASE_URL
     }
 
     // ============ Authentication ============
@@ -273,6 +274,13 @@ interface SafeNestApiService {
         @Path("child_id") childId: String,
         @Path("device_id") deviceId: String,
     ): Response<EffectiveAppBlockingPolicyResponse>
+
+    @GET("api/children/{child_id}/devices/{device_id}/effective-policy/protection")
+    suspend fun getEffectiveProtectionPolicy(
+        @Path("child_id") childId: String,
+        @Path("device_id") deviceId: String,
+    ): Response<EffectiveProtectionPolicyResponse>
+
     @PATCH("api/child-devices/{child_id}/devices/{device_id}/phone-location")
     suspend fun setPhoneTrackingForDevice(
         @Path("child_id") childId: String,
@@ -290,4 +298,3 @@ interface SafeNestApiService {
         @Path("child_id") childId: String,
         @Body request: ScreenTimePolicyCreateRequest,
     ): Response<Unit>}
-

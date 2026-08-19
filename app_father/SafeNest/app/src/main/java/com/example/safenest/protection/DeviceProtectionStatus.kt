@@ -16,9 +16,29 @@ object DeviceProtectionStatusFormatter {
         health: String?,
         mode: String?,
         uninstallProtectionConfirmed: Boolean?,
+        permissionStates: Map<String, String> = emptyMap(),
     ): DeviceProtectionStatus {
         val normalizedHealth = health?.trim()?.lowercase()
         val normalizedMode = mode?.trim()?.lowercase()
+
+        if (permissionStates["protected_home"] == "denied") {
+            return DeviceProtectionStatus(
+                text = "Protected Home needs reactivation — pre-delete launcher protection is inactive",
+                colorHex = "#B94040",
+            )
+        }
+        if (permissionStates["accessibility"] == "denied") {
+            return DeviceProtectionStatus(
+                text = "Accessibility is off — app blocking needs recovery",
+                colorHex = "#B94040",
+            )
+        }
+        if (permissionStates["device_admin"] == "denied") {
+            return DeviceProtectionStatus(
+                text = "Device Admin is inactive — removal barrier needs recovery",
+                colorHex = "#B7791F",
+            )
+        }
 
         if (uninstallProtectionConfirmed == true && normalizedMode in managedOwnerModes) {
             return DeviceProtectionStatus(

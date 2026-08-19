@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -15,14 +16,20 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.safenest.R
 import com.example.safenest.network.ChildDeviceSummary
+import com.example.safenest.network.EffectiveProtectionPolicyResponse
+import com.example.safenest.policy.ParentProtectedHomeScopeCoordinator
 import com.example.safenest.policy.ParentPolicyScope
 import com.example.safenest.policy.ParentPolicyScopeStore
+import com.example.safenest.policy.ProtectedHomePolicyMutation
 import com.example.safenest.policy.SelectedPolicyDevice
 import com.example.safenest.protection.DeviceProtectionStatusFormatter
+import com.example.safenest.protection.ProtectedHomePolicyStatusFormatter
+import com.example.safenest.repository.ChildDeviceRepository
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.ChildDevicesViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlinx.coroutines.launch
 
 /**
@@ -35,6 +42,7 @@ class MyDevicesFragment : Fragment() {
     private var emptyText: TextView? = null
     private var devicesContainer: LinearLayout? = null
     private var scopeContextText: TextView? = null
+    private val protectedHomeCoordinator by lazy { ParentProtectedHomeScopeCoordinator(ChildDeviceRepository()) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.fragment_my_devices, container, false)
@@ -141,8 +149,10 @@ class MyDevicesFragment : Fragment() {
                 health = device.protectionHealth,
                 mode = device.protectionMode,
                 uninstallProtectionConfirmed = device.uninstallProtectionConfirmed,
+                permissionStates = device.permissionStates,
             )
             addView(label(protectionStatus.text, 13f, protectionStatus.colorHex))
+            addView(protectedHomePanel(device))
             addView(MaterialButton(requireContext()).apply {
                 text = "Revoke this device"
                 setTextColor(Color.WHITE)
@@ -150,6 +160,114 @@ class MyDevicesFragment : Fragment() {
                 setOnClickListener { confirmRevoke(device) }
             })
         })
+    }
+
+    private fun protectedHomePanel(device: ChildDeviceSummary): View {
+        val card = MaterialCardView(requireContext()).apply {
+            radius = 20f
+            strokeWidth = 1
+            strokeColor = Color.parseColor("#B9DDD9")
+            setCardBackgroundColor(Color.parseColor("#F5FBFA"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply { bottomMargin = 14 }
+        }
+        val content = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(20, 20, 20, 18)
+        }
+        val title = label("Home Screen Protection", 16f, "#15385F")
+        val detail = label("Loading this device’s protection preference…", 13f, "#6B7280")
+        val toggle = SwitchMaterial(requireContext()).apply {
+            text = "Use Layngo Protected Home"
+            textSize = 14f
+            setTextColor(Color.parseColor("#15385F"))
+            minimumHeight = 48
+            isEnabled = false
+        }
+        content.addView(title)
+        content.addView(detail)
+        content.addView(toggle)
+        card.addView(content)
+
+        var latest: EffectiveProtectionPolicyResponse? = null
+        lateinit var toggleListener: CompoundButton.OnCheckedChangeListener
+
+        fun render(policy: EffectiveProtectionPolicyResponse) {
+            latest = policy
+            val status = ProtectedHomePolicyStatusFormatter.format(
+                requested = policy.values.protectedHomeRequested,
+                permissionState = device.permissionStates["protected_home"],
+            )
+            title.text = status.title
+            detail.text = status.detail
+            detail.setTextColor(Color.parseColor(status.colorHex))
+            toggle.setOnCheckedChangeListener(null)
+            toggle.isChecked = policy.values.protectedHomeRequested
+            toggle.isEnabled = device.status.equals("active", ignoreCase = true)
+            toggle.setOnCheckedChangeListener(toggleListener)
+        }
+
+        fun refresh() {
+            val childId = viewModel.selectedChildId() ?: run {
+                detail.text = "Select a child before changing device protection."
+                return
+            }
+            viewLifecycleOwner.lifecycleScope.launch {
+                when (val result = ChildDeviceRepository().getEffectiveProtectionPolicy(childId, device.deviceId)) {
+                    is Result.Success -> render(result.data)
+                    is Result.Error -> {
+                        detail.text = result.message
+                        detail.setTextColor(Color.parseColor("#B94040"))
+                        toggle.isEnabled = false
+                    }
+                    Result.Loading -> Unit
+                }
+            }
+        }
+
+        fun persist(requested: Boolean, expectedVersion: Int) {
+            val childId = viewModel.selectedChildId() ?: run {
+                detail.text = "Select a child before changing device protection."
+                return
+            }
+            toggle.isEnabled = false
+            detail.text = "Saving the protection preference…"
+            viewLifecycleOwner.lifecycleScope.launch {
+                when (val mutation = protectedHomeCoordinator.saveForDevice(
+                    childId = childId,
+                    deviceId = device.deviceId,
+                    requested = requested,
+                    expectedVersion = expectedVersion,
+                )) {
+                    is ProtectedHomePolicyMutation.Applied -> refresh()
+                    is ProtectedHomePolicyMutation.Failed -> {
+                        detail.text = mutation.message
+                        detail.setTextColor(Color.parseColor("#B94040"))
+                        latest?.let(::render)
+                    }
+                    is ProtectedHomePolicyMutation.Conflict -> {
+                        render(mutation.latest)
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Protection policy changed")
+                            .setMessage("The latest device setting was loaded. Apply your choice again using the current version?")
+                            .setNegativeButton("Keep latest", null)
+                            .setPositiveButton("Apply my choice") { _, _ ->
+                                persist(requested, mutation.latest.version)
+                            }
+                            .show()
+                    }
+                }
+            }
+        }
+
+        toggleListener = CompoundButton.OnCheckedChangeListener { _, requested ->
+            val current = latest ?: return@OnCheckedChangeListener
+            persist(requested, current.version)
+        }
+        refresh()
+        return card
     }
 
     private fun label(textValue: String, size: Float, color: String) = TextView(requireContext()).apply {
