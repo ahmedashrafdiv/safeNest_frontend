@@ -26,7 +26,7 @@ data class DigitalRuleResponse(
     @SerializedName("allowedApp") val allowedApp: List<String>? = null,
     @SerializedName("appControlMode") val appControlMode: String? = "blocklist",
     @SerializedName("dailyUsageLog") val dailyUsageLog: Map<String, Int>?,
-    @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Int>? = null
+    @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Map<String, Int>>? = null
 )
 
 data class InstalledApp(
@@ -149,7 +149,7 @@ data class EffectiveAppBlockingValues(
     @SerializedName("blockedApp") val blockedApp: List<String> = emptyList(),
     @SerializedName("allowedApp") val allowedApp: List<String> = emptyList(),
     @SerializedName("appControlMode") val appControlMode: String = "blocklist",
-    @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Int> = emptyMap(),
+    @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Map<String, Int>> = emptyMap(),
 )
 
 data class EffectiveAppBlockingPolicyResponse(
