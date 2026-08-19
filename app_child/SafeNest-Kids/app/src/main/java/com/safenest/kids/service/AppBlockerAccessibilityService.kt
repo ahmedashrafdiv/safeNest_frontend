@@ -85,6 +85,7 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         if (pkg == packageName) return
 
         enqueueBoundPolicyRefreshIfDue()
+        enqueuePhoneLocationPolicyRefreshIfDue()
 
         // Local-only read — no network call
         val blockedApps = prefsHelper.getBlockedApps()
@@ -154,6 +155,16 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         prefsHelper.setLastAppPolicyRefreshEnqueueAt(nowMillis)
         RuleSyncWorker.enqueueImmediate(this)
         Log.d(TAG, "Enqueued a debounced bound app-policy refresh from a foreground transition")
+    }
+
+    private fun enqueuePhoneLocationPolicyRefreshIfDue() {
+        val nowMillis = System.currentTimeMillis()
+        if (!AppPolicyRefreshDecider.shouldEnqueue(prefsHelper.getLastPhoneLocationPolicyRefreshEnqueueAt(), nowMillis)) {
+            return
+        }
+        prefsHelper.setLastPhoneLocationPolicyRefreshEnqueueAt(nowMillis)
+        PhoneLocationPolicySyncWorker.enqueueImmediate(this)
+        Log.d(TAG, "Enqueued a debounced phone-location policy refresh from a foreground transition")
     }
 
     private fun extractNodeText(node: AccessibilityNodeInfo?): String {

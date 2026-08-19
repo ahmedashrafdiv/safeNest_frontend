@@ -123,7 +123,14 @@ class PrefsHelper(context: Context) {
         prefs.edit().putBoolean("phone_tracking_enabled", enabled).apply()
     }
 
-    fun isPhoneTrackingEnabled(): Boolean = prefs.getBoolean("phone_tracking_enabled", true)
+    fun isPhoneTrackingEnabled(): Boolean = prefs.getBoolean("phone_tracking_enabled", false)
+
+    fun setLastPhoneLocationPolicyRefreshEnqueueAt(value: Long) {
+        prefs.edit().putLong("phone_location_policy_refresh_enqueued_at", value).apply()
+    }
+
+    fun getLastPhoneLocationPolicyRefreshEnqueueAt(): Long =
+        prefs.getLong("phone_location_policy_refresh_enqueued_at", 0L)
 
     fun setPhoneTrackingPermissionState(state: String) {
         prefs.edit().putString("phone_tracking_permission_state", state).apply()
