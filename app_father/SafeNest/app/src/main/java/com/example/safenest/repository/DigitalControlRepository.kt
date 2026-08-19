@@ -39,7 +39,7 @@ class DigitalControlRepository : BaseRepository() {
         maxScreenTime: Int? = null,
         blockedApp: List<String>? = null,
         allowedApp: List<String>? = null,
-        appTimeLimits: Map<String, Int>? = null,
+        appTimeLimits: Map<String, Map<String, Int>>? = null,
         appControlMode: String? = null
     ): Result<DigitalRuleResponse> =
         safeApiCall {

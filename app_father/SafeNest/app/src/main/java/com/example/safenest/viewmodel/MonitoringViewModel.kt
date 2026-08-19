@@ -74,7 +74,7 @@ class MonitoringViewModel(application: Application) : AndroidViewModel(applicati
         maxScreenTime: Int? = null,
         blockedApp: List<String>? = null,
         allowedApp: List<String>? = null,
-        appTimeLimits: Map<String, Int>? = null,
+        appTimeLimits: Map<String, Map<String, Int>>? = null,
         appControlMode: String? = null
     ) {
         viewModelScope.launch(Dispatchers.IO) {

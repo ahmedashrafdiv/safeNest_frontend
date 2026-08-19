@@ -8,8 +8,10 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.safenest.kids.BlockedAppActivity
+import com.safenest.kids.util.AppTimeLimitResolver
 import com.safenest.kids.util.AppUsageHelper
 import com.safenest.kids.util.PrefsHelper
+import com.safenest.kids.util.WeekdayCode
 import com.safenest.kids.security.UninstallAttemptClassifier
 import org.json.JSONObject
 
@@ -206,21 +208,29 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         val limitsJson = PrefsHelper(context).getAppTimeLimitsJson()
             ?: return false
 
-        val limits = try {
-            val obj = JSONObject(limitsJson)
-            val map = mutableMapOf<String, Int>()
-            obj.keys().forEach { key -> map[key] = obj.getInt(key) }
-            map
+        val perDayMinutes = try {
+            parsePerDayLimit(JSONObject(limitsJson), pkg)
         } catch (e: Exception) {
             return false
+        } ?: return false
+
+        val usedMinutes = AppUsageHelper.getTodayUsageStats(context)[pkg] ?: 0L
+        return AppTimeLimitResolver.isOverLimit(perDayMinutes, WeekdayCode.today(), usedMinutes)
+    }
+
+    /**
+     * The Backend always serves the per-day shape, but a device that has not synced since
+     * per-weekday limits shipped still holds a cached flat minute count — expand it to every
+     * day so enforcement stays correct until the next policy sync.
+     */
+    private fun parsePerDayLimit(limits: JSONObject, pkg: String): Map<String, Int>? {
+        if (!limits.has(pkg)) return null
+        limits.optJSONObject(pkg)?.let { dayObject ->
+            return WeekdayCode.CODES.associateWith { dayObject.optInt(it, 0) }
         }
-
-        val limitMinutes = limits[pkg] ?: return false
-
-        val usageMap = AppUsageHelper.getTodayUsageStats(context)
-        val usedMinutes = usageMap[pkg] ?: 0L
-
-        return usedMinutes >= limitMinutes
+        val flatMinutes = limits.optInt(pkg, -1)
+        if (flatMinutes < 0) return null
+        return WeekdayCode.CODES.associateWith { flatMinutes }
     }
 
     fun isDailyScreenTimeLimitReached(context: Context): Boolean {

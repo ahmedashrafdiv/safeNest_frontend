@@ -129,7 +129,7 @@ data class DigitalRuleUpdateRequest(
     @SerializedName("max_screen_time") val maxScreenTime: Int? = null,
     @SerializedName("blocked_app") val blockedApp: List<String>? = null,
     @SerializedName("allowed_app") val allowedApp: List<String>? = null,
-    @SerializedName("app_time_limits") val appTimeLimits: Map<String, Int>? = null,
+    @SerializedName("app_time_limits") val appTimeLimits: Map<String, Map<String, Int>>? = null,
     @SerializedName("app_control_mode") val appControlMode: String? = null
 )
 
@@ -147,7 +147,7 @@ data class DigitalRuleResponse(
     @SerializedName("limitConfirmationRequired") val limitConfirmationRequired: Boolean = false,
     @SerializedName("blockedApp") val blockedApp: List<String> = emptyList(),
     @SerializedName("allowedApp") val allowedApp: List<String> = emptyList(),
-    @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Int> = emptyMap(),
+    @SerializedName("appTimeLimits") val appTimeLimits: Map<String, Map<String, Int>> = emptyMap(),
     @SerializedName("appControlMode") val appControlMode: String = "blocklist",
     @SerializedName("dailyUsageLog") val dailyUsageLog: Map<String, Int> = emptyMap(),
     @SerializedName("videoHistory") val videoHistory: List<Map<String, Any>> = emptyList()

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
+    android:background="@color/daily_usage_ivory"
     android:layoutDirection="rtl"
     android:textDirection="rtl">
 
@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/saveBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -21,49 +21,47 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="24dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp">
 
-            <!-- Back Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/backButton"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/lemonada_bold"
+                android:layout_height="48dp"
+                android:minWidth="48dp"
                 android:text="@string/back"
-                android:textColor="@color/purple_dark" />
+                android:textColor="@color/navy_brand" />
 
-            <!-- Title -->
             <TextView
+                android:id="@+id/screenTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/lemonada_bold"
-                android:text="@string/installed_apps"
-                android:textColor="@color/purple_dark"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:text="تطبيقات طفلك"
+                android:textColor="@color/navy_brand"
+                android:textSize="22sp" />
 
             <TextView
+                android:id="@+id/appCountText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
-                android:fontFamily="@font/lemonada_bold"
-                android:text="@string/installed_apps_subtitle"
                 android:textColor="@color/gray_medium"
                 android:textSize="13sp" />
 
+            <!-- Policy card: the two mutually exclusive control modes -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/appControlModeCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="@color/mint_surface"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
-                app:strokeColor="@color/teal_brand"
-                app:strokeWidth="1dp">
+                app:cardElevation="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -74,48 +72,113 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:text="طريقة التحكم في التطبيقات"
-                        android:textColor="@color/navy_brand"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:text="طريقة التحكم"
+                        android:textColor="@color/gray_medium"
+                        android:textSize="12sp" />
 
                     <RadioGroup
                         android:id="@+id/appControlModeGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp">
-
-                        <RadioButton
-                            android:id="@+id/allowlistMode"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:minHeight="48dp"
-                            android:text="السماح بالتطبيقات المختارة فقط"
-                            android:textColor="@color/navy_brand"
-                            android:textSize="14sp" />
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical">
 
                         <RadioButton
                             android:id="@+id/blocklistMode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:minHeight="48dp"
-                            android:text="حظر التطبيقات المختارة فقط"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:text="حظر التطبيقات المختارة"
                             android:textColor="@color/navy_brand"
-                            android:textSize="14sp" />
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="40dp"
+                            android:layout_marginBottom="8dp"
+                            android:text="كل التطبيقات متاحة، إلا ما تحظره أو تحدد له وقتًا."
+                            android:textColor="@color/gray_medium"
+                            android:textSize="12sp" />
+
+                        <RadioButton
+                            android:id="@+id/allowlistMode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:text="السماح فقط للتطبيقات المختارة"
+                            android:textColor="@color/navy_brand"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="40dp"
+                            android:text="لا تُفتح إلا التطبيقات التي تختارها."
+                            android:textColor="@color/gray_medium"
+                            android:textSize="12sp" />
                     </RadioGroup>
 
                     <TextView
                         android:id="@+id/appControlModeSummary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="8dp"
                         android:textColor="@color/gray_medium"
-                        android:textSize="13sp" />
+                        android:textSize="12sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Progress Bar -->
+            <!-- Filter tabs -->
+            <LinearLayout
+                android:id="@+id/filterTabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tabAll"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:textSize="12sp"
+                    app:cornerRadius="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tabTimed"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:textSize="12sp"
+                    app:cornerRadius="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tabBlocked"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:textSize="12sp"
+                    app:cornerRadius="16dp" />
+            </LinearLayout>
+
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
@@ -124,176 +187,118 @@
                 android:layout_marginTop="32dp"
                 android:visibility="gone" />
 
-            <!-- Empty State -->
             <TextView
                 android:id="@+id/emptyText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="48dp"
-                android:fontFamily="@font/lemonada_bold"
+                android:layout_marginTop="32dp"
                 android:gravity="center"
                 android:text="@string/no_installed_apps"
                 android:textColor="@color/gray_medium"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:visibility="gone" />
 
-            <!-- Installed application inventory reported by the Child device -->
+            <!-- App rows; the inline weekly editor is inserted under the selected row -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/availableAppsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/teal_brand"
-                app:strokeWidth="2dp"
-                android:visibility="gone">
+                app:cardElevation="1dp">
 
                 <LinearLayout
+                    android:id="@+id/availableAppsList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:text="التطبيقات المثبتة على جهاز الطفل"
-                        android:textColor="@color/teal_brand"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="في وضع السماح اختر التطبيقات التي ستعمل، وفي وضع الحظر اختر التطبيقات التي سيتم قفلها. يمكنك أيضًا تحديد وقت لكل تطبيق."
-                        android:textColor="@color/gray_medium"
-                        android:textSize="13sp" />
-
-                    <LinearLayout
-                        android:id="@+id/availableAppsList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="vertical" />
-                </LinearLayout>
+                    android:padding="16dp" />
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- التطبيقات المحظورة (Blocked Apps) Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/blockedAppsCard"
+            <!-- Blocked summary chips -->
+            <LinearLayout
+                android:id="@+id/blockedSummarySection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/lemonada_bold"
+                    android:text="التطبيقات المحظورة"
+                    android:textColor="@color/navy_brand"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/blockedSummaryChips"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <!-- Timed summary chips -->
+            <LinearLayout
+                android:id="@+id/timedSummarySection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/pink_soft"
-                app:strokeWidth="2dp"
+                android:orientation="vertical"
                 android:visibility="gone">
 
-                <LinearLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/lemonada_bold"
+                    android:text="تطبيقات لها وقت محدد"
+                    android:textColor="@color/navy_brand"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/timedSummaryChips"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <!-- Section Header -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:text="التطبيقات المحظوره"
-                        android:textColor="@color/pink_soft"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <!-- Blocked Apps List -->
-                    <LinearLayout
-                        android:id="@+id/blockedAppsList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="vertical" />
-
-                    <!-- Add App Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/addBlockedAppBtn"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="12dp"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:text="أضف تطبيق محظور"
-                        android:textSize="12sp"
-                        app:backgroundTint="@color/pink_soft"
-                        app:cornerRadius="20dp" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- التطبيقات المسموح بها (Allowed Apps) Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/allowedAppsCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/orange_accent"
-                app:strokeWidth="2dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <!-- Section Header -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:text="حدود وقت الاستخدام لكل تطبيق"
-                        android:textColor="@color/orange_accent"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <!-- Allowed Apps List -->
-                    <LinearLayout
-                        android:id="@+id/allowedAppsList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="vertical" />
-
-                    <!-- Add App Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/addAllowedAppBtn"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="12dp"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:text="أضف تطبيقًا بحد زمني"
-                        android:textSize="12sp"
-                        app:backgroundTint="@color/orange_accent"
-                        app:cornerRadius="20dp" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/saveBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/daily_usage_ivory"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveChangesButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:fontFamily="@font/lemonada_bold"
+            android:text="حفظ التغييرات"
+            android:textSize="15sp"
+            app:backgroundTint="@color/teal_brand"
+            app:cornerRadius="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:text="تصل القواعد إلى جهاز طفلك عند اتصاله بالإنترنت."
+            android:textColor="@color/gray_medium"
+            android:textSize="11sp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
