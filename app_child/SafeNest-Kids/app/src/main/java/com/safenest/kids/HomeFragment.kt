@@ -88,6 +88,8 @@ class HomeFragment : Fragment() {
         ProtectionHealthWorker.enqueueImmediate(requireContext())
         registerScreenTimePolicySyncWorker()
         registerAppUsageReportWorker()
+        // A newly opened Home screen must not wait up to 15 minutes before the Parent sees fresh usage.
+        AppUsageReportWorker.enqueueImmediate(requireContext())
 
         // Auto-send installed apps if this is a fresh pairing or if apps
         // were never successfully sent before
@@ -186,15 +188,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun registerAppUsageReportWorker() {
-        val usageRequest = PeriodicWorkRequestBuilder<AppUsageReportWorker>(
-            1, TimeUnit.HOURS
-        ).build()
-
-        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
-            "app_usage_report",
-            ExistingPeriodicWorkPolicy.KEEP,
-            usageRequest
-        )
+        AppUsageReportWorker.enqueuePeriodic(requireContext())
         Log.d("HomeFragment", "AppUsageReportWorker periodic registration enqueued.")
     }
 

@@ -2,13 +2,21 @@ package com.safenest.kids.service
 
 import android.content.Context
 import android.util.Log
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.safenest.kids.network.ApiClient
 import com.safenest.kids.network.AppUsageRequest
 import com.safenest.kids.util.AppUsageHelper
 import com.safenest.kids.util.PrefsHelper
 import com.safenest.kids.util.UsageSnapshotMetadataFactory
+import java.util.concurrent.TimeUnit
 
 class AppUsageReportWorker(
     context: Context,
@@ -17,6 +25,44 @@ class AppUsageReportWorker(
 
     companion object {
         private const val TAG = "AppUsageReport"
+        private const val IMMEDIATE_WORK_NAME = "immediate_app_usage_report"
+        private const val PERIODIC_WORK_NAME = "app_usage_report"
+
+        /** A freshly opened Home screen must not wait for the periodic interval before the Parent sees today's usage. */
+        fun enqueueImmediate(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+            val request = OneTimeWorkRequestBuilder<AppUsageReportWorker>()
+                .setConstraints(constraints)
+                .addTag(IMMEDIATE_WORK_NAME)
+                .build()
+            WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+                IMMEDIATE_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                request,
+            )
+        }
+
+        /**
+         * 15 minutes is the shortest interval Android's WorkManager allows for periodic
+         * background work. UPDATE (not KEEP) is required here so devices that already
+         * registered the previous 1-hour schedule pick up the corrected interval without
+         * a reinstall.
+         */
+        fun enqueuePeriodic(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+            val request = PeriodicWorkRequestBuilder<AppUsageReportWorker>(15, TimeUnit.MINUTES)
+                .setConstraints(constraints)
+                .build()
+            WorkManager.getInstance(context.applicationContext).enqueueUniquePeriodicWork(
+                PERIODIC_WORK_NAME,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                request,
+            )
+        }
     }
 
     override suspend fun doWork(): Result {
@@ -30,9 +76,12 @@ class AppUsageReportWorker(
 
         val usageMap = AppUsageHelper.getTodayUsageStats(applicationContext)
 
+        // An empty map is still reported (as a zero-usage snapshot) rather than skipped:
+        // the Backend's "current day" marker only advances when a snapshot arrives, so
+        // skipping here left the Parent looking at yesterday's stale day marker for as
+        // long as no single app had accumulated a full tracked minute after midnight.
         if (usageMap.isEmpty()) {
-            Log.d(TAG, "No usage to report")
-            return Result.success()
+            Log.d(TAG, "No usage yet today — reporting an empty snapshot to advance the day marker")
         }
 
         Log.d(TAG, "=== RAW USAGE MAP ===")

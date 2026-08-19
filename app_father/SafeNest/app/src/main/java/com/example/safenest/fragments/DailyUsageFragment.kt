@@ -16,6 +16,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.R
+import com.example.safenest.network.DigitalRuleResponse
 import com.example.safenest.util.DailyUsageApp
 import com.example.safenest.util.DailyUsageState
 import com.example.safenest.util.DailyUsageSummary
@@ -44,6 +45,8 @@ class DailyUsageFragment : Fragment() {
     private var showMore: MaterialButton? = null
     private var apps: List<DailyUsageApp> = emptyList()
     private var expanded = false
+    private var lastRule: DigitalRuleResponse? = null
+    private var appLabels: Map<String, String> = emptyMap()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
         return inflater.inflate(R.layout.fragment_daily_usage, container, false).also { view ->
@@ -78,16 +81,37 @@ class DailyUsageFragment : Fragment() {
                     viewModel.digitalRuleState.collect { result ->
                         when (result) {
                             is Result.Loading -> showLoading()
-                            is Result.Success -> { render(DailyUsageSummaryMapper.map(result.data)); viewModel.clearDigitalRuleState() }
+                            is Result.Success -> {
+                                lastRule = result.data
+                                render(DailyUsageSummaryMapper.map(result.data, appLabels))
+                                viewModel.clearDigitalRuleState()
+                            }
                             is Result.Error -> { showMessage("تعذر تحديث استخدام اليوم. أعد المحاولة لاحقاً."); viewModel.clearDigitalRuleState() }
                             null -> Unit
                         }
                     }
                 }
+                launch {
+                    // Real app labels only exist on the Child's own PackageManager; the Parent
+                    // reuses the Child-reported installed-apps list so packages outside it are
+                    // recognized as system components rather than guessed from the package name.
+                    viewModel.installedAppsState.collect { result ->
+                        if (result is Result.Success) {
+                            appLabels = result.data.apps.associate { it.packageName to it.appName }
+                            viewModel.clearInstalledAppsState()
+                            lastRule?.let { render(DailyUsageSummaryMapper.map(it, appLabels)) }
+                        }
+                    }
+                }
             }
         }
-        viewModel.getSelectedChildId()?.let(viewModel::getDigitalRule)
-            ?: showMessage("اختر طفلاً لعرض استخدامه اليومي.")
+        val childId = viewModel.getSelectedChildId()
+        if (childId != null) {
+            viewModel.getDigitalRule(childId)
+            viewModel.getInstalledApps(childId)
+        } else {
+            showMessage("اختر طفلاً لعرض استخدامه اليومي.")
+        }
     }
 
     override fun onResume() {
@@ -109,9 +133,12 @@ class DailyUsageFragment : Fragment() {
 
     private fun render(summary: DailyUsageSummary) {
         loader?.visibility = View.GONE
+        // Set before the early returns below so the header never stays stuck on the
+        // "جاري تحديث البيانات" layout placeholder when the state is STALE or unconfirmed.
+        updatedText?.text = summary.relativeUpdatedText
         when (summary.state) {
             DailyUsageState.LIMIT_CONFIRMATION_REQUIRED -> return showMessage("حد الاستخدام يحتاج إلى تأكيد قبل عرض ملخص دقيق.")
-            DailyUsageState.STALE -> return showMessage("بيانات الاستخدام ليست لليوم الحالي بعد.")
+            DailyUsageState.STALE -> return showMessage("لسه معندناش بيانات استخدام النهارده؛ هتظهر أول ما جهاز الطفل يبعت أول تقرير.")
             else -> Unit
         }
         summaryCard?.visibility = View.VISIBLE
@@ -125,7 +152,6 @@ class DailyUsageFragment : Fragment() {
         totalText?.text = DailyUsageSummaryMapper.formatDuration(summary.totalMinutes)
         limitText?.text = "الحد اليومي ${DailyUsageSummaryMapper.formatDuration(summary.dailyLimitMinutes)}"
         remainingText?.text = if (overLimit) "تم تجاوز الحد اليومي" else "متبقّي ${DailyUsageSummaryMapper.formatDuration(summary.remainingMinutes)} اليوم"
-        updatedText?.text = summary.relativeUpdatedText
         apps = summary.apps
         expanded = false
         renderApps()
