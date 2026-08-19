@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ivory_surface"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:layoutDirection="rtl"
+    android:textDirection="rtl">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="30dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
+
+        <ImageView
+            android:id="@+id/welcomeLogo"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:contentDescription="Layngo"
+            android:scaleType="centerInside"
+            android:src="@drawable/layngo_logo" />
+
+        <TextView
+            android:id="@+id/welcomeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/lemonada_bold"
+            android:gravity="center"
+            android:text="حساب واحد لعائلتك"
+            android:textColor="@color/navy_brand"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/welcomeDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:text="أنشئ مساحة عائلتك لمتابعة الإعدادات وزيارات الحماية المتصلة، أينما استخدمت Layngo."
+            android:textColor="@color/navy_brand"
+            android:textSize="12sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/secureLinkIllustration"
+            android:layout_width="match_parent"
+            android:layout_height="118dp"
+            android:layout_marginTop="18dp"
+            android:contentDescription="Secure family device connection">
+
+            <ImageView
+                android:id="@+id/leftPhone"
+                android:layout_width="56dp"
+                android:layout_height="82dp"
+                android:contentDescription="Child phone illustration"
+                android:src="@drawable/ic_welcome_phone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/secureLink"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.56" />
+
+            <ImageView
+                android:id="@+id/secureLink"
+                android:layout_width="96dp"
+                android:layout_height="24dp"
+                android:contentDescription="Secure dotted connection"
+                android:src="@drawable/ic_welcome_dotted_link"
+                app:layout_constraintBottom_toBottomOf="@id/leftPhone"
+                app:layout_constraintEnd_toStartOf="@id/rightPhone"
+                app:layout_constraintStart_toEndOf="@id/leftPhone"
+                app:layout_constraintTop_toTopOf="@id/leftPhone" />
+
+            <ImageView
+                android:id="@+id/rightPhone"
+                android:layout_width="56dp"
+                android:layout_height="82dp"
+                android:contentDescription="Parent phone illustration"
+                android:src="@drawable/ic_welcome_phone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/secureLink"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.56" />
+
+            <ImageView
+                android:id="@+id/secureShield"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:contentDescription="Secure connection"
+                android:src="@drawable/ic_welcome_shield"
+                app:layout_constraintBottom_toBottomOf="@id/secureLink"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/secureLink" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/welcomeGuidanceCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:cardBackgroundColor="#E6F6F4"
+            app:cardCornerRadius="13dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="12dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:contentDescription="Guidance confirmed"
+                    android:src="@drawable/ic_welcome_check" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center_vertical"
+                    android:text="نساعدك في ربط جهاز الطفل خطوة بخطوة."
+                    android:textColor="@color/navy_brand"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="34dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createAccountButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:contentDescription="Create a new parent account"
+            android:fontFamily="@font/lemonada_bold"
+            android:text="إنشاء حساب"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:backgroundTint="@color/teal_brand"
+            app:cornerRadius="11dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/signInButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="Sign in to an existing parent account"
+            android:fontFamily="sans-serif"
+            android:text="لديك حساب بالفعل؟ تسجيل الدخول"
+            android:textColor="@color/teal_brand"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/welcomeHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:text="يمكنك إكمال ربط جهاز الطفل لاحقاً."
+            android:textColor="@color/gray_medium"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

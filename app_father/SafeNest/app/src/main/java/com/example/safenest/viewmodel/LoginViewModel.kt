@@ -24,11 +24,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val _registerState = MutableStateFlow<Result<MessageResponse>?>(null)
     val registerState: StateFlow<Result<MessageResponse>?> = _registerState.asStateFlow()
 
-    fun register(email: String, password: String) {
+    fun register(name: String, email: String, password: String) {
         viewModelScope.launch(Dispatchers.IO) {
             _registerState.value = Result.Loading
             _registerState.value = authRepository.register(
-                name = email.substringBefore("@"),
+                name = name,
                 email = email,
                 password = password,
                 phone = null

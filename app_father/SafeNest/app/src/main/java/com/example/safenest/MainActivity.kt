@@ -11,6 +11,8 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.example.safenest.fragments.HomeFragment
 import com.example.safenest.fragments.LoginFragment
+import com.example.safenest.fragments.ParentWelcomeFragment
+import com.example.safenest.navigation.ParentLaunchDestination
 import com.example.safenest.network.ApiClient
 import com.example.safenest.network.FCMTokenUpdateRequest
 import com.example.safenest.util.SessionManager
@@ -43,17 +45,38 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        // Check if user is already logged in
-        if (SessionManager(this).isLoggedIn()) {
-            showStartupInbox()
-        } else {
-            showLoginFragment()
+        val sessionManager = SessionManager(this)
+        when (ParentLaunchDestination.resolve(
+            isLoggedIn = sessionManager.isLoggedIn(),
+            hasCompletedWelcome = sessionManager.hasCompletedParentWelcome(),
+        )) {
+            ParentLaunchDestination.STARTUP_INBOX -> showStartupInbox()
+            ParentLaunchDestination.WELCOME -> showWelcomeFragment()
+            ParentLaunchDestination.SIGN_IN -> showSignInFragment()
         }
+    }
+
+    private fun showWelcomeFragment() {
+        replaceFragment(ParentWelcomeFragment())
     }
 
     private fun showLoginFragment() {
         val loginFragment = LoginFragment()
         replaceFragment(loginFragment)
+    }
+
+    private fun showSignInFragment() {
+        replaceFragment(com.example.safenest.fragments.LoginSignInFragment())
+    }
+
+    fun openRegistrationFromWelcome() {
+        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        showLoginFragment()
+    }
+
+    fun openSignInFromWelcome() {
+        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        showSignInFragment()
     }
 
     private fun showHomeFragment() {
@@ -88,6 +111,7 @@ class MainActivity : AppCompatActivity() {
 
     // Go to home after successful login (clears back stack)
     fun goToHome() {
+        SessionManager(this).markParentWelcomeCompleted()
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         showStartupInbox()
     }
@@ -107,6 +131,7 @@ class MainActivity : AppCompatActivity() {
 
     // Navigate to a fragment after authentication (clears back stack)
     fun goToHomeAfterAuth(fragment: Fragment) {
+        SessionManager(this).markParentWelcomeCompleted()
         supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         replaceFragment(fragment)
     }

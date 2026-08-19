@@ -11,6 +11,7 @@ class SessionManager(context: Context) {
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_PARENT_ID = "parent_id"
         private const val KEY_SELECTED_CHILD_ID = "selected_child_id"
+        private const val KEY_PARENT_WELCOME_COMPLETED = "parent_welcome_completed"
     }
 
     private val prefs: SharedPreferences =
@@ -42,9 +43,23 @@ class SessionManager(context: Context) {
 
     fun getSelectedChildId(): String? = prefs.getString(KEY_SELECTED_CHILD_ID, null)
 
+    // ── First-launch welcome ─────────────────────────────────────────────────
+
+    fun hasCompletedParentWelcome(): Boolean = prefs.getBoolean(KEY_PARENT_WELCOME_COMPLETED, false)
+
+    fun markParentWelcomeCompleted() {
+        prefs.edit().putBoolean(KEY_PARENT_WELCOME_COMPLETED, true).apply()
+    }
+
     // ── Logout ────────────────────────────────────────────────────────────────
 
     fun clearAll() {
-        prefs.edit().clear().apply()
+        // Preserve the welcome decision so logout returns to the familiar
+        // registration/sign-in entry rather than replaying first-run onboarding.
+        prefs.edit()
+            .remove(KEY_ACCESS_TOKEN)
+            .remove(KEY_PARENT_ID)
+            .remove(KEY_SELECTED_CHILD_ID)
+            .apply()
     }
 }

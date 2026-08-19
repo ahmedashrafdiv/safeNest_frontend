@@ -1,214 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Layngo sign-in reference match: quiet ivory surface, compact centered mark, RTL form hierarchy, single teal CTA. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/ivory_surface"
+    android:clipToPadding="false"
+    android:fillViewport="true"
     android:layoutDirection="rtl"
-    android:padding="24dp"
-    tools:context=".fragments.LoginFragment">
+    android:paddingHorizontal="20dp">
 
-    <!-- الشعار -->
-    <ImageView
-        android:id="@+id/shieldLogo"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:contentDescription="SafeNest Logo"
-        android:scaleType="centerInside"
-        android:src="@drawable/logo"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.1" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layoutDirection="rtl"
+        android:minHeight="560dp">
 
-    <!-- مرحبا -->
-    <TextView
-        android:id="@+id/welcomeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/lemonada_bold"
-        android:text="اهلا بعودتك!"
-        android:textColor="@color/purple_accent"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/shieldLogo" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/backButton"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="العودة"
+            android:fontFamily="sans"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:text="→"
+            android:textColor="@color/navy_brand"
+            android:textSize="24sp"
+            app:backgroundTint="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- حقل البريد الإلكتروني -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/emailInputLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:hint="البريد الإلكتروني"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="@color/purple_accent"
-        app:hintTextColor="@color/purple_accent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/welcomeText">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextTextEmailAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/lemonada_bold"
-            android:inputType="textEmailAddress"
-            android:textDirection="rtl" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- حقل كلمة المرور -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/passwordInputLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="كلمه المرور"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="@color/purple_accent"
-        app:endIconMode="password_toggle"
-        app:hintTextColor="@color/purple_accent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/emailInputLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/pass"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/lemonada_bold"
-            android:inputType="textPassword"
-            android:textDirection="rtl" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- سؤال التطبيق -->
-    <TextView
-        android:id="@+id/appQuestion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:fontFamily="@font/lemonada_bold"
-        android:text="هل مازال التطبيق لدى طفلك ؟"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/passwordInputLayout" />
-
-    <!-- رابط الربط -->
-    <TextView
-        android:id="@+id/linkNowText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/lemonada_bold"
-        android:text="اربطه الان !"
-        android:textColor="@color/purple_accent"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appQuestion" />
-
-    <!-- كود الطفل -->
-    <TextView
-        android:id="@+id/childCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="@font/lemonada_bold"
-        android:text="كود الطفل"
-        android:textColor="@color/purple_accent"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linkNowText" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/childCodeCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@color/purple_accent"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/childCode">
+        <ImageView
+            android:id="@+id/shieldLogo"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="Layngo"
+            android:scaleType="centerInside"
+            android:src="@drawable/layngo_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/childCodeView"
-            android:layout_width="match_parent"
+            android:id="@+id/welcomeText"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
             android:fontFamily="@font/lemonada_bold"
             android:gravity="center"
-            android:paddingVertical="12dp"
-            android:text="147-325-869"
+            android:lineSpacingExtra="-2dp"
+            android:text="تسجيل الدخول إلى\nLayngo"
+            android:textColor="@color/navy_brand"
+            android:textSize="21sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/shieldLogo" />
+
+        <TextView
+            android:id="@+id/signInSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans"
+            android:gravity="center"
+            android:lineSpacingExtra="1dp"
+            android:text="استخدم حسابك لمتابعة إعدادات عائلتك اليوم."
+            android:textColor="@color/gray_medium"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/welcomeText" />
+
+        <TextView
+            android:id="@+id/emailLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:fontFamily="sans"
+            android:text="البريد الإلكتروني"
+            android:textColor="@color/navy_brand"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/signInSubtitle" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emailInputLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="6dp"
+            app:boxBackgroundColor="@color/white"
+            app:boxCornerRadiusBottomEnd="13dp"
+            app:boxCornerRadiusBottomStart="13dp"
+            app:boxCornerRadiusTopEnd="13dp"
+            app:boxCornerRadiusTopStart="13dp"
+            app:boxStrokeColor="@color/gray_light"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emailLabel">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextTextEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="sans"
+                android:gravity="center_vertical|start"
+                android:hint="name@example.com"
+                android:inputType="textEmailAddress"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/navy_brand"
+                android:textColorHint="@color/gray_medium"
+                android:textDirection="ltr"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/passwordLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="13dp"
+            android:fontFamily="sans"
+            android:text="كلمة المرور"
+            android:textColor="@color/navy_brand"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/emailInputLayout" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordInputLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="6dp"
+            app:boxBackgroundColor="@color/white"
+            app:boxCornerRadiusBottomEnd="13dp"
+            app:boxCornerRadiusBottomStart="13dp"
+            app:boxCornerRadiusTopEnd="13dp"
+            app:boxCornerRadiusTopStart="13dp"
+            app:boxStrokeColor="@color/gray_light"
+            app:boxStrokeWidth="1dp"
+            app:boxStrokeWidthFocused="1dp"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/gray_medium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/passwordLabel">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/pass"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="sans"
+                android:gravity="center_vertical|start"
+                android:hint="••••••••"
+                android:inputType="textPassword"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/navy_brand"
+                android:textColorHint="@color/gray_medium"
+                android:textDirection="ltr"
+                android:textSize="14sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/forgotPasswordText"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="2dp"
+            android:contentDescription="استعادة كلمة المرور"
+            android:fontFamily="sans"
+            android:gravity="center_vertical"
+            android:text="هل نسيت كلمة المرور؟"
+            android:textColor="@color/teal_brand"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/passwordInputLayout" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/loginBtn"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="14dp"
+            android:fontFamily="@font/lemonada_bold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="تسجيل الدخول"
             android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textSize="15sp"
+            app:backgroundTint="@color/teal_brand"
+            app:cornerRadius="28dp"
+            app:layout_constraintBottom_toTopOf="@id/childPhoneLink"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- رابط ربط الهاتف -->
-    <LinearLayout
-        android:id="@+id/childPhoneLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/childCodeCard">
-
-        <TextView
+        <LinearLayout
+            android:id="@+id/childPhoneLink"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/lemonada_bold"
-            android:text="اضغط هنا"
-            android:textColor="@color/purple_accent"
-            android:textSize="14sp" />
+            android:layout_height="48dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="إنشاء حساب جديد"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/lemonada_bold"
-            android:text=" لمعرفه كيفيه ربط هاتف الطفل"
-            android:textColor="@color/black"
-            android:textSize="12sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans"
+                android:text="ليس لديك حساب؟ "
+                android:textColor="@color/gray_medium"
+                android:textSize="12sp" />
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/lemonada_bold"
+                android:text="إنشاء حساب"
+                android:textColor="@color/teal_brand"
+                android:textSize="12sp" />
 
-    <!-- زر البدء -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/loginBtn"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:fontFamily="@font/lemonada_bold"
-        android:text="ابدأ الان"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:backgroundTint="@color/purple_accent"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/childPhoneLink" />
+        </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

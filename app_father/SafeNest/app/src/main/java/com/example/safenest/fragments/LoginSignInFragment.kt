@@ -54,7 +54,17 @@ class LoginSignInFragment : Fragment() {
         loginButton.setOnClickListener { performLogin() }
 
         childPhoneLink.setOnClickListener {
-            (activity as MainActivity).navigateToFragment(LinkingGuideFragment())
+            (activity as MainActivity).navigateToFragment(LoginFragment())
+        }
+
+        view.findViewById<View>(R.id.forgotPasswordText).setOnClickListener {
+            (activity as MainActivity).navigateToFragment(ForgotPasswordFragment())
+        }
+
+        view.findViewById<View>(R.id.backButton).setOnClickListener {
+            if (!parentFragmentManager.popBackStackImmediate()) {
+                activity?.finish()
+            }
         }
 
         emailEditText.setOnFocusChangeListener { _, _ -> emailInputLayout.error = null }
@@ -75,8 +85,9 @@ class LoginSignInFragment : Fragment() {
                         is Result.Success -> {
                             setLoading(false)
                             Toast.makeText(context, "تم تسجيل الدخول بنجاح!", Toast.LENGTH_SHORT).show()
+                            // MainActivity refreshes the FCM token after this navigation.
+                            // Do not start a view-lifecycle callback after this fragment is removed.
                             (activity as MainActivity).goToHome()
-                            sendFcmTokenToServer()
                             viewModel.clearLoginState()
                         }
 
@@ -100,22 +111,6 @@ class LoginSignInFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun sendFcmTokenToServer() {
-        com.google.firebase.messaging.FirebaseMessaging.getInstance().token
-            .addOnSuccessListener { token ->
-                viewLifecycleOwner.lifecycleScope.launch {
-                    try {
-                        viewModel.sendFcmToken(token)
-                    } catch (_: Exception) {
-                        // fire and forget — silent fail
-                    }
-                }
-            }
-            .addOnFailureListener {
-                // fire and forget — silent fail
-            }
     }
 
     private fun performLogin() {

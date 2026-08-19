@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.MainActivity
 import com.example.safenest.R
+import com.example.safenest.util.ParentRegistrationValidator
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.LoginViewModel
 import com.google.android.material.button.MaterialButton
@@ -29,12 +30,13 @@ class LoginFragment : Fragment() {
 
     private val viewModel: LoginViewModel by viewModels()
 
+    private lateinit var parentNameEditText: TextInputEditText
     private lateinit var emailEditText: TextInputEditText
     private lateinit var passwordEditText: TextInputEditText
+    private lateinit var parentNameInputLayout: TextInputLayout
     private lateinit var emailInputLayout: TextInputLayout
     private lateinit var passwordInputLayout: TextInputLayout
     private lateinit var loginButton: MaterialButton
-    private lateinit var childPhoneLink: LinearLayout
     private lateinit var existingAccountLink: LinearLayout
     private var progressBar: ProgressBar? = null
 
@@ -49,23 +51,27 @@ class LoginFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_login, container, false)
 
+        parentNameEditText = view.findViewById(R.id.parentNameEditText)
         emailEditText = view.findViewById(R.id.editTextTextEmailAddress)
         passwordEditText = view.findViewById(R.id.pass)
+        parentNameInputLayout = view.findViewById(R.id.parentNameInputLayout)
         emailInputLayout = view.findViewById(R.id.emailInputLayout)
         passwordInputLayout = view.findViewById(R.id.passwordInputLayout)
         loginButton = view.findViewById(R.id.loginBtn)
-        childPhoneLink = view.findViewById(R.id.childPhoneLink)
         existingAccountLink = view.findViewById(R.id.existingAccountLink)
 
         loginButton.setOnClickListener { performSignUp() }
 
-        childPhoneLink.setOnClickListener {
-            (activity as MainActivity).navigateToFragment(LinkingGuideFragment())
-        }
         existingAccountLink.setOnClickListener {
             (activity as MainActivity).navigateToFragment(LoginSignInFragment())
         }
+        view.findViewById<View>(R.id.backButton).setOnClickListener {
+            if (!parentFragmentManager.popBackStackImmediate()) {
+                activity?.finish()
+            }
+        }
 
+        parentNameEditText.setOnFocusChangeListener { _, _ -> parentNameInputLayout.error = null }
         emailEditText.setOnFocusChangeListener { _, _ -> emailInputLayout.error = null }
         passwordEditText.setOnFocusChangeListener { _, _ -> passwordInputLayout.error = null }
 
@@ -112,13 +118,19 @@ class LoginFragment : Fragment() {
     }
 
     private fun performSignUp() {
+        val parentName = parentNameEditText.text.toString().trim()
         val email = emailEditText.text.toString().trim()
         val password = passwordEditText.text.toString()
 
+        parentNameInputLayout.error = null
         emailInputLayout.error = null
         passwordInputLayout.error = null
 
         var isValid = true
+        ParentRegistrationValidator.parentNameError(parentName)?.let { error ->
+            parentNameInputLayout.error = error
+            isValid = false
+        }
         if (email.isEmpty()) {
             emailInputLayout.error = "الرجاء إدخال البريد الإلكتروني"
             isValid = false
@@ -137,7 +149,7 @@ class LoginFragment : Fragment() {
 
         pendingEmail = email
         pendingPassword = password
-        viewModel.register(email, password)
+        viewModel.register(parentName, email, password)
     }
 
     private fun setLoading(loading: Boolean) {

@@ -18,9 +18,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.MainActivity
 import com.example.safenest.R
+import com.example.safenest.util.OtpCodeValidator
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.OtpVerificationViewModel
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
 class OtpVerificationFragment : Fragment() {
@@ -48,7 +50,7 @@ class OtpVerificationFragment : Fragment() {
     private lateinit var resendBtn: TextView
     private lateinit var timerText: TextView
     private lateinit var progressBar: ProgressBar
-    private lateinit var otpBoxes: List<EditText>
+    private lateinit var otpCodeInput: TextInputEditText
 
     private var email: String = ""
     private var password: String = ""
@@ -73,21 +75,18 @@ class OtpVerificationFragment : Fragment() {
         resendBtn = view.findViewById(R.id.resendBtn)
         timerText = view.findViewById(R.id.timerText)
         progressBar = view.findViewById(R.id.progressBar)
-
-        otpBoxes = listOf(
-            view.findViewById(R.id.otp1),
-            view.findViewById(R.id.otp2),
-            view.findViewById(R.id.otp3),
-            view.findViewById(R.id.otp4),
-            view.findViewById(R.id.otp5),
-            view.findViewById(R.id.otp6)
-        )
+        otpCodeInput = view.findViewById(R.id.otpCodeEditText)
 
         emailDisplay.text = email
-        setupOtpBoxes()
+        setupOtpCodeInput()
 
         verifyBtn.setOnClickListener { verifyOtp() }
         resendBtn.setOnClickListener { viewModel.resendOtp(email) }
+        view.findViewById<View>(R.id.backButton).setOnClickListener {
+            if (!parentFragmentManager.popBackStackImmediate()) {
+                activity?.finish()
+            }
+        }
 
         startResendCooldown()
 
@@ -116,7 +115,7 @@ class OtpVerificationFragment : Fragment() {
                                 setLoading(false)
                                 errorMessage.text = "رمز التحقق غير صحيح"
                                 errorMessage.visibility = View.VISIBLE
-                                clearOtpBoxes()
+                                clearOtpCode()
                                 viewModel.clearVerifyState()
                             }
 
@@ -159,7 +158,7 @@ class OtpVerificationFragment : Fragment() {
                                 setLoading(false)
                                 Toast.makeText(context, "تم إعادة إرسال الرمز", Toast.LENGTH_SHORT).show()
                                 startResendCooldown()
-                                clearOtpBoxes()
+                                clearOtpCode()
                                 viewModel.clearResendState()
                             }
 
@@ -182,47 +181,25 @@ class OtpVerificationFragment : Fragment() {
         countDownTimer?.cancel()
     }
 
-    private fun setupOtpBoxes() {
-        for (i in otpBoxes.indices) {
-            otpBoxes[i].addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    errorMessage.visibility = View.GONE
-                    if (s?.length == 1) {
-                        if (i < otpBoxes.size - 1) otpBoxes[i + 1].requestFocus()
-                    } else if (s?.isEmpty() == true) {
-                        if (i > 0) otpBoxes[i - 1].requestFocus()
-                    }
-                }
-            })
-
-            otpBoxes[i].setOnKeyListener { _, keyCode, event ->
-                if (keyCode == android.view.KeyEvent.KEYCODE_DEL &&
-                    event.action == android.view.KeyEvent.ACTION_DOWN &&
-                    otpBoxes[i].text.isEmpty() && i > 0
-                ) {
-                    otpBoxes[i - 1].requestFocus()
-                    otpBoxes[i - 1].text.clear()
-                    true
-                } else {
-                    false
-                }
+    private fun setupOtpCodeInput() {
+        otpCodeInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                errorMessage.visibility = View.GONE
             }
-        }
+        })
     }
 
-    private fun getOtpCode(): String = otpBoxes.joinToString("") { it.text.toString() }
-
-    private fun clearOtpBoxes() {
-        otpBoxes.forEach { it.text.clear() }
-        otpBoxes[0].requestFocus()
+    private fun clearOtpCode() {
+        otpCodeInput.text?.clear()
+        otpCodeInput.requestFocus()
     }
 
     private fun verifyOtp() {
-        val otp = getOtpCode()
-        if (otp.length != 6) {
-            errorMessage.text = "الرجاء إدخال الرمز كاملاً"
+        val otp = otpCodeInput.text?.toString().orEmpty()
+        OtpCodeValidator.error(otp)?.let { error ->
+            errorMessage.text = error
             errorMessage.visibility = View.VISIBLE
             return
         }
@@ -250,6 +227,6 @@ class OtpVerificationFragment : Fragment() {
         progressBar.visibility = if (loading) View.VISIBLE else View.GONE
         verifyBtn.isEnabled = !loading
         verifyBtn.text = if (loading) "جاري التحقق..." else "تحقق"
-        otpBoxes.forEach { it.isEnabled = !loading }
+        otpCodeInput.isEnabled = !loading
     }
 }
