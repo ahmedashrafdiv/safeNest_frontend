@@ -244,6 +244,13 @@ class PrefsHelper(context: Context) {
 
     fun getAppPolicyVersion(): Int = prefs.getInt("app_policy_version", 0)
 
+    fun setLastAppPolicyRefreshEnqueueAt(value: Long) {
+        prefs.edit().putLong("last_app_policy_refresh_enqueue_at", value).apply()
+    }
+
+    fun getLastAppPolicyRefreshEnqueueAt(): Long =
+        prefs.getLong("last_app_policy_refresh_enqueue_at", 0L)
+
     fun setProtectedHomePolicy(requested: Boolean, policyVersion: Int) {
         prefs.edit()
             .putBoolean("protected_home_requested", requested)

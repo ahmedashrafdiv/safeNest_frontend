@@ -181,15 +181,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun registerRuleSyncWorker() {
-        val syncRequest = PeriodicWorkRequestBuilder<RuleSyncWorker>(
-            15, TimeUnit.MINUTES
-        ).build()
-
-        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
-            "rule_sync",
-            ExistingPeriodicWorkPolicy.KEEP,
-            syncRequest
-        )
+        RuleSyncWorker.enqueuePeriodic(requireContext())
         Log.d("HomeFragment", "RuleSyncWorker periodic registration enqueued.")
     }
 

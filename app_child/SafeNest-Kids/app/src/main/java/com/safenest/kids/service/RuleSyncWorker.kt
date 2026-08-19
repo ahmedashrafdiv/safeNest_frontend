@@ -5,13 +5,16 @@ import android.util.Log
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.safenest.kids.network.ApiClient
 import com.safenest.kids.util.PrefsHelper
 import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
 class RuleSyncWorker(
     context: Context,
@@ -20,6 +23,10 @@ class RuleSyncWorker(
     private val prefsHelper = PrefsHelper(applicationContext)
 
     override suspend fun doWork(): Result {
+        // This worker can be scheduled by AccessibilityService while paired
+        // Child controls are intentionally unavailable, before MainActivity
+        // gets an opportunity to initialize authenticated API access.
+        ApiClient.init(applicationContext)
         val deviceId = prefsHelper.getDeviceId()
             ?: return Result.failure().also {
                 Log.w(TAG, "Policy sync rejected: no local device binding")
@@ -73,6 +80,7 @@ class RuleSyncWorker(
     companion object {
         private const val TAG = "RuleSyncWorker"
         private const val IMMEDIATE_WORK_NAME = "immediate_app_blocking_policy_sync"
+        private const val PERIODIC_WORK_NAME = "rule_sync"
 
         internal fun shouldRetryHttpStatus(code: Int): Boolean =
             code == 408 || code == 429 || code in 500..599
@@ -89,6 +97,21 @@ class RuleSyncWorker(
             WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
                 IMMEDIATE_WORK_NAME,
                 ExistingWorkPolicy.REPLACE,
+                request,
+            )
+        }
+
+        /** Runs even when Child controls are not opened, while unique work prevents duplicate schedules. */
+        fun enqueuePeriodic(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+            val request = PeriodicWorkRequestBuilder<RuleSyncWorker>(15, TimeUnit.MINUTES)
+                .setConstraints(constraints)
+                .build()
+            WorkManager.getInstance(context.applicationContext).enqueueUniquePeriodicWork(
+                PERIODIC_WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
                 request,
             )
         }

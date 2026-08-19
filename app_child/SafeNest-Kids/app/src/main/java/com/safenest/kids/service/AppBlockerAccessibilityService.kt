@@ -51,6 +51,11 @@ class AppBlockerAccessibilityService : AccessibilityService() {
             notificationTimeout = 100
         }
 
+        // Child controls may be unavailable to the child after pairing, so sync
+        // here as well as from HomeFragment. This only schedules unique work;
+        // it never performs a network call on the accessibility callback.
+        RuleSyncWorker.enqueuePeriodic(this)
+        RuleSyncWorker.enqueueImmediate(this)
         Log.d(TAG, "Service connected — listening for window events")
     }
 
@@ -76,6 +81,8 @@ class AppBlockerAccessibilityService : AccessibilityService() {
 
         // Never block ourselves
         if (pkg == packageName) return
+
+        enqueueBoundPolicyRefreshIfDue()
 
         // Local-only read — no network call
         val blockedApps = prefsHelper.getBlockedApps()
@@ -135,6 +142,16 @@ class AppBlockerAccessibilityService : AccessibilityService() {
             putExtra("blocked_reason", reason)
         }
         startActivity(intent)
+    }
+
+    private fun enqueueBoundPolicyRefreshIfDue() {
+        val nowMillis = System.currentTimeMillis()
+        if (!AppPolicyRefreshDecider.shouldEnqueue(prefsHelper.getLastAppPolicyRefreshEnqueueAt(), nowMillis)) {
+            return
+        }
+        prefsHelper.setLastAppPolicyRefreshEnqueueAt(nowMillis)
+        RuleSyncWorker.enqueueImmediate(this)
+        Log.d(TAG, "Enqueued a debounced bound app-policy refresh from a foreground transition")
     }
 
     private fun extractNodeText(node: AccessibilityNodeInfo?): String {
