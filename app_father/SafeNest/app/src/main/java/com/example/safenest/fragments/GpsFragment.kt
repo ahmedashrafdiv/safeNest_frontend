@@ -1,5 +1,6 @@
 package com.example.safenest.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,10 +16,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.MainActivity
 import com.example.safenest.R
 import com.example.safenest.network.ApiClient
+import com.example.safenest.network.ChildDeviceSummary
 import com.example.safenest.policy.ParentPhoneLocationScopeCoordinator
-import com.example.safenest.policy.ParentPolicyScope
 import com.example.safenest.policy.ParentPolicyScopeStore
+import com.example.safenest.policy.GpsDeviceSelectionResolver
+import com.example.safenest.policy.SelectedPolicyDevice
 import com.example.safenest.policy.ScopedLocationMutation
+import com.example.safenest.repository.ChildDeviceRepository
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.GpsViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -29,6 +33,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
@@ -45,6 +50,7 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
     private lateinit var alertCard: MaterialCardView
     private lateinit var mapCard: MaterialCardView
     private lateinit var phoneTrackingSwitch: MaterialSwitch
+    private lateinit var gpsDeviceButton: MaterialButton
     private var phoneTrackingRequestInFlight = false
     private var progressBar: ProgressBar? = null
     private var locationTv: TextView? = null
@@ -54,6 +60,9 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var lastKnownLat: Double? = null
     private var lastKnownLng: Double? = null
+    private val childDeviceRepository = ChildDeviceRepository()
+    private var availableGpsDevices: List<SelectedPolicyDevice> = emptyList()
+    private var selectedGpsDevice: SelectedPolicyDevice? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,37 +75,39 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
         alertCard = view.findViewById(R.id.alertCard)
         mapCard = view.findViewById(R.id.mapCard)
         phoneTrackingSwitch = view.findViewById(R.id.switch_phone_tracking)
+        gpsDeviceButton = view.findViewById(R.id.button_select_gps_device)
+        gpsDeviceButton.setOnClickListener { showGpsDevicePicker() }
         phoneTrackingSwitch.setOnCheckedChangeListener { _, enabled ->
             if (phoneTrackingRequestInFlight) return@setOnCheckedChangeListener
             phoneTrackingRequestInFlight = true
             phoneTrackingSwitch.isEnabled = false
-            if (ParentPolicyScopeStore.state.value.scope == ParentPolicyScope.SELECTED_DEVICE) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    when (val mutation = ParentPhoneLocationScopeCoordinator(ApiClient.apiService).setSelectedDeviceTracking(enabled)) {
-                        ScopedLocationMutation.Applied -> {
-                            Toast.makeText(context, "Phone Location updated for the selected device", Toast.LENGTH_SHORT).show()
-                        }
-                        is ScopedLocationMutation.Blocked -> {
-                            phoneTrackingSwitch.isChecked = !enabled
-                            Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
-                        }
-                        is ScopedLocationMutation.Failed -> {
-                            phoneTrackingSwitch.isChecked = !enabled
-                            Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
-                        }
+            val childId = viewModel.getSelectedChildId()
+            val targetDevice = selectedGpsDevice
+            if (childId.isNullOrBlank() || targetDevice == null) {
+                phoneTrackingSwitch.isChecked = !enabled
+                phoneTrackingRequestInFlight = false
+                phoneTrackingSwitch.isEnabled = true
+                Toast.makeText(context, "اختر جهاز الطفل أولاً", Toast.LENGTH_LONG).show()
+                return@setOnCheckedChangeListener
+            }
+            viewLifecycleOwner.lifecycleScope.launch {
+                when (val mutation = ParentPhoneLocationScopeCoordinator(ApiClient.apiService)
+                    .setDeviceTracking(childId, targetDevice, enabled)) {
+                    ScopedLocationMutation.Applied -> {
+                        Toast.makeText(context, "تم تحديث تتبع الهاتف للجهاز المحدد", Toast.LENGTH_SHORT).show()
+                        refreshLocationForCurrentScope()
                     }
-                    phoneTrackingRequestInFlight = false
-                    phoneTrackingSwitch.isEnabled = true
+                    is ScopedLocationMutation.Blocked -> {
+                        phoneTrackingSwitch.isChecked = !enabled
+                        Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                    }
+                    is ScopedLocationMutation.Failed -> {
+                        phoneTrackingSwitch.isChecked = !enabled
+                        Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                    }
                 }
-            } else {
-                val childId = viewModel.getSelectedChildId()
-                if (childId == null) {
-                    phoneTrackingSwitch.isChecked = !enabled
-                    phoneTrackingRequestInFlight = false
-                    phoneTrackingSwitch.isEnabled = true
-                    return@setOnCheckedChangeListener
-                }
-                viewModel.setPhoneTracking(childId, enabled)
+                phoneTrackingRequestInFlight = false
+                phoneTrackingSwitch.isEnabled = true
             }
         }
         progressBar = view.findViewById(R.id.progressBar)
@@ -104,12 +115,7 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
         lastUpdateTv = view.findViewById(R.id.lastUpdateText)
         batteryTv = view.findViewById(R.id.batteryText)
         statusTv = view.findViewById(R.id.statusText)
-        val scopeState = ParentPolicyScopeStore.state.value
-        phoneTrackingSwitch.text = if (scopeState.scope == ParentPolicyScope.SELECTED_DEVICE) {
-            "Phone Location â€¢ Device override: ${scopeState.selectedDevice?.label ?: "Selected device"}"
-        } else {
-            "Phone Location â€¢ Inherited from child default"
-        }
+        renderGpsDeviceContext()
 
         bottomNavBar.selectedItemId = R.id.nav_gps
 
@@ -245,7 +251,7 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
 
         val childId = viewModel.getSelectedChildId()
         if (childId != null) {
-            refreshLocationForCurrentScope()
+            loadGpsDevices(childId)
             viewModel.getChild(childId)
         } else {
             statusTv?.text = "لا يوجد طفل مرتبط"
@@ -254,18 +260,75 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
 
     private fun refreshLocationForCurrentScope() {
         val childId = viewModel.getSelectedChildId() ?: return
-        val scopeState = ParentPolicyScopeStore.state.value
-        val selectedDeviceId = when (scopeState.scope) {
-            ParentPolicyScope.SELECTED_DEVICE -> scopeState.selectedDevice?.deviceId
-            ParentPolicyScope.CHILD_DEFAULT -> null
-        }
-        if (scopeState.scope == ParentPolicyScope.SELECTED_DEVICE && selectedDeviceId == null) {
-            locationTv?.text = "لا يوجد جهاز محدد"
-            statusTv?.text = "حدد جهاز الطفل لعرض موقعه"
+        val device = selectedGpsDevice
+        if (device == null) {
+            locationTv?.text = "اختر جهاز الطفل لعرض موقعه"
+            statusTv?.text = "لا يوجد جهاز محدد"
             return
         }
-        viewModel.getChildLocation(childId, selectedDeviceId)
+        viewModel.getChildLocation(childId, device.deviceId)
     }
+
+    private fun loadGpsDevices(childId: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (val result = childDeviceRepository.listDevices(childId)) {
+                is Result.Success -> {
+                    availableGpsDevices = result.data.map { it.toGpsPolicyDevice() }
+                    selectedGpsDevice = GpsDeviceSelectionResolver.resolve(
+                        ParentPolicyScopeStore.state.value,
+                        availableGpsDevices,
+                    )
+                    renderGpsDeviceContext()
+                    refreshLocationForCurrentScope()
+                }
+                is Result.Error -> {
+                    availableGpsDevices = emptyList()
+                    selectedGpsDevice = null
+                    renderGpsDeviceContext()
+                    statusTv?.text = result.message
+                }
+                Result.Loading -> Unit
+            }
+        }
+    }
+
+    private fun showGpsDevicePicker() {
+        val activeDevices = availableGpsDevices.filter { it.isEligible }
+        if (activeDevices.isEmpty()) {
+            Toast.makeText(context, "لا يوجد جهاز طفل نشط", Toast.LENGTH_LONG).show()
+            return
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle("اختر جهاز الطفل للموقع")
+            .setItems(activeDevices.map { it.label }.toTypedArray()) { _, index ->
+                selectedGpsDevice = activeDevices[index]
+                ParentPolicyScopeStore.selectDevice(viewModel.getSelectedChildId(), activeDevices[index])
+                renderGpsDeviceContext()
+                refreshLocationForCurrentScope()
+            }
+            .show()
+    }
+
+    private fun renderGpsDeviceContext() {
+        val device = selectedGpsDevice
+        val activeCount = availableGpsDevices.count { it.isEligible }
+        gpsDeviceButton.text = when {
+            device != null -> "موقع الهاتف: ${device.label}"
+            activeCount > 1 -> "اختر جهاز الطفل للموقع ($activeCount أجهزة نشطة)"
+            activeCount == 1 -> "جاري تحديد جهاز الطفل"
+            else -> "اختر جهاز الطفل للموقع"
+        }
+        phoneTrackingSwitch.text = device?.let { "تتبع موقع الهاتف: ${it.label}" }
+            ?: "تتبع موقع هاتف الطفل"
+        phoneTrackingSwitch.isEnabled = device != null && !phoneTrackingRequestInFlight
+    }
+
+    private fun ChildDeviceSummary.toGpsPolicyDevice() = SelectedPolicyDevice(
+        deviceId = deviceId,
+        label = "${model.ifBlank { platform }} ID ${deviceId.takeLast(6)}",
+        status = status,
+        lastSeenAt = lastSeenAt,
+    )
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map

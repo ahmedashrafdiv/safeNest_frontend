@@ -211,6 +211,18 @@
                     android:textColor="@color/gray_light"
                     android:textSize="12sp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_select_gps_device"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:contentDescription="Choose the child device whose phone location is shown"
+                    android:text="اختر جهاز الطفل للموقع"
+                    android:textColor="@color/purple_dark"
+                    app:cornerRadius="18dp"
+                    app:strokeColor="@color/purple_dark" />
+
                                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switch_phone_tracking"
                     android:layout_width="match_parent"

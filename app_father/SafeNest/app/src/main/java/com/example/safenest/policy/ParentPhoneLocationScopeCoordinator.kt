@@ -12,12 +12,13 @@ sealed interface ScopedLocationMutation {
 class ParentPhoneLocationScopeCoordinator(
     private val api: SafeNestApiService,
 ) {
-    suspend fun setSelectedDeviceTracking(enabled: Boolean): ScopedLocationMutation {
-        val state = ParentPolicyScopeStore.state.value
-        val childId = state.childId
-        val device = state.selectedDevice
-        if (!state.canWriteDeviceOverride || childId.isNullOrBlank() || device == null) {
-            return ScopedLocationMutation.Blocked(state.blockedReason ?: "Select an active device before changing tracking.")
+    suspend fun setDeviceTracking(
+        childId: String,
+        device: SelectedPolicyDevice,
+        enabled: Boolean,
+    ): ScopedLocationMutation {
+        if (childId.isBlank() || !device.isEligible) {
+            return ScopedLocationMutation.Blocked("Select an active device before changing tracking.")
         }
         return try {
             val response = api.setPhoneTrackingForDevice(childId, device.deviceId, enabled)
@@ -26,6 +27,16 @@ class ParentPhoneLocationScopeCoordinator(
         } catch (error: IOException) {
             ScopedLocationMutation.Failed("Network unavailable. Try again when the device is online.")
         }
+    }
+
+    suspend fun setSelectedDeviceTracking(enabled: Boolean): ScopedLocationMutation {
+        val state = ParentPolicyScopeStore.state.value
+        val childId = state.childId
+        val device = state.selectedDevice
+        if (!state.canWriteDeviceOverride || childId.isNullOrBlank() || device == null) {
+            return ScopedLocationMutation.Blocked(state.blockedReason ?: "Select an active device before changing tracking.")
+        }
+        return setDeviceTracking(childId, device, enabled)
     }
 
     suspend fun deleteSelectedDeviceTracking(): ScopedLocationMutation {

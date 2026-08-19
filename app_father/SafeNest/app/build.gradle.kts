@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
@@ -18,8 +18,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
+        debug {
+            // Physical-device debug builds must use the deployed API; 127.0.0.1
+            // resolves to the phone itself and cannot serve Parent GPS requests.
+            buildConfigField("String", "API_BASE_URL", "\"https://safe-nest-deployment.vercel.app/\"")
+        }
         release {
+            buildConfigField("String", "API_BASE_URL", "\"https://safe-nest-deployment.vercel.app/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -72,7 +82,7 @@ dependencies {
     // WorkManager for background location sync
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
-    // Firebase BOM — single source of truth for all Firebase versions
+    // Firebase BOM â€” single source of truth for all Firebase versions
     //implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
     //implementation("com.google.firebase:firebase-analytics-ktx")
     //implementation("com.google.firebase:firebase-messaging-ktx")
