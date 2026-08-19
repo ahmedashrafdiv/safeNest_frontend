@@ -183,7 +183,10 @@ interface SafeNestApiService {
     // ============ Location ============
 
     @GET("location/live/{child_id}")
-    suspend fun getChildLocation(@Path("child_id") childId: String): Response<ParentLocationEnvelope>
+    suspend fun getChildLocation(
+        @Path("child_id") childId: String,
+        @Query("device_id") deviceId: String? = null,
+    ): Response<ParentLocationEnvelope>
 
     // ============ Zones ============
 

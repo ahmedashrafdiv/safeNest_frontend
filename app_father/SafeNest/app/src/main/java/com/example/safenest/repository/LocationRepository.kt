@@ -24,6 +24,6 @@ class LocationRepository : BaseRepository() {
     suspend fun deletePhoneTracking(childId: String): Result<Unit> =
         safeApiCall { api.deletePhoneTracking(childId) }
 
-    suspend fun getChildLocation(childId: String): Result<ParentLocationEnvelope> =
-        safeApiCall { api.getChildLocation(childId) }
+    suspend fun getChildLocation(childId: String, deviceId: String? = null): Result<ParentLocationEnvelope> =
+        safeApiCall { api.getChildLocation(childId, deviceId) }
 }

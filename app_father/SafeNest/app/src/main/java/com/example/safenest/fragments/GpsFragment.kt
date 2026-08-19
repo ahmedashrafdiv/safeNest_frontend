@@ -213,7 +213,7 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
                                 phoneTrackingSwitch.isEnabled = true
                                 Toast.makeText(requireContext(), if (policyState.data.enabled) "تم تفعيل تتبع الهاتف" else "تم إيقاف تتبع الهاتف", Toast.LENGTH_SHORT).show()
                                 viewModel.clearPhoneTrackingPolicyState()
-                                viewModel.getChildLocation(viewModel.getSelectedChildId() ?: return@collect)
+                                refreshLocationForCurrentScope()
                             }
                             is Result.Error -> {
                                 phoneTrackingRequestInFlight = false
@@ -245,11 +245,26 @@ class GpsFragment : Fragment(), OnMapReadyCallback {
 
         val childId = viewModel.getSelectedChildId()
         if (childId != null) {
-            viewModel.getChildLocation(childId)
+            refreshLocationForCurrentScope()
             viewModel.getChild(childId)
         } else {
             statusTv?.text = "لا يوجد طفل مرتبط"
         }
+    }
+
+    private fun refreshLocationForCurrentScope() {
+        val childId = viewModel.getSelectedChildId() ?: return
+        val scopeState = ParentPolicyScopeStore.state.value
+        val selectedDeviceId = when (scopeState.scope) {
+            ParentPolicyScope.SELECTED_DEVICE -> scopeState.selectedDevice?.deviceId
+            ParentPolicyScope.CHILD_DEFAULT -> null
+        }
+        if (scopeState.scope == ParentPolicyScope.SELECTED_DEVICE && selectedDeviceId == null) {
+            locationTv?.text = "لا يوجد جهاز محدد"
+            statusTv?.text = "حدد جهاز الطفل لعرض موقعه"
+            return
+        }
+        viewModel.getChildLocation(childId, selectedDeviceId)
     }
 
     override fun onMapReady(map: GoogleMap) {

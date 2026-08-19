@@ -31,10 +31,10 @@ class GpsViewModel(application: Application) : AndroidViewModel(application) {
     private val _childState = MutableStateFlow<Result<ChildResponse>?>(null)
     val childState: StateFlow<Result<ChildResponse>?> = _childState.asStateFlow()
 
-    fun getChildLocation(childId: String) {
+    fun getChildLocation(childId: String, deviceId: String? = null) {
         viewModelScope.launch(Dispatchers.IO) {
             _locationState.value = Result.Loading
-            _locationState.value = locationRepository.getChildLocation(childId)
+            _locationState.value = locationRepository.getChildLocation(childId, deviceId)
         }
     }
 
