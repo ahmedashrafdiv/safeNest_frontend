@@ -1,400 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_light"
-    android:layoutDirection="rtl"
-    android:padding="24dp">
+    android:clipToPadding="false"
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/layngoBrandLogo"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:contentDescription="Layngo logo"
-        android:scaleType="centerInside"
-        android:src="@drawable/layngo_logo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="الأذونات المطلوبة"
-        android:textColor="@color/navy_brand"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/layngoBrandLogo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layoutDirection="rtl"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="28dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="32dp">
 
-    <TextView
-        android:id="@+id/tv_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="يحتاج التطبيق للصلاحيات التالية ليعمل بشكل صحيح"
-        android:textColor="@color/gray_medium"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <ImageView
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="Layngo logo"
+            android:src="@drawable/layngo_logo" />
 
-    <!-- Step 1: Usage Access -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_usage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_subtitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_marginTop="14dp"
+            android:fontFamily="@font/ibm_plex_sans_arabic"
+            android:gravity="center"
+            android:text="خطوات حماية جهاز الطفل"
+            android:textColor="@color/navy_brand"
+            android:textSize="27sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tv_usage_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="إذن الوصول لبيانات الاستخدام"
-                android:textColor="@color/navy_brand"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tv_usage_status"
-                android:layout_marginEnd="16dp"/>
-
-            <TextView
-                android:id="@+id/tv_usage_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✗"
-                android:textColor="@color/red_warning"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/tv_usage_title"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_enable_usage"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="تفعيل"
-                android:textColor="@color/navy_brand"
-                app:strokeColor="@color/teal_brand"
-                app:cornerRadius="8dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_usage_title"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Step 2: Accessibility -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_accessibility"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/card_usage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/tv_journey_summary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/ibm_plex_sans_arabic"
+            android:gravity="center"
+            android:textColor="@color/gray_medium"
+            android:textSize="15sp" />
 
-            <TextView
-                android:id="@+id/tv_accessibility_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="إذن خدمة إمكانية الوصول"
-                android:textColor="@color/navy_brand"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tv_accessibility_status"
-                android:layout_marginEnd="16dp"/>
-
-            <TextView
-                android:id="@+id/tv_accessibility_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✗"
-                android:textColor="@color/red_warning"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/tv_accessibility_title"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_enable_accessibility"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="تفعيل"
-                android:textColor="@color/navy_brand"
-                app:strokeColor="@color/teal_brand"
-                app:cornerRadius="8dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_accessibility_title"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Step 3: Battery Optimization Exemption -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_battery"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/card_accessibility"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="@color/navy_brand"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp">
 
-            <TextView
-                android:id="@+id/tv_battery_title"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="إعفاء من توفير البطارية"
-                android:textColor="@color/navy_brand"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tv_battery_status"
-                android:layout_marginEnd="16dp"/>
+                android:orientation="vertical"
+                android:padding="20dp">
 
-            <TextView
-                android:id="@+id/tv_battery_desc"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="مطلوب لضمان استمرار عمل الحماية في الخلفية"
-                android:textColor="@color/gray_medium"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_battery_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tv_battery_status"
-                android:layout_marginEnd="16dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/ibm_plex_sans_arabic"
+                    android:text="نجهّز Layngo ليبقى بجانب طفلك"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tv_battery_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✗"
-                android:textColor="@color/red_warning"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/tv_battery_title"
-                app:layout_constraintEnd_toEndOf="parent" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/ibm_plex_sans_arabic"
+                    android:text="كل خطوة تفتح إعداد Android رسمي. بعد الرجوع، تتحقق Layngo من الحالة تلقائياً."
+                    android:textColor="@color/ivory_surface"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_enable_battery"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="تفعيل"
-                android:textColor="@color/navy_brand"
-                app:strokeColor="@color/teal_brand"
-                app:cornerRadius="8dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_battery_desc"
-                app:layout_constraintStart_toStartOf="parent" />
+        <include layout="@layout/item_setup_step_device_admin" />
+        <include layout="@layout/item_setup_step_protected_home" />
+        <include layout="@layout/item_setup_step_overlay" />
+        <include layout="@layout/item_setup_step_usage" />
+        <include layout="@layout/item_setup_step_accessibility" />
+        <include layout="@layout/item_setup_step_battery" />
+        <include layout="@layout/item_setup_step_website" />
+        <include layout="@layout/item_setup_step_location" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <ProgressBar
+            android:id="@+id/progress_sync"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
 
-    <!-- Step 4: Website filtering VPN -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_website_vpn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/card_battery"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/tv_completion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_marginTop="22dp"
+            android:fontFamily="@font/ibm_plex_sans_arabic"
+            android:gravity="center"
+            android:textColor="@color/gray_medium"
+            android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/tv_website_vpn_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="حماية مواقع الويب"
-                android:textColor="@color/navy_brand"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tv_website_vpn_status"
-                android:layout_marginEnd="16dp" />
-
-            <TextView
-                android:id="@+id/tv_website_vpn_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✗"
-                android:textColor="@color/red_warning"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/tv_website_vpn_title"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_website_vpn_desc"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="مطلوب لتطبيق حظر المواقع على مستوى اسم الموقع فقط، وليس مسارات HTTPS داخل الموقع"
-                android:textColor="@color/gray_medium"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_website_vpn_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_enable_website_vpn"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="تفعيل حماية المواقع"
-                android:textColor="@color/navy_brand"
-                app:strokeColor="@color/teal_brand"
-                app:cornerRadius="8dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_website_vpn_desc"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Step 5: Phone location tracking -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_phone_location"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/card_website_vpn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_continue"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/tv_phone_location_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="تتبع موقع الهاتف"
-                android:textColor="@color/navy_brand"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tv_phone_location_status"
-                android:layout_marginEnd="16dp" />
-
-            <TextView
-                android:id="@+id/tv_phone_location_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✗"
-                android:textColor="@color/red_warning"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/tv_phone_location_title"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_phone_location_desc"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="يتطلب إذن الموقع وإشعاراً دائماً لتحديث موقع الهاتف. لن يعمل التتبع إذا رفض الطفل الإذن أو أوقف النظام الخدمة."
-                android:textColor="@color/gray_medium"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_phone_location_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_enable_phone_location"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="تفعيل تتبع الموقع"
-                android:textColor="@color/navy_brand"
-                app:strokeColor="@color/teal_brand"
-                app:cornerRadius="8dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_phone_location_desc"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <ProgressBar
-        android:id="@+id/progress_sync"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_continue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_continue"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="16dp"
-        android:text="متابعة"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:backgroundTint="@color/teal_brand"
-        app:cornerRadius="16dp"
-        android:enabled="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_height="58dp"
+            android:layout_marginTop="14dp"
+            android:enabled="false"
+            android:fontFamily="@font/ibm_plex_sans_arabic"
+            android:text="إكمال إعداد الجهاز"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/coral_action"
+            app:cornerRadius="18dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

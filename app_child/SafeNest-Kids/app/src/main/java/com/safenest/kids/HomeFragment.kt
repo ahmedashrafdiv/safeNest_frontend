@@ -21,6 +21,7 @@ import com.safenest.kids.network.InstalledAppsRequest
 import com.safenest.kids.service.AppUsageReportWorker
 import com.safenest.kids.service.PhoneLocationService
 import com.safenest.kids.service.ProtectionHealthWorker
+import com.safenest.kids.service.ProtectedHomePolicySyncWorker
 import com.safenest.kids.service.RuleSyncWorker
 import com.safenest.kids.service.ScreenTimePolicySyncWorker
 import com.safenest.kids.service.WebsiteDnsVpnService
@@ -81,6 +82,8 @@ class HomeFragment : Fragment() {
         registerRuleSyncWorker()
         // A Parent policy write must not wait for the periodic interval before this Child can enforce it.
         RuleSyncWorker.enqueueImmediate(requireContext())
+        ProtectedHomePolicySyncWorker.enqueuePeriodic(requireContext())
+        ProtectedHomePolicySyncWorker.enqueueImmediate(requireContext())
         ProtectionHealthWorker.enqueuePeriodic(requireContext())
         ProtectionHealthWorker.enqueueImmediate(requireContext())
         registerScreenTimePolicySyncWorker()

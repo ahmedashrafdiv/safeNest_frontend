@@ -156,6 +156,18 @@ data class EffectiveAppBlockingPolicyResponse(
     @SerializedName("values") val values: EffectiveAppBlockingValues,
 )
 
+data class EffectiveProtectionPolicyValues(
+    @SerializedName("protectedHomeRequested") val protectedHomeRequested: Boolean = false,
+)
+
+data class EffectiveProtectionPolicyResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("policy_version") val policyVersion: Int,
+    @SerializedName("scope") val scope: String,
+    @SerializedName("values") val values: EffectiveProtectionPolicyValues,
+)
+
 data class ScreenTimePolicyPayload(
     @SerializedName("policy_id") val policyId: String,
     @SerializedName("child_id") val childId: String,

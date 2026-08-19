@@ -243,6 +243,17 @@ class PrefsHelper(context: Context) {
     }
 
     fun getAppPolicyVersion(): Int = prefs.getInt("app_policy_version", 0)
+
+    fun setProtectedHomePolicy(requested: Boolean, policyVersion: Int) {
+        prefs.edit()
+            .putBoolean("protected_home_requested", requested)
+            .putInt("protected_home_policy_version", policyVersion)
+            .apply()
+    }
+
+    fun isProtectedHomeRequested(): Boolean = prefs.getBoolean("protected_home_requested", false)
+    fun getProtectedHomePolicyVersion(): Int = prefs.getInt("protected_home_policy_version", 0)
+
     fun setDailyScreenTimePolicy(dailyLimitSeconds: Int, policyVersion: Int) {
         prefs.edit()
             .putInt("daily_screen_time_limit_seconds", dailyLimitSeconds)

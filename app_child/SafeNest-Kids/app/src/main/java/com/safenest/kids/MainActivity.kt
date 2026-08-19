@@ -4,10 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.safenest.kids.network.ApiClient
-import com.safenest.kids.util.PermissionsHelper
 import com.safenest.kids.util.PrefsHelper
 import com.safenest.kids.security.ProtectionPolicyManager
 import com.safenest.kids.security.LauncherEntryDecider
+import com.safenest.kids.security.SetupCapabilityEvaluator
+import com.safenest.kids.security.SetupCapabilityProvider
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,7 +23,11 @@ class MainActivity : AppCompatActivity() {
         // Consumer mode remains functional and explicitly reports no guarantee.
         ProtectionPolicyManager.apply(this)
 
-        if (LauncherEntryDecider.shouldRedirectToProtection(prefsHelper.isPaired())) {
+        val baselineReady = SetupCapabilityEvaluator
+            .evaluate(SetupCapabilityProvider.read(this, prefsHelper))
+            .baselineReady
+
+        if (LauncherEntryDecider.shouldRedirectToProtection(prefsHelper.isPaired() && baselineReady)) {
             startActivity(Intent(this, BlockedAppActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 putExtra("blocked_package", packageName)
@@ -40,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                     .replace(R.id.fragment_container, PairingFragment())
                     .commit()
             } else {
-                if (PermissionsHelper.hasAllPermissions(this)) {
+                if (baselineReady) {
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, HomeFragment())
                         .commit()

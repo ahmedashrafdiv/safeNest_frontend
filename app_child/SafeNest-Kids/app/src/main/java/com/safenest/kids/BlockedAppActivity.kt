@@ -24,6 +24,14 @@ class BlockedAppActivity : AppCompatActivity() {
             tvTitle.text = "Layngo controls are protected"
             tvSubtitle.text = "This area requires parent authorization."
             tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
+        } else if (reason == "protected_home_long_press" || reason == "protected_home_launch") {
+            tvTitle.text = "حماية Layngo مفعّلة"
+            tvSubtitle.text = "تحتاج إدارة Layngo إلى موافقة ولي الأمر."
+            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
+        } else if (reason == "protected_home_policy") {
+            tvTitle.text = "هذا التطبيق غير متاح الآن"
+            tvSubtitle.text = "تُطبّق Layngo قواعد الحماية التي وضعها ولي الأمر."
+            tvTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.red_warning))
         } else if (reason == "time_limit") {
             tvTitle.text = "انتهى وقت هذا التطبيق"
             tvSubtitle.text = "لقد استنفدت الوقت المخصص لهذا التطبيق اليوم"

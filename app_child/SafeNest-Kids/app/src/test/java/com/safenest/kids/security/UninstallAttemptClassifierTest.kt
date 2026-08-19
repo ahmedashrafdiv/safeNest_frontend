@@ -17,6 +17,18 @@ class UninstallAttemptClassifierTest {
     }
 
     @Test
+    fun homeRolePermissionControllerNamingLayngoWithoutRemovalActionIsNotClassified() {
+        // Regression: selecting Layngo as the Android Home app must not open BlockedAppActivity.
+        assertFalse(
+            UninstallAttemptClassifier.isLayngoRemovalAttempt(
+                sourcePackage = "com.google.android.permissioncontroller",
+                visibleText = "Allow Layngo Kids to be your Home app?",
+                ownPackage = "com.safenest.kids",
+            ),
+        )
+    }
+
+    @Test
     fun generalSettingsForLayngoWithoutRemovalActionIsNotClassified() {
         assertFalse(
             UninstallAttemptClassifier.isLayngoRemovalAttempt(

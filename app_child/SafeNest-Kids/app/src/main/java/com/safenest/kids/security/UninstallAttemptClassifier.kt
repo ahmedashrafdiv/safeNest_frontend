@@ -41,8 +41,11 @@ object UninstallAttemptClassifier {
             normalized.contains(appLabel.lowercase())
         if (!targetsLayngo) return false
 
-        return isInstallerOrSecurityCenter(sourcePackage) ||
-            (sourcePackage in settingsPackages && removalActionTokens.any(normalized::contains))
+        val exposesRemovalAction = removalActionTokens.any(normalized::contains)
+        return exposesRemovalAction && (
+            isInstallerOrSecurityCenter(sourcePackage) ||
+                sourcePackage in settingsPackages
+        )
     }
 
     private fun isInstallerOrSecurityCenter(sourcePackage: String): Boolean {
