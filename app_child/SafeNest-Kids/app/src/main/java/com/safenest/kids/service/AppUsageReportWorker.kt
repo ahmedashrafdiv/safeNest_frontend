@@ -8,6 +8,7 @@ import com.safenest.kids.network.ApiClient
 import com.safenest.kids.network.AppUsageRequest
 import com.safenest.kids.util.AppUsageHelper
 import com.safenest.kids.util.PrefsHelper
+import com.safenest.kids.util.UsageSnapshotMetadataFactory
 
 class AppUsageReportWorker(
     context: Context,
@@ -39,10 +40,16 @@ class AppUsageReportWorker(
             Log.d(TAG, "  $pkg → $mins min")
         }
         Log.d(TAG, "=== TOTAL APPS: ${usageMap.size} ===")
-        Log.d(TAG, "Sending cumulative: $usageMap")
+        val metadata = UsageSnapshotMetadataFactory.forZone()
+        Log.d(TAG, "Sending daily snapshot for ${metadata.usageDay} in ${metadata.usageTimezone}: $usageMap")
 
         return try {
-            val request = AppUsageRequest(childId = childId, usage = usageMap)
+            val request = AppUsageRequest(
+                childId = childId,
+                usage = usageMap,
+                usageDay = metadata.usageDay,
+                usageTimezone = metadata.usageTimezone
+            )
             val response = ApiClient.apiService.reportAppUsage(request)
             if (response.isSuccessful) {
                 Log.d(TAG, "Reported ${usageMap.size} apps")

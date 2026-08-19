@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Layngo daily usage screen: ivory surface, calm RTL hierarchy, one primary action. -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
+    android:background="@color/daily_usage_ivory"
     android:layoutDirection="rtl"
     android:textDirection="rtl">
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:clipToPadding="false"
         android:fillViewport="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingStart="24dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="112dp"
+        app:layout_constraintBottom_toTopOf="@id/manageScreenTimeButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,154 +25,294 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <!-- Back Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/backButton"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/lemonada_bold"
-                android:text="@string/back"
-                android:textColor="@color/purple_dark" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <!-- Title -->
-            <TextView
-                android:layout_width="wrap_content"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/backButton"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="رجوع"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:text="←"
+                    android:textColor="@color/navy_brand"
+                    android:textSize="24sp" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:contentDescription="Layngo"
+                    android:src="@drawable/layngo_logo" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp"
-                android:fontFamily="@font/lemonada_bold"
-                android:text="الاستخدام اليومي"
-                android:textColor="@color/purple_dark"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <!-- Subtitle -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:fontFamily="@font/lemonada_bold"
-                android:text="إجمالي وقت استخدام التطبيقات اليوم"
-                android:textColor="@color/gray_medium"
-                android:textSize="13sp" />
+                <TextView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_daily_avatar"
+                    android:contentDescription="صورة الطفل"
+                    android:gravity="center"
+                    android:text="ل"
+                    android:textColor="@color/teal_brand"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <!-- Progress Bar -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/screenTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/lemonada_bold"
+                        android:text="استخدام طفلك اليوم"
+                        android:textColor="@color/navy_brand"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/childNameText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="طفلك"
+                        android:textColor="@color/gray_medium"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/lastUpdatedText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="جاري تحديث البيانات"
+                        android:textColor="@color/gray_medium"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="30dp"
                 android:visibility="gone" />
 
-            <!-- Empty State -->
             <TextView
-                android:id="@+id/emptyText"
+                android:id="@+id/stateText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="48dp"
-                android:fontFamily="@font/lemonada_bold"
+                android:layout_marginTop="38dp"
                 android:gravity="center"
-                android:text="لا يوجد بيانات استخدام"
+                android:lineSpacingExtra="4dp"
                 android:textColor="@color/gray_medium"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:visibility="gone" />
 
-            <!-- Summary Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/summaryCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/white"
+                android:layout_marginTop="26dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/mint_surface"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/purple_dark"
-                app:strokeWidth="2dp"
-                android:visibility="gone">
+                app:cardElevation="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <!-- Total usage -->
                     <TextView
-                        android:id="@+id/totalUsageText"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:gravity="center"
-                        android:text="إجمالي الاستخدام: —"
-                        android:textColor="@color/purple_dark"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <!-- Max screen time -->
-                    <TextView
-                        android:id="@+id/maxScreenTimeText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:gravity="center"
-                        android:text="الحد اليومي: —"
+                        android:text="إجمالي الاستخدام"
                         android:textColor="@color/gray_medium"
-                        android:textSize="14sp" />
+                        android:textSize="13sp" />
 
+                    <FrameLayout
+                        android:layout_width="168dp"
+                        android:layout_height="168dp"
+                        android:layout_marginTop="12dp">
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/usageRing"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="مؤشر استخدام وقت الشاشة"
+                            android:max="100"
+                            android:progress="0"
+                            app:indicatorColor="@color/teal_brand"
+                            app:indicatorSize="168dp"
+                            app:trackColor="@color/white"
+                            app:trackThickness="10dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/totalUsageText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="—"
+                                android:textColor="@color/navy_brand"
+                                android:textSize="25sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="اليوم"
+                                android:textColor="@color/gray_medium"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="المتبقي"
+                                android:textColor="@color/gray_medium"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/remainingText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:textColor="@color/teal_brand"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="38dp"
+                            android:background="@color/white" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="الحد اليومي"
+                                android:textColor="@color/gray_medium"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/limitText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:textColor="@color/navy_brand"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Apps List Card -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="26dp"
+                android:text="التطبيقات المستخدمة اليوم"
+                android:textColor="@color/navy_brand"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/appsListCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/purple_dark"
-                app:strokeWidth="2dp"
-                android:visibility="gone">
+                app:cardElevation="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp">
 
-                    <!-- Section Header -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:fontFamily="@font/lemonada_bold"
-                        android:text="التطبيقات المستخدمة"
-                        android:textColor="@color/purple_dark"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <!-- Programmatically populated list -->
                     <LinearLayout
                         android:id="@+id/usageAppsList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/showMoreButton"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_horizontal"
+                        android:text="عرض المزيد"
+                        android:textColor="@color/teal_brand"
+                        android:visibility="gone" />
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/manageScreenTimeButton"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/teal_brand"
+        android:text="إدارة وقت الشاشة"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:cornerRadius="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

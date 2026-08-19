@@ -86,7 +86,11 @@ data class AppUsageRequest(
     @SerializedName("child_id")
     val childId: String,
     @SerializedName("usage")
-    val usage: Map<String, Long>
+    val usage: Map<String, Long>,
+    @SerializedName("usage_day")
+    val usageDay: String,
+    @SerializedName("usage_timezone")
+    val usageTimezone: String
 )
 
 data class DeviceProtectionHealthRequest(

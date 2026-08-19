@@ -1,188 +1,189 @@
 package com.example.safenest.fragments
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.R
+import com.example.safenest.util.DailyUsageApp
+import com.example.safenest.util.DailyUsageState
+import com.example.safenest.util.DailyUsageSummary
+import com.example.safenest.util.DailyUsageSummaryMapper
 import com.example.safenest.util.Result
 import com.example.safenest.viewmodel.MonitoringViewModel
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import kotlinx.coroutines.launch
 
+/** Layngo daily usage: Arabic RTL, calm visual hierarchy, verified daily data only. */
 class DailyUsageFragment : Fragment() {
-
-    companion object {
-        private const val TAG = "DailyUsageFragment"
-    }
-
     private val viewModel: MonitoringViewModel by viewModels()
 
-    private var progressBar: ProgressBar? = null
-    private var emptyText: TextView? = null
+    private var loader: ProgressBar? = null
+    private var stateText: TextView? = null
     private var summaryCard: MaterialCardView? = null
-    private var appsListCard: MaterialCardView? = null
-    private var totalUsageText: TextView? = null
-    private var maxScreenTimeText: TextView? = null
-    private var usageAppsList: LinearLayout? = null
+    private var appsCard: MaterialCardView? = null
+    private var usageRing: CircularProgressIndicator? = null
+    private var totalText: TextView? = null
+    private var limitText: TextView? = null
+    private var remainingText: TextView? = null
+    private var updatedText: TextView? = null
+    private var appsList: LinearLayout? = null
+    private var showMore: MaterialButton? = null
+    private var apps: List<DailyUsageApp> = emptyList()
+    private var expanded = false
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_daily_usage, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, state: Bundle?): View {
+        return inflater.inflate(R.layout.fragment_daily_usage, container, false).also { view ->
+            loader = view.findViewById(R.id.progressBar)
+            stateText = view.findViewById(R.id.stateText)
+            summaryCard = view.findViewById(R.id.summaryCard)
+            appsCard = view.findViewById(R.id.appsListCard)
+            usageRing = view.findViewById(R.id.usageRing)
+            totalText = view.findViewById(R.id.totalUsageText)
+            limitText = view.findViewById(R.id.limitText)
+            remainingText = view.findViewById(R.id.remainingText)
+            updatedText = view.findViewById(R.id.lastUpdatedText)
+            appsList = view.findViewById(R.id.usageAppsList)
+            showMore = view.findViewById(R.id.showMoreButton)
 
-        progressBar = view.findViewById(R.id.progressBar)
-        emptyText = view.findViewById(R.id.emptyText)
-        summaryCard = view.findViewById(R.id.summaryCard)
-        appsListCard = view.findViewById(R.id.appsListCard)
-        totalUsageText = view.findViewById(R.id.totalUsageText)
-        maxScreenTimeText = view.findViewById(R.id.maxScreenTimeText)
-        usageAppsList = view.findViewById(R.id.usageAppsList)
+            view.findViewById<MaterialButton>(R.id.backButton).setOnClickListener { parentFragmentManager.popBackStack() }
+            view.findViewById<MaterialButton>(R.id.manageScreenTimeButton).setOnClickListener { parentFragmentManager.popBackStack() }
+            showMore?.setOnClickListener { expanded = !expanded; renderApps() }
 
-        view.findViewById<MaterialButton>(R.id.backButton).setOnClickListener {
-            parentFragmentManager.popBackStack()
+            val childName = requireContext().getSharedPreferences("SafeNestPrefs", android.content.Context.MODE_PRIVATE)
+                .getString("child_name", null)?.trim().orEmpty().ifBlank { "طفلك" }
+            view.findViewById<TextView>(R.id.childNameText).text = childName
+            view.findViewById<TextView>(R.id.screenTitle).text = "استخدام $childName اليوم"
         }
-
-        return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    override fun onViewCreated(view: View, state: Bundle?) {
+        super.onViewCreated(view, state)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                // Observe DigitalRule fetch state
                 launch {
-                    viewModel.digitalRuleState.collect { state ->
-                        when (state) {
-                            is Result.Loading -> {
-                                progressBar?.visibility = View.VISIBLE
-                                emptyText?.visibility = View.GONE
-                            }
-                            is Result.Success -> {
-                                progressBar?.visibility = View.GONE
-                                val usageLog = state.data.dailyUsageLog
-                                val maxScreenTime = state.data.maxScreenTime ?: 0
-
-                                if (usageLog.isEmpty()) {
-                                    emptyText?.text = "لا يوجد بيانات استخدام"
-                                    emptyText?.visibility = View.VISIBLE
-                                    summaryCard?.visibility = View.GONE
-                                    appsListCard?.visibility = View.GONE
-                                } else {
-                                    emptyText?.visibility = View.GONE
-                                    summaryCard?.visibility = View.VISIBLE
-                                    appsListCard?.visibility = View.VISIBLE
-                                    renderSummary(usageLog, maxScreenTime)
-                                    renderAppsList(usageLog)
-                                }
-                                viewModel.clearDigitalRuleState()
-                            }
-                            is Result.Error -> {
-                                progressBar?.visibility = View.GONE
-                                Toast.makeText(
-                                    context,
-                                    getString(R.string.error_loading_apps),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                viewModel.clearDigitalRuleState()
-                            }
+                    viewModel.digitalRuleState.collect { result ->
+                        when (result) {
+                            is Result.Loading -> showLoading()
+                            is Result.Success -> { render(DailyUsageSummaryMapper.map(result.data)); viewModel.clearDigitalRuleState() }
+                            is Result.Error -> { showMessage("تعذر تحديث استخدام اليوم. أعد المحاولة لاحقاً."); viewModel.clearDigitalRuleState() }
                             null -> Unit
                         }
                     }
                 }
             }
         }
-
-        val childId = viewModel.getSelectedChildId()
-        if (childId != null) {
-            viewModel.getDigitalRule(childId)
-        } else {
-            emptyText?.text = getString(R.string.error_no_child)
-            emptyText?.visibility = View.VISIBLE
-        }
+        viewModel.getSelectedChildId()?.let(viewModel::getDigitalRule)
+            ?: showMessage("اختر طفلاً لعرض استخدامه اليومي.")
     }
 
     override fun onResume() {
         super.onResume()
-        val childId = viewModel.getSelectedChildId() ?: return
-        viewModel.getDigitalRule(childId)
+        viewModel.getSelectedChildId()?.let(viewModel::getDigitalRule)
     }
 
-    // ─── Render helpers ──────────────────────────────────────────────────────
-
-    private fun renderSummary(usageLog: Map<String, Int>, maxScreenTime: Int) {
-        val totalMinutes = usageLog.values.sum()
-        totalUsageText?.text = formatMinutes(totalMinutes, "إجمالي الاستخدام: ")
-        maxScreenTimeText?.text = formatMinutes(maxScreenTime, "الحد اليومي: ")
+    private fun showLoading() {
+        loader?.visibility = View.VISIBLE
+        stateText?.visibility = View.GONE
     }
 
-    private fun renderAppsList(usageLog: Map<String, Int>) {
+    private fun showMessage(message: String) {
+        loader?.visibility = View.GONE
+        summaryCard?.visibility = View.GONE
+        appsCard?.visibility = View.GONE
+        stateText?.apply { text = message; visibility = View.VISIBLE }
+    }
+
+    private fun render(summary: DailyUsageSummary) {
+        loader?.visibility = View.GONE
+        when (summary.state) {
+            DailyUsageState.LIMIT_CONFIRMATION_REQUIRED -> return showMessage("حد الاستخدام يحتاج إلى تأكيد قبل عرض ملخص دقيق.")
+            DailyUsageState.STALE -> return showMessage("بيانات الاستخدام ليست لليوم الحالي بعد.")
+            else -> Unit
+        }
+        summaryCard?.visibility = View.VISIBLE
+        stateText?.visibility = if (summary.state == DailyUsageState.EMPTY) View.VISIBLE else View.GONE
+        if (summary.state == DailyUsageState.EMPTY) stateText?.text = "لا يوجد استخدام مسجل اليوم حتى الآن."
+        appsCard?.visibility = if (summary.apps.isEmpty()) View.GONE else View.VISIBLE
+
+        val overLimit = summary.state == DailyUsageState.OVER_LIMIT
+        usageRing?.progress = summary.progressPercent
+        usageRing?.setIndicatorColor(ContextCompat.getColor(requireContext(), if (overLimit) R.color.daily_usage_coral else R.color.teal_brand))
+        totalText?.text = DailyUsageSummaryMapper.formatDuration(summary.totalMinutes)
+        limitText?.text = "الحد اليومي ${DailyUsageSummaryMapper.formatDuration(summary.dailyLimitMinutes)}"
+        remainingText?.text = if (overLimit) "تم تجاوز الحد اليومي" else "متبقّي ${DailyUsageSummaryMapper.formatDuration(summary.remainingMinutes)} اليوم"
+        updatedText?.text = summary.relativeUpdatedText
+        apps = summary.apps
+        expanded = false
+        renderApps()
+    }
+
+    private fun renderApps() {
+        val container = appsList ?: return
+        container.removeAllViews()
+        val visible = if (expanded) apps else apps.take(4)
+        visible.forEachIndexed { index, app ->
+            container.addView(appRow(app))
+            if (index < visible.lastIndex) container.addView(divider())
+        }
+        showMore?.visibility = if (apps.size > 4) View.VISIBLE else View.GONE
+        showMore?.text = if (expanded) "عرض أقل" else "عرض المزيد"
+    }
+
+    private fun appRow(app: DailyUsageApp): View {
         val ctx = requireContext()
-        usageAppsList?.removeAllViews()
-
-        usageLog.entries.sortedByDescending { it.value }.forEach { (pkg, mins) ->
-            val row = LinearLayout(ctx).apply {
-                orientation = LinearLayout.HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                setPadding(0, 16, 0, 16)
-                gravity = android.view.Gravity.CENTER_VERTICAL
-            }
-
-            // Package name (takes remaining space)
-            row.addView(TextView(ctx).apply {
-                text = pkg
-                textSize = 14f
-                setTextColor(android.graphics.Color.BLACK)
-                typeface = android.graphics.Typeface.DEFAULT_BOLD
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        return LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutDirection = View.LAYOUT_DIRECTION_RTL
+            setPadding(dp(4), dp(12), dp(4), dp(12))
+            contentDescription = "${app.displayName}: ${DailyUsageSummaryMapper.formatDuration(app.usageMinutes)}"
+            addView(TextView(ctx).apply {
+                text = app.iconLabel; gravity = Gravity.CENTER; textSize = 13f
+                setTextColor(ContextCompat.getColor(ctx, R.color.navy_brand))
+                background = ContextCompat.getDrawable(ctx, R.drawable.bg_daily_app_icon)
+                layoutParams = LinearLayout.LayoutParams(dp(34), dp(34))
             })
-
-            // Usage time (right-aligned in RTL)
-            row.addView(TextView(ctx).apply {
-                text = formatMinutes(mins, "")
-                textSize = 14f
-                setTextColor(android.graphics.Color.parseColor("#692AC8")) // purple_dark approx
-                typeface = android.graphics.Typeface.DEFAULT_BOLD
+            addView(LinearLayout(ctx).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(12); marginEnd = dp(12) }
+                addView(TextView(ctx).apply {
+                    text = app.displayName; textSize = 14f; typeface = android.graphics.Typeface.DEFAULT_BOLD
+                    setTextColor(ContextCompat.getColor(ctx, R.color.navy_brand))
+                })
+                addView(ProgressBar(ctx, null, android.R.attr.progressBarStyleHorizontal).apply {
+                    max = 100
+                    val longestUsage = apps.maxOfOrNull { it.usageMinutes }?.coerceAtLeast(1) ?: 1
+                    progress = app.usageMinutes * 100 / longestUsage
+                    progressDrawable = ContextCompat.getDrawable(ctx, R.drawable.progress_daily_usage)
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(5)).apply { topMargin = dp(7) }
+                    contentDescription = "نسبة استخدام ${app.displayName}"
+                })
             })
-
-            usageAppsList?.addView(row)
-
-            // Thin divider between rows
-            usageAppsList?.addView(View(ctx).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 1
-                )
-                setBackgroundColor(android.graphics.Color.parseColor("#E0E0E0"))
+            addView(TextView(ctx).apply {
+                text = DailyUsageSummaryMapper.formatDuration(app.usageMinutes); textSize = 12f
+                setTextColor(ContextCompat.getColor(ctx, R.color.gray_medium))
             })
         }
     }
 
-    // ─── Format helper ────────────────────────────────────────────────────────
-
-    private fun formatMinutes(minutes: Int, prefix: String): String {
-        val h = minutes / 60
-        val m = minutes % 60
-        return when {
-            h == 0 -> "${prefix}${m} دقيقة"
-            m == 0 -> "${prefix}${h} ساعة"
-            else   -> "${prefix}${h} ساعة ${m} دقيقة"
-        }
+    private fun divider(): View = View(requireContext()).apply {
+        layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(1))
+        setBackgroundColor(Color.parseColor("#E5F4F1"))
     }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }

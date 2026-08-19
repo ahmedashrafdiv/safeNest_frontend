@@ -170,8 +170,8 @@ class HomeFragment : Fragment() {
         view: View,
         prefs: android.content.SharedPreferences
     ) {
-        val maxMinutes = rule.maxScreenTime ?: 0
-        val todayMinutes = usageLog.values.sum()
+        val maxMinutes = rule.dailyLimitMinutes ?: 0
+        val todayMinutes = rule.usedTodayMinutes ?: 0
         val ratio = if (maxMinutes > 0) todayMinutes.toFloat() / maxMinutes else 0f
 
         // Update usage-time chip: "X ساعة Y دقيقة من Z ساعة"

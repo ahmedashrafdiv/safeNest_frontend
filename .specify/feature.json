@@ -1,5 +1,5 @@
 {
-  "feature": "frontend-phone-location-tracking",
-  "feature_directory": "specs/frontend-phone-location-tracking",
-  "description": "Child phone location collection and Parent location display with explicit permission and stale-state UX."
+  "feature": "frontend-daily-usage-accuracy",
+  "feature_directory": "specs/frontend-daily-usage-accuracy",
+  "description": "Accurate date-bounded screen-time summaries and the Layngo Parent daily-usage screen."
 }

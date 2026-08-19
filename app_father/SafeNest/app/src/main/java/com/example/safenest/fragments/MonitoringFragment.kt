@@ -129,7 +129,11 @@ class MonitoringFragment : Fragment() {
                                 progressBar?.visibility = View.GONE
                                 val rule = state.data
                                 currentRuleId = rule.ruleId
-                                updateUI(rule.maxScreenTime, rule.dailyUsageLog)
+                                updateUI(
+                                    rule.dailyLimitMinutes,
+                                    rule.usedTodayMinutes,
+                                    rule.limitConfirmationRequired
+                                )
                                 viewModel.clearDigitalRuleState()
                             }
                             is Result.Error -> {
@@ -151,8 +155,12 @@ class MonitoringFragment : Fragment() {
                     viewModel.updateDigitalRuleState.collect { state ->
                         when (state) {
                             is Result.Success -> {
-                                updateUI(state.data.maxScreenTime, state.data.dailyUsageLog)
-                                Toast.makeText(context, getString(R.string.screen_time_set_success, state.data.maxScreenTime ?: 0), Toast.LENGTH_SHORT).show()
+                                updateUI(
+                                    state.data.dailyLimitMinutes,
+                                    state.data.usedTodayMinutes,
+                                    state.data.limitConfirmationRequired
+                                )
+                                Toast.makeText(context, getString(R.string.screen_time_set_success, state.data.dailyLimitMinutes ?: 0), Toast.LENGTH_SHORT).show()
                                 viewModel.clearUpdateDigitalRuleState()
                             }
                             is Result.Error -> {
@@ -178,27 +186,31 @@ class MonitoringFragment : Fragment() {
             if (result is Result.Success) {
                 currentRuleId = result.data.ruleId
                 kotlinx.coroutines.withContext(Dispatchers.Main) {
-                    updateUI(result.data.maxScreenTime, result.data.dailyUsageLog)
+                    updateUI(result.data.dailyLimitMinutes, result.data.usedTodayMinutes, result.data.limitConfirmationRequired)
                 }
             }
         }
     }
 
-    private fun updateUI(maxScreenTime: Int?, usageLog: Map<String, Int>? = null) {
-        screenTimeTv?.text = if (maxScreenTime != null)
-            getString(R.string.screen_time_limit_format, maxScreenTime)
+    private fun updateUI(dailyLimitMinutes: Int?, usedTodayMinutes: Int?, limitConfirmationRequired: Boolean) {
+        screenTimeTv?.text = if (limitConfirmationRequired)
+            "الحد اليومي يحتاج إلى تأكيد"
+        else if (dailyLimitMinutes != null)
+            getString(R.string.screen_time_limit_format, dailyLimitMinutes)
         else
             getString(R.string.screen_time_not_set)
 
         // Update usage-time chip in header
         val usageTimeTv = view?.findViewById<TextView>(R.id.usageTime)
-        if (usageTimeTv != null && maxScreenTime != null) {
-            val todayMinutes = usageLog?.values?.sum() ?: 0
+        if (usageTimeTv != null && dailyLimitMinutes != null && !limitConfirmationRequired) {
+            val todayMinutes = usedTodayMinutes ?: 0
             val todayH = todayMinutes / 60; val todayM = todayMinutes % 60
-            val maxH = maxScreenTime / 60; val maxM = maxScreenTime % 60
+            val maxH = dailyLimitMinutes / 60; val maxM = dailyLimitMinutes % 60
             val todayStr = if (todayH == 0) "${todayM}د" else if (todayM == 0) "${todayH}س" else "${todayH}س ${todayM}د"
             val maxStr = if (maxH == 0) "${maxM}د" else if (maxM == 0) "${maxH}س" else "${maxH}س ${maxM}د"
             usageTimeTv.text = "$todayStr من $maxStr"
+        } else if (usageTimeTv != null) {
+            usageTimeTv.text = "بانتظار تأكيد الحد"
         }
     }
 
@@ -219,7 +231,7 @@ class MonitoringFragment : Fragment() {
                         progressBar?.visibility = View.GONE
                         if (result is Result.Success) {
                             currentRuleId = null
-                            updateUI(null)
+                            updateUI(null, null, false)
                             Toast.makeText(context, getString(R.string.rule_deleted_success), Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, getString(R.string.error_delete_rule, (result as? Result.Error)?.message ?: ""), Toast.LENGTH_LONG).show()
