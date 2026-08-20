@@ -117,7 +117,10 @@ locked device returns `429`.
 - `GET /api/child-devices/{device_id}/screen-time-decision` supplies `remaining_seconds`,
   `used_seconds`, and `effective_limit_seconds` for the ring.
 - `POST /api/child-devices/{device_id}/access-requests` submits the extra-time request with
-  `request_type: extra_time` and `scope_type: screen_time`.
+  `request_type: extra_time`, `scope_type: screen_time`, and `scope_value: daily`. The scope value
+  matters: the Backend also accepts `downtime` and `bedtime`, but only a `daily` grant is added to
+  the daily budget during evaluation, so any other value produces a request the parent can approve
+  and that then changes nothing. `requested_seconds` must fall between 60 and 86400.
 
 ## Constraints
 

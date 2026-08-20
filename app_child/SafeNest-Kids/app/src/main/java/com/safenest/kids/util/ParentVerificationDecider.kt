@@ -32,14 +32,21 @@ object ParentVerificationDecider {
     private const val WRONG_PASSWORD_CODE = "invalid_parent_password"
 
     /**
-     * [errorCode] is the `detail.code` of the error body, or `null` when the response carried none.
+     * [verified] is the response body's own affirmation, and [errorCode] is the `detail.code` of the
+     * error body, or `null` when the response carried none.
      *
-     * The distinction matters at 401: the endpoint answers 401 for a wrong parent password, and the
-     * device-token dependency in front of it answers 401 for an expired token. Reporting "wrong
-     * password" for an expired pairing would send the parent hunting for a typo that is not there.
+     * This decides whether a device may be unpaired or its protection switched off, so a success is
+     * only a success when the body says so: a 2xx that does not affirm verification fails closed
+     * rather than being read as consent.
+     *
+     * The [errorCode] distinction matters at 401: the endpoint answers 401 for a wrong parent
+     * password, and the device-token dependency in front of it answers 401 for an expired token.
+     * Reporting "wrong password" for an expired pairing would send the parent hunting for a typo
+     * that is not there.
      */
-    fun outcome(httpCode: Int, errorCode: String?): Outcome = when {
-        httpCode == 200 -> Outcome.VERIFIED
+    fun outcome(httpCode: Int, verified: Boolean, errorCode: String?): Outcome = when {
+        httpCode in 200..299 && verified -> Outcome.VERIFIED
+        httpCode in 200..299 -> Outcome.UNAVAILABLE
         httpCode == 401 && errorCode == WRONG_PASSWORD_CODE -> Outcome.WRONG_PASSWORD
         httpCode == 401 -> Outcome.SESSION_EXPIRED
         httpCode == 429 -> Outcome.LOCKED

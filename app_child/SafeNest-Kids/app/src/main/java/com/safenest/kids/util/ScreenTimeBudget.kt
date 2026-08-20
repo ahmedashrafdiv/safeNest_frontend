@@ -11,12 +11,17 @@ import kotlin.math.ceil
 object ScreenTimeBudget {
 
     /**
-     * Shown when the parent has assigned no daily policy and the Backend answers 404
-     * `policy_not_found`. It is a display convenience only — nothing enforces it and it is never
-     * reported back as a policy — so the child sees a live, plausible number instead of a zero that
-     * would read as "your time is up" or a blank dial that says nothing.
+     * Shown whenever the Backend cannot name a usable budget: a 404 `policy_not_found` when the
+     * parent has assigned no daily policy, an `unknown` decision for a policy that has not taken
+     * effect yet, or any decision carrying a non-positive limit. It is a display convenience only —
+     * nothing enforces it and it is never reported back as a policy — so the child sees a live,
+     * plausible number instead of a zero that would read as "your time is up" or a blank dial that
+     * says nothing.
      */
     const val DEFAULT_BUDGET_SECONDS: Int = 5 * 60 * 60
+
+    /** The Backend's verdict when it has no budget to report. */
+    const val DECISION_UNKNOWN = "unknown"
 
     private const val SECONDS_PER_MINUTE = 60
 
@@ -32,9 +37,25 @@ object ScreenTimeBudget {
         val isExhausted: Boolean,
     )
 
-    /** Build the ring from a `screen-time-decision` body. */
-    fun fromDecision(remainingSeconds: Int, effectiveLimitSeconds: Int): Ring =
-        build(remainingSeconds, effectiveLimitSeconds, usesDefaultBudget = false)
+    /**
+     * Build the ring from a `screen-time-decision` body.
+     *
+     * A 200 is not by itself proof of a usable budget. The Backend answers `unknown` with a zero
+     * limit for a policy that has not taken effect yet, which means the same thing to a child as no
+     * policy at all — so it renders the same way rather than as an emptied dial announcing that
+     * time nobody has limited has run out.
+     */
+    fun fromDecision(
+        decision: String?,
+        remainingSeconds: Int,
+        effectiveLimitSeconds: Int,
+        localUsedMinutes: Long,
+    ): Ring {
+        if (decision == DECISION_UNKNOWN || effectiveLimitSeconds <= 0) {
+            return fromDefaultBudget(localUsedMinutes)
+        }
+        return build(remainingSeconds, effectiveLimitSeconds, usesDefaultBudget = false)
+    }
 
     /**
      * Build the ring from the fallback budget, subtracting the usage this device measured for

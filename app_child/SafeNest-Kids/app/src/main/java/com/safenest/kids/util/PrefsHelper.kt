@@ -338,7 +338,13 @@ class PrefsHelper(context: Context) {
 
     /**
      * Drop everything that binds this device to a parent account. The device identifier is kept so a
-     * re-pair of the same handset stays recognisable to the Backend.
+     * re-pair of the same handset stays recognisable to the Backend, which keys the device document
+     * on the identifier this client supplies at pairing.
+     *
+     * The tracking values go too. The last recorded coordinates belong to the child who was just
+     * unpaired, and they must not survive into whoever pairs this handset next; the per-feature
+     * status strings go with them so nothing reports a service as running for a device that is no
+     * longer bound to anyone.
      */
     fun clearPairingSession() {
         clearEnforcementPolicy()
@@ -354,6 +360,18 @@ class PrefsHelper(context: Context) {
             .putBoolean("protection_suspended", false)
             .remove("installed_apps_fingerprint")
             .putBoolean("phone_tracking_enabled", false)
+            .remove("phone_tracking_last_latitude")
+            .remove("phone_tracking_last_longitude")
+            .remove("phone_tracking_last_accuracy")
+            .remove("phone_tracking_last_captured_at")
+            .remove("phone_tracking_last_upload_at")
+            .remove("phone_tracking_last_report_id")
+            .remove("phone_tracking_status")
+            .remove("phone_tracking_service_state")
+            .remove("phone_tracking_network_state")
+            .remove("phone_tracking_permission_state")
+            .remove("phone_tracking_policy_version")
+            .remove("website_vpn_health")
             .apply()
     }
 }

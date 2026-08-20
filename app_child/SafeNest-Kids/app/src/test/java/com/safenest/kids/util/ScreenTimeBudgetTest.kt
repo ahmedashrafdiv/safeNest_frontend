@@ -9,7 +9,7 @@ class ScreenTimeBudgetTest {
 
     @Test
     fun policyBudgetReportsRemainingMinutesAndSweep() {
-        val ring = ScreenTimeBudget.fromDecision(remainingSeconds = 2040, effectiveLimitSeconds = 3600)
+        val ring = ScreenTimeBudget.fromDecision("allow", 2040, 3600, localUsedMinutes = 0)
 
         assertEquals(34, ring.remainingMinutes)
         assertEquals(2040f / 3600f, ring.sweepFraction, 0.0001f)
@@ -19,33 +19,42 @@ class ScreenTimeBudgetTest {
 
     @Test
     fun exhaustedPolicyBudgetEmptiesTheDial() {
-        val ring = ScreenTimeBudget.fromDecision(remainingSeconds = 0, effectiveLimitSeconds = 3600)
+        val ring = ScreenTimeBudget.fromDecision("limit_reached", 0, 3600, localUsedMinutes = 60)
 
         assertEquals(0, ring.remainingMinutes)
         assertEquals(0f, ring.sweepFraction, 0.0001f)
+        assertFalse(ring.usesDefaultBudget)
         assertTrue(ring.isExhausted)
     }
 
     @Test
     fun partialMinuteStillReadsAsRemainingTime() {
-        val ring = ScreenTimeBudget.fromDecision(remainingSeconds = 30, effectiveLimitSeconds = 3600)
+        val ring = ScreenTimeBudget.fromDecision("allow", 30, 3600, localUsedMinutes = 0)
 
         assertEquals(1, ring.remainingMinutes)
         assertFalse(ring.isExhausted)
     }
 
     @Test
-    fun zeroLimitPolicyDoesNotDivideByZero() {
-        val ring = ScreenTimeBudget.fromDecision(remainingSeconds = 0, effectiveLimitSeconds = 0)
+    fun unknownDecisionFallsBackToTheDefaultBudget() {
+        val ring = ScreenTimeBudget.fromDecision("unknown", 0, 0, localUsedMinutes = 60)
 
-        assertEquals(0, ring.remainingMinutes)
-        assertEquals(0f, ring.sweepFraction, 0.0001f)
-        assertTrue(ring.isExhausted)
+        assertEquals(240, ring.remainingMinutes)
+        assertTrue(ring.usesDefaultBudget)
+        assertFalse(ring.isExhausted)
+    }
+
+    @Test
+    fun zeroLimitDecisionFallsBackToTheDefaultBudget() {
+        val ring = ScreenTimeBudget.fromDecision("allow", 0, 0, localUsedMinutes = 0)
+
+        assertEquals(300, ring.remainingMinutes)
+        assertTrue(ring.usesDefaultBudget)
     }
 
     @Test
     fun remainderBeyondTheLimitIsClampedIntoTheDial() {
-        val ring = ScreenTimeBudget.fromDecision(remainingSeconds = 7200, effectiveLimitSeconds = 3600)
+        val ring = ScreenTimeBudget.fromDecision("allow", 7200, 3600, localUsedMinutes = 0)
 
         assertEquals(60, ring.remainingMinutes)
         assertEquals(1f, ring.sweepFraction, 0.0001f)
@@ -53,7 +62,7 @@ class ScreenTimeBudgetTest {
 
     @Test
     fun negativeRemainderIsTreatedAsExhausted() {
-        val ring = ScreenTimeBudget.fromDecision(remainingSeconds = -120, effectiveLimitSeconds = 3600)
+        val ring = ScreenTimeBudget.fromDecision("limit_reached", -120, 3600, localUsedMinutes = 0)
 
         assertEquals(0, ring.remainingMinutes)
         assertTrue(ring.isExhausted)

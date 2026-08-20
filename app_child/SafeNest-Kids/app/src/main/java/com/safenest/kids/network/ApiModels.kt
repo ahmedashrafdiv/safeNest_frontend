@@ -219,6 +219,24 @@ data class ScreenTimeDecisionResponse(
     @SerializedName("remaining_seconds") val remainingSeconds: Int = 0,
 )
 
+/**
+ * Fixed values for the extra-time request the Home screen submits.
+ *
+ * `scope_value` is the one that bites. The Backend accepts `daily`, `downtime`, and `bedtime` for a
+ * `screen_time` scope, but only a grant whose scope is exactly `daily` is added to the daily budget
+ * when the screen-time decision is evaluated. Anything else is accepted, shown to the parent, and
+ * approved — and then silently ignored by the very budget it was meant to extend.
+ */
+object ExtraTimeRequest {
+    const val REQUEST_TYPE = "extra_time"
+    const val SCOPE_TYPE = "screen_time"
+    const val SCOPE_VALUE = "daily"
+
+    /** The Backend rejects anything outside this range with a 422. */
+    const val MIN_REQUESTED_SECONDS = 60
+    const val MAX_REQUESTED_SECONDS = 86400
+}
+
 data class AccessRequestCreateRequest(
     @SerializedName("payload_version") val payloadVersion: Int = 1,
     @SerializedName("request_type") val requestType: String,
