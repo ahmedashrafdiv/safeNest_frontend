@@ -277,4 +277,83 @@ class PrefsHelper(context: Context) {
 
     fun getDailyScreenTimeLimitSeconds(): Int = prefs.getInt("daily_screen_time_limit_seconds", 0)
 
-    fun getDailyScreenTimePolicyVersion(): Int = prefs.getInt("daily_screen_time_policy_version", 0)}
+    fun getDailyScreenTimePolicyVersion(): Int = prefs.getInt("daily_screen_time_policy_version", 0)
+
+    // ── Session identity shown on the Home screen ──────────────
+
+    fun setChildName(name: String?) {
+        prefs.edit().putString("child_name", name).apply()
+    }
+
+    fun getChildName(): String? = prefs.getString("child_name", null)
+
+    /**
+     * The bound parent's address, shown in the disabled field of the verification dialog. The
+     * parent's password is deliberately absent here: it is sent to the Backend and never stored.
+     */
+    fun setParentEmail(email: String?) {
+        prefs.edit().putString("parent_email", email).apply()
+    }
+
+    fun getParentEmail(): String? = prefs.getString("parent_email", null)
+
+    // ── Suspended protection ───────────────────────────────────
+
+    fun setProtectionSuspended(suspended: Boolean) {
+        prefs.edit().putBoolean("protection_suspended", suspended).apply()
+    }
+
+    fun isProtectionSuspended(): Boolean = prefs.getBoolean("protection_suspended", false)
+
+    /**
+     * Empty every input the enforcement side reads, which is how protection is suspended without
+     * touching the accessibility service itself:
+     *
+     * - `AppPolicyDecider.shouldBlock` passes every package once the mode is `blocklist` and the
+     *   blocked set is empty.
+     * - `isAppOverTimeLimit` returns false once the limits JSON is absent.
+     * - `isDailyScreenTimeLimitReached` returns false once the daily budget is zero.
+     * - `WebsiteDnsVpnService` has no rules to apply once the snapshot is absent.
+     *
+     * The policy versions are reset with the values so a later re-enable is not mistaken for an
+     * already-applied policy and skipped by the sync workers.
+     */
+    fun clearEnforcementPolicy() {
+        prefs.edit()
+            .putString("app_control_mode", "blocklist")
+            .putStringSet("allowed_apps", emptySet())
+            .putStringSet("blocked_apps", emptySet())
+            .remove("app_time_limits_json")
+            .putInt("app_policy_version", 0)
+            .putInt("daily_screen_time_limit_seconds", 0)
+            .putInt("daily_screen_time_policy_version", 0)
+            .remove("website_policy_snapshot_json")
+            .remove("website_policy_content_hash")
+            .putInt("website_policy_version", 0)
+            .remove("website_policy_id")
+            .putBoolean("protected_home_requested", false)
+            .putInt("protected_home_policy_version", 0)
+            .apply()
+    }
+
+    /**
+     * Drop everything that binds this device to a parent account. The device identifier is kept so a
+     * re-pair of the same handset stays recognisable to the Backend.
+     */
+    fun clearPairingSession() {
+        clearEnforcementPolicy()
+        prefs.edit()
+            .remove("device_access_token")
+            .remove("child_id")
+            .remove("parent_id")
+            .remove("child_name")
+            .remove("parent_email")
+            .putBoolean("is_paired", false)
+            .putBoolean("just_paired", false)
+            .putBoolean("last_apps_sent", false)
+            .putBoolean("protection_suspended", false)
+            .remove("installed_apps_fingerprint")
+            .putBoolean("phone_tracking_enabled", false)
+            .apply()
+    }
+}

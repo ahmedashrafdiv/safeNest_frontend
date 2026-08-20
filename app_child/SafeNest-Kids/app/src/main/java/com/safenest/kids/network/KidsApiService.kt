@@ -77,4 +77,28 @@ interface KidsApiService {
     @GET("api/child-devices/{device_id}/screen-time-policy")
     suspend fun getScreenTimePolicy(
         @Path("device_id") deviceId: String,
-    ): Response<ScreenTimePolicySyncPayload>}
+    ): Response<ScreenTimePolicySyncPayload>
+
+    @GET("api/child-devices/{device_id}/session-profile")
+    suspend fun getSessionProfile(
+        @Path("device_id") deviceId: String,
+    ): Response<ChildDeviceSessionProfile>
+
+    @POST("api/child-devices/{device_id}/parent-verification")
+    suspend fun verifyParentPassword(
+        @Path("device_id") deviceId: String,
+        @Body request: ParentVerificationRequest,
+    ): Response<ParentVerificationResponse>
+
+    /** Answers 404 `policy_not_found` when the parent has assigned no daily screen-time policy. */
+    @GET("api/child-devices/{device_id}/screen-time-decision")
+    suspend fun getScreenTimeDecision(
+        @Path("device_id") deviceId: String,
+    ): Response<ScreenTimeDecisionResponse>
+
+    @POST("api/child-devices/{device_id}/access-requests")
+    suspend fun createAccessRequest(
+        @Path("device_id") deviceId: String,
+        @Body request: AccessRequestCreateRequest,
+    ): Response<AccessRequestCreateResponse>
+}

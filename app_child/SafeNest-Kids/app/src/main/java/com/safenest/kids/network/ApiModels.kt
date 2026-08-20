@@ -184,3 +184,55 @@ data class ScreenTimePolicySyncPayload(
     @SerializedName("policy") val policy: ScreenTimePolicyPayload,
     @SerializedName("policy_hash") val policyHash: String,
 )
+
+/** Display identity for the Home screen and the parent verification dialog. */
+data class ChildDeviceSessionProfile(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("child_name") val childName: String?,
+    @SerializedName("parent_id") val parentId: String,
+    @SerializedName("parent_email") val parentEmail: String,
+)
+
+data class ParentVerificationRequest(
+    @SerializedName("password") val password: String,
+)
+
+data class ParentVerificationResponse(
+    @SerializedName("verified") val verified: Boolean = false,
+)
+
+/**
+ * Result of `GET /api/child-devices/{device_id}/screen-time-decision`.
+ *
+ * The endpoint answers 404 `policy_not_found` when the parent has assigned no daily policy, so a
+ * successful body always describes a real budget.
+ */
+data class ScreenTimeDecisionResponse(
+    @SerializedName("decision") val decision: String?,
+    @SerializedName("reason_code") val reasonCode: String?,
+    @SerializedName("local_date") val localDate: String? = null,
+    @SerializedName("timezone") val timezone: String? = null,
+    @SerializedName("used_seconds") val usedSeconds: Int = 0,
+    @SerializedName("base_limit_seconds") val baseLimitSeconds: Int = 0,
+    @SerializedName("extra_grant_seconds") val extraGrantSeconds: Int = 0,
+    @SerializedName("effective_limit_seconds") val effectiveLimitSeconds: Int = 0,
+    @SerializedName("remaining_seconds") val remainingSeconds: Int = 0,
+)
+
+data class AccessRequestCreateRequest(
+    @SerializedName("payload_version") val payloadVersion: Int = 1,
+    @SerializedName("request_type") val requestType: String,
+    @SerializedName("scope_type") val scopeType: String,
+    @SerializedName("scope_value") val scopeValue: String,
+    @SerializedName("requested_seconds") val requestedSeconds: Int,
+    @SerializedName("client_request_id") val clientRequestId: String,
+    @SerializedName("reason") val reason: String? = null,
+)
+
+data class AccessRequestCreateResponse(
+    @SerializedName("duplicate") val duplicate: Boolean = false,
+    @SerializedName("request_id") val requestId: String? = null,
+    @SerializedName("status") val status: String? = null,
+    @SerializedName("requested_seconds") val requestedSeconds: Int = 0,
+    @SerializedName("request_expires_at") val requestExpiresAt: String? = null,
+)
