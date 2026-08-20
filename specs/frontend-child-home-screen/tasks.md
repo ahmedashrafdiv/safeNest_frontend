@@ -36,7 +36,7 @@ Legend: `[ ]` open, `[x]` done. Each phase is reviewed and committed before the 
 
 - [ ] T022 Add the menu sheet opened from the header with exactly the sign-out and disable entries.
 - [ ] T023 Add the parent verification dialog with the pre-filled disabled email field, the password field, an error line, and a progress state.
-- [ ] T024 Implement the sign-out action: clear the token, identifiers, and cached policy, cancel the workers, stop the services, and return to the pairing screen.
+- [ ] T024 Implement the sign-out action: clear the token, identifiers, and cached policy, cancel the workers, stop the services, and return to the pairing screen. When the device holds the HOME role, also send the parent to the system home-app settings — Android offers no API to release `ROLE_HOME`, so without this the handset keeps launching the unpaired Child app as its launcher.
 - [ ] T025 Implement the disable action: set the suspended flag, clear the cached enforcement policy, and cancel the periodic sync work while keeping the pairing.
 - [ ] T026 Make `RuleSyncWorker`, `ScreenTimePolicySyncWorker`, `WebsitePolicySyncWorker`, `PhoneLocationPolicySyncWorker`, and `ProtectedHomePolicySyncWorker` return early while protection is suspended.
 - [ ] T027 Offer the delete-application action in the suspended state, removing device-admin registration before opening the system uninstall screen.

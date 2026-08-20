@@ -44,6 +44,10 @@ object ScreenTimeBudget {
      * limit for a policy that has not taken effect yet, which means the same thing to a child as no
      * policy at all — so it renders the same way rather than as an emptied dial announcing that
      * time nobody has limited has run out.
+     *
+     * The verdict alone selects the fallback. A zero limit is deliberately *not* a trigger: paired
+     * with a real verdict it would describe a policy that permits nothing, and answering the
+     * strictest setting a parent can choose with a five-hour dial would invert it.
      */
     fun fromDecision(
         decision: String?,
@@ -51,7 +55,7 @@ object ScreenTimeBudget {
         effectiveLimitSeconds: Int,
         localUsedMinutes: Long,
     ): Ring {
-        if (decision == DECISION_UNKNOWN || effectiveLimitSeconds <= 0) {
+        if (decision == null || decision == DECISION_UNKNOWN) {
             return fromDefaultBudget(localUsedMinutes)
         }
         return build(remainingSeconds, effectiveLimitSeconds, usesDefaultBudget = false)

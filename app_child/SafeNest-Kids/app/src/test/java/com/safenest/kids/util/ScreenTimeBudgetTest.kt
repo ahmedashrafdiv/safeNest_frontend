@@ -45,11 +45,23 @@ class ScreenTimeBudgetTest {
     }
 
     @Test
-    fun zeroLimitDecisionFallsBackToTheDefaultBudget() {
-        val ring = ScreenTimeBudget.fromDecision("allow", 0, 0, localUsedMinutes = 0)
+    fun missingDecisionFallsBackToTheDefaultBudget() {
+        val ring = ScreenTimeBudget.fromDecision(null, 0, 0, localUsedMinutes = 0)
 
         assertEquals(300, ring.remainingMinutes)
         assertTrue(ring.usesDefaultBudget)
+    }
+
+    @Test
+    fun aPolicyPermittingNothingStaysABlockRatherThanFallingBack() {
+        // Not reachable while the Backend pins daily_limit_seconds to ge=60, but if that bound is
+        // ever relaxed the strictest policy a parent can set must not render as five free hours.
+        val ring = ScreenTimeBudget.fromDecision("limit_reached", 0, 0, localUsedMinutes = 0)
+
+        assertEquals(0, ring.remainingMinutes)
+        assertEquals(0f, ring.sweepFraction, 0.0001f)
+        assertFalse(ring.usesDefaultBudget)
+        assertTrue(ring.isExhausted)
     }
 
     @Test
