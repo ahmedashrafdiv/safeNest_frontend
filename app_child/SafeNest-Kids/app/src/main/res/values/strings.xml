@@ -1,4 +1,25 @@
 <resources>
     <string name="app_name">Layngo Kids</string>
     <string name="accessibility_service_description">تستخدم هذه الخدمة لحظر التطبيقات غير المسموح بها</string>
+
+    <!-- Home screen -->
+    <string name="home_brand_name">Layngo</string>
+    <string name="home_logo_description">شعار Layngo</string>
+    <string name="home_menu_description">القائمة</string>
+    <string name="home_greeting_named">أهلًا %1$s!</string>
+    <string name="home_greeting_fallback">أهلًا بك!</string>
+    <string name="home_greeting_subtitle">يوم سعيد لك.</string>
+    <string name="home_minutes_remaining">دقيقة باقية</string>
+    <string name="home_extra_time_title">هل تحتاجين وقت أكثر؟</string>
+    <string name="home_extra_time_subtitle">يمكنك طلب وقت إضافي من والديك.</string>
+    <string name="home_extra_time_action">اطلب وقت إضافي</string>
+    <string name="home_help_action">المساعدة</string>
+    <string name="home_nav_today">اليوم</string>
+    <string name="home_nav_help">المساعدة</string>
+
+    <!-- Suspended protection -->
+    <string name="home_suspended_title">الحماية متوقفة</string>
+    <string name="home_suspended_subtitle">أوقف أحد الوالدين الحماية على هذا الجهاز.</string>
+    <string name="home_suspended_enable_action">إعادة تفعيل الحماية</string>
+    <string name="home_suspended_delete_action">حذف التطبيق</string>
 </resources>

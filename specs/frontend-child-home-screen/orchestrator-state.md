@@ -17,10 +17,18 @@ untouched; the spec name is passed to review tooling explicitly.
 
 - Phase 1 (backend session endpoints): DONE | commits db66bed, ac50f10 | review 001 | fixes 4/4 | code-review 1 finding, fixed
   - Tests: 262 passed, 3 pre-existing failures in tests/test_daily_usage_accuracy.py (missing `tzdata` in the venv, unrelated to this feature)
-- Phase 2 (data layer and pure logic): IN PROGRESS
+- Phase 2 (data layer and pure logic): DONE | commits 3a0f929, d19efcc, 71e75ef | review 002 | fixes 4/4 | code-review 3 findings, all resolved
+  - Tests: 96 passed, 0 failed. Lint: 21 errors / 98 warnings, all pre-existing, none in a Phase 2 file
+  - Code-review finding on `ROLE_HOME` carried into T024 rather than fixed here — Android has no API to release the role, so it belongs with the sign-out wiring
 - Phase 3 (Layngo Home screen): PENDING
 - Phase 4 (menu and password gate): PENDING
 - Phase 5 (extra-time and verification): PENDING
 
-- Next: Phase 2, T008
+- Next: Phase 3, T015
 - Attempts: implement=1, review-fix=1, code-review=1
+
+## Environment
+
+`JAVA_HOME` is unset and no `java` is on `PATH`. Every Gradle command needs the prefix
+`JAVA_HOME=D:/Android/jdk/temurin-17`. No Android SDK emulator or attached device has been
+confirmed in this session, so T021 and T032 may need the user's handset.

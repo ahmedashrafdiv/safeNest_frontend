@@ -1,128 +1,381 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Layngo child Home screen.
+
+  Header and bottom navigation are pinned with absolute Left/Right constraints and an explicit
+  ltr direction so their arrangement matches the approved design on an Arabic device, where
+  start/end would otherwise mirror them. The Arabic text inside each view still shapes
+  right-to-left on its own.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
-    android:layoutDirection="rtl"
-    android:padding="24dp">
+    android:background="@color/ivory_surface">
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+
+    <ImageView
+        android:id="@+id/iv_brand_logo"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="18dp"
+        android:contentDescription="@string/home_logo_description"
+        android:scaleType="centerInside"
+        android:src="@drawable/layngo_logo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tv_title"
+        android:id="@+id/tv_brand_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="الصفحة الرئيسية"
-        android:textColor="@color/purple_dark"
-        android:textSize="28sp"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:text="@string/home_brand_name"
+        android:textColor="@color/navy_brand"
+        android:textSize="21sp"
         android:textStyle="bold"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@id/iv_brand_logo"
+        app:layout_constraintLeft_toRightOf="@id/iv_brand_logo"
+        app:layout_constraintTop_toTopOf="@id/iv_brand_logo" />
 
-    <!-- Protection status card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_status"
+    <ImageButton
+        android:id="@+id/btn_menu"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="14dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/home_menu_description"
+        android:padding="10dp"
+        android:src="@drawable/ic_menu_bars"
+        app:layout_constraintBottom_toBottomOf="@id/iv_brand_logo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_brand_logo" />
+
+    <!-- ── Greeting ───────────────────────────────────────── -->
+
+    <TextView
+        android:id="@+id/tv_greeting"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        android:layout_marginTop="34dp"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:gravity="center"
+        android:textColor="@color/navy_brand"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/iv_brand_logo"
+        tools:text="أهلًا ليان!" />
+
+    <TextView
+        android:id="@+id/tv_greeting_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:gravity="center"
+        android:text="@string/home_greeting_subtitle"
+        android:textColor="@color/gray_medium"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_greeting" />
+
+    <!-- ── Budget ring ────────────────────────────────────── -->
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_budget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="ring_budget,tv_remaining_minutes,tv_remaining_label" />
+
+    <com.safenest.kids.view.BudgetRingView
+        android:id="@+id/ring_budget"
+        android:layout_width="196dp"
+        android:layout_height="196dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_greeting_subtitle" />
+
+    <TextView
+        android:id="@+id/tv_remaining_minutes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:textColor="@color/navy_brand"
+        android:textSize="44sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/tv_remaining_label"
+        app:layout_constraintEnd_toEndOf="@id/ring_budget"
+        app:layout_constraintStart_toStartOf="@id/ring_budget"
+        app:layout_constraintTop_toTopOf="@id/ring_budget"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="34" />
+
+    <TextView
+        android:id="@+id/tv_remaining_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:text="@string/home_minutes_remaining"
+        android:textColor="@color/gray_medium"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/ring_budget"
+        app:layout_constraintEnd_toEndOf="@id/ring_budget"
+        app:layout_constraintStart_toStartOf="@id/ring_budget"
+        app:layout_constraintTop_toBottomOf="@id/tv_remaining_minutes" />
+
+    <!-- ── Suspended state, shown in place of the ring ────── -->
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_suspended"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_suspended_title,tv_suspended_subtitle,btn_enable_protection,btn_delete_app" />
+
+    <TextView
+        android:id="@+id/tv_suspended_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:gravity="center"
+        android:text="@string/home_suspended_title"
+        android:textColor="@color/navy_brand"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_greeting_subtitle" />
+
+    <TextView
+        android:id="@+id/tv_suspended_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:gravity="center"
+        android:text="@string/home_suspended_subtitle"
+        android:textColor="@color/gray_medium"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_suspended_title" />
+
+    <Button
+        android:id="@+id/btn_enable_protection"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/bg_button_primary"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:stateListAnimator="@null"
+        android:text="@string/home_suspended_enable_action"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_suspended_subtitle" />
+
+    <Button
+        android:id="@+id/btn_delete_app"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/bg_button_outline"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:stateListAnimator="@null"
+        android:text="@string/home_suspended_delete_action"
+        android:textAllCaps="false"
+        android:textColor="@color/coral_action"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_enable_protection" />
+
+    <!-- ── Extra-time card ────────────────────────────────── -->
+
+    <LinearLayout
+        android:id="@+id/card_extra_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_soft_card"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="22dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_help"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_clock" />
+
+        <TextView
+            android:id="@+id/tv_extra_time_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/ibm_plex_sans_arabic"
+            android:gravity="center"
+            android:text="@string/home_extra_time_title"
+            android:textColor="@color/navy_brand"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_extra_time_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/ibm_plex_sans_arabic"
+            android:gravity="center"
+            android:text="@string/home_extra_time_subtitle"
+            android:textColor="@color/gray_medium"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btn_request_extra_time"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_button_primary"
+            android:fontFamily="@font/ibm_plex_sans_arabic"
+            android:stateListAnimator="@null"
+            android:text="@string/home_extra_time_action"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <!-- ── Help ───────────────────────────────────────────── -->
+
+    <Button
+        android:id="@+id/btn_help"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_button_outline"
+        android:drawableEnd="@drawable/ic_help_circle"
+        android:drawablePadding="6dp"
+        android:fontFamily="@font/ibm_plex_sans_arabic"
+        android:stateListAnimator="@null"
+        android:text="@string/home_help_action"
+        android:textAllCaps="false"
+        android:textColor="@color/navy_brand"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@id/nav_bottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- ── Bottom navigation ──────────────────────────────── -->
+
+    <View
+        android:id="@+id/divider_bottom"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/gray_light"
+        app:layout_constraintBottom_toTopOf="@id/nav_bottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/nav_bottom"
+        android:layout_width="0dp"
+        android:layout_height="58dp"
+        android:layoutDirection="ltr"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/nav_today"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
             android:gravity="center"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="21dp"
+                android:layout_height="21dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_calendar_today" />
 
             <TextView
-                android:id="@+id/tv_protection_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="الحماية مفعّلة ✓"
-                android:textColor="@color/green_success"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/tv_phone_location_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="تتبع موقع الهاتف غير متاح"
-                android:textColor="@color/red_warning"
-                android:textSize="14sp"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/tv_website_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="حماية المواقع غير متاحة"
-                android:textColor="@color/red_warning"
-                android:textSize="14sp"
-                android:gravity="center" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_fix_permissions"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="إعادة ضبط الأذونات"
-                android:textColor="@color/red_warning"
-                android:visibility="gone"
-                app:strokeColor="@color/red_warning"
-                app:cornerRadius="8dp" />
+                android:layout_marginTop="3dp"
+                android:fontFamily="@font/ibm_plex_sans_arabic"
+                android:text="@string/home_nav_today"
+                android:textColor="@color/teal_brand"
+                android:textSize="11sp" />
 
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
+        <LinearLayout
+            android:id="@+id/nav_help"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="21dp"
+                android:layout_height="21dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_help_circle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:fontFamily="@font/ibm_plex_sans_arabic"
+                android:text="@string/home_nav_help"
+                android:textColor="@color/gray_medium"
+                android:textSize="11sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Retained from the previous Home screen: the installed-apps sync still reports here. -->
     <ProgressBar
         android:id="@+id/progress_sync"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_test_usage"
+        app:layout_constraintBottom_toBottomOf="@id/tv_greeting_subtitle"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- DEBUG: Temporary button for manual app-usage testing — remove before release -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_test_usage"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginBottom="12dp"
-        android:text="اختبار إرسال وقت الاستخدام"
-        android:textColor="@color/purple_dark"
-        android:textSize="16sp"
-        app:strokeColor="@color/purple_dark"
-        app:cornerRadius="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_refresh_apps"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_refresh_apps"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="16dp"
-        android:text="تحديث قائمة التطبيقات"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:backgroundTint="@color/purple_dark"
-        app:cornerRadius="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/tv_greeting_subtitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

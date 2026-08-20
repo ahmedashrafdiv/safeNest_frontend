@@ -24,13 +24,13 @@ Legend: `[ ]` open, `[x]` done. Each phase is reviewed and committed before the 
 
 ## Phase 3: Layngo Home screen
 
-- [ ] T015 Add the drawable resources the screen needs: the menu glyph, the clock glyph, the help glyph, the calendar glyph, and the card and button backgrounds.
-- [ ] T016 Add `view/BudgetRingView.kt` drawing the track and progress sweep.
-- [ ] T017 Rewrite `res/layout/fragment_home.xml` as the Layngo screen: header, greeting, ring, extra-time card, help action, and bottom navigation.
-- [ ] T018 Add the new user-facing strings to `res/values/strings.xml` rather than embedding them in code.
-- [ ] T019 Rewrite `HomeFragment.kt` to bind the new layout and load the session profile and screen-time decision, preserving every existing worker registration and installed-apps sync.
-- [ ] T020 Render the suspended state on the Home screen in place of the ring when protection is suspended.
-- [ ] T021 Build the child application and confirm the screen renders.
+- [x] T015 Add the drawable resources the screen needs: the menu glyph, the clock glyph, the help glyph, the calendar glyph, and the card and button backgrounds.
+- [x] T016 Add `view/BudgetRingView.kt` drawing the track and progress sweep.
+- [x] T017 Rewrite `res/layout/fragment_home.xml` as the Layngo screen: header, greeting, ring, extra-time card, help action, and bottom navigation.
+- [x] T018 Add the new user-facing strings to `res/values/strings.xml` rather than embedding them in code.
+- [x] T019 Rewrite `HomeFragment.kt` to bind the new layout and load the session profile and screen-time decision, preserving every existing worker registration and installed-apps sync.
+- [x] T020 Render the suspended state on the Home screen in place of the ring when protection is suspended.
+- [~] T021 Build the child application and confirm the screen renders. Build passes (`assembleDebug`, APK produced). On-device rendering is NOT yet confirmed: `adb devices` lists no attached handset in this environment.
 
 ## Phase 4: Menu and parent-password gate
 
