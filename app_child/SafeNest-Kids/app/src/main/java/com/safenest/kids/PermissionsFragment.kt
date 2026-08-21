@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.VpnService
 import android.os.Bundle
+import android.os.Build
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +32,7 @@ import com.safenest.kids.security.SetupCapabilityProvider
 import com.safenest.kids.security.SetupCapabilityStatus
 import com.safenest.kids.security.SetupReadiness
 import com.safenest.kids.service.PhoneLocationService
+import com.safenest.kids.service.PlacePolicySyncWorker
 import com.safenest.kids.service.WebsiteDnsVpnService
 import com.safenest.kids.util.InstalledAppsHelper
 import com.safenest.kids.util.PrefsHelper
@@ -48,6 +50,7 @@ class PermissionsFragment : Fragment() {
     private lateinit var tvCompletion: TextView
     private lateinit var optionalWebsiteCard: View
     private lateinit var optionalLocationCard: View
+    private lateinit var contentBlurCard: View
 
     private val statusViews = mutableMapOf<SetupCapability, TextView>()
     private val actionButtons = mutableMapOf<SetupCapability, Button>()
@@ -71,6 +74,7 @@ class PermissionsFragment : Fragment() {
         tvCompletion = view.findViewById(R.id.tv_completion)
         optionalWebsiteCard = view.findViewById(R.id.card_website_vpn)
         optionalLocationCard = view.findViewById(R.id.card_phone_location)
+        contentBlurCard = view.findViewById(R.id.card_content_blur)
 
         bindCapability(view, SetupCapability.DEVICE_ADMIN, R.id.tv_device_admin_status, R.id.btn_enable_device_admin) {
             requestDeviceAdminActivation()
@@ -85,6 +89,9 @@ class PermissionsFragment : Fragment() {
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
         bindCapability(view, SetupCapability.ACCESSIBILITY, R.id.tv_accessibility_status, R.id.btn_enable_accessibility) {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
+        bindCapability(view, SetupCapability.CONTENT_BLUR_ACCESSIBILITY, R.id.tv_content_blur_status, R.id.btn_enable_content_blur) {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
         bindCapability(view, SetupCapability.BACKGROUND_RELIABILITY, R.id.tv_battery_status, R.id.btn_enable_battery) {
@@ -125,6 +132,7 @@ class PermissionsFragment : Fragment() {
         val readiness = SetupCapabilityEvaluator.evaluate(snapshot)
         optionalWebsiteCard.visibility = if (snapshot.websiteProtectionRequired) View.VISIBLE else View.GONE
         optionalLocationCard.visibility = if (snapshot.locationMonitoringRequired) View.VISIBLE else View.GONE
+        contentBlurCard.visibility = if (snapshot.contentBlurRequired) View.VISIBLE else View.GONE
         renderCapabilityGroup(readiness.requiredStates)
         renderCapabilityGroup(readiness.optionalStates)
         renderJourney(readiness)
@@ -211,11 +219,18 @@ class PermissionsFragment : Fragment() {
             if (grantResults.any { it == PackageManager.PERMISSION_GRANTED }) {
                 prefsHelper.setPhoneTrackingPermissionState(PrefsHelper.PHONE_LOCATION_PERMISSION_GRANTED)
                 startPhoneLocationIfReady()
+                requestBackgroundLocationForPlacesIfNeeded()
             } else {
                 prefsHelper.setPhoneTrackingPermissionState(PrefsHelper.PHONE_LOCATION_PERMISSION_DENIED)
                 prefsHelper.setPhoneTrackingStatus(PrefsHelper.PHONE_LOCATION_STATUS_PERMISSION_DENIED)
             }
             refreshCapabilityStates()
+        } else if (requestCode == BACKGROUND_LOCATION_PERMISSION_REQUEST) {
+            if (grantResults.any { it == PackageManager.PERMISSION_GRANTED }) {
+                PlacePolicySyncWorker.enqueueImmediate(requireContext())
+            } else {
+                prefsHelper.setPlaceGeofenceStatus(PrefsHelper.PLACE_GEOFENCE_PERMISSION_DENIED)
+            }
         }
     }
 
@@ -231,6 +246,20 @@ class PermissionsFragment : Fragment() {
         if (!PhoneLocationService.startIfPermissionGranted(requireContext())) {
             prefsHelper.setPhoneTrackingStatus(PrefsHelper.PHONE_LOCATION_STATUS_UNAVAILABLE)
         }
+        PlacePolicySyncWorker.enqueueImmediate(requireContext())
+        PlacePolicySyncWorker.enqueuePeriodic(requireContext())
+    }
+
+    private fun requestBackgroundLocationForPlacesIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            PlacePolicySyncWorker.enqueueImmediate(requireContext())
+            return
+        }
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            PlacePolicySyncWorker.enqueueImmediate(requireContext())
+            return
+        }
+        requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), BACKGROUND_LOCATION_PERMISSION_REQUEST)
     }
 
     private fun sendInstalledAppsAndComplete() {
@@ -258,5 +287,6 @@ class PermissionsFragment : Fragment() {
     private companion object {
         const val VPN_PERMISSION_REQUEST = 4202
         const val LOCATION_PERMISSION_REQUEST = 7302
+        const val BACKGROUND_LOCATION_PERMISSION_REQUEST = 7303
     }
 }

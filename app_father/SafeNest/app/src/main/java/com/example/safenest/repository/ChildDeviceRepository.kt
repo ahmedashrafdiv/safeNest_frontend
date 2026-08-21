@@ -4,10 +4,12 @@ import com.example.safenest.network.ApiClient
 import com.example.safenest.network.ChildDeviceAuditResult
 import com.example.safenest.network.ChildDevicePairingRequest
 import com.example.safenest.network.ChildDevicePairingResponse
+import com.example.safenest.network.ChildDevicePairingStatusResponse
 import com.example.safenest.network.ChildDeviceRevokeRequest
 import com.example.safenest.network.ChildDeviceSummary
 import com.example.safenest.network.EffectiveAppBlockingPolicyResponse
 import com.example.safenest.network.EffectiveProtectionPolicyResponse
+import com.example.safenest.network.EffectiveContentBlurPolicyResponse
 import com.example.safenest.util.Result
 
 /** Selected-device operations always include the owning child. */
@@ -19,6 +21,12 @@ class ChildDeviceRepository : BaseRepository() {
 
     suspend fun createPairing(childId: String): Result<ChildDevicePairingResponse> =
         safeApiCall { api.createChildDevicePairing(childId, ChildDevicePairingRequest()) }
+
+    suspend fun getPairingStatus(
+        childId: String,
+        pairingId: String,
+    ): Result<ChildDevicePairingStatusResponse> =
+        safeApiCall { api.getChildDevicePairingStatus(childId, pairingId) }
 
     suspend fun revokeDevice(
         childId: String,
@@ -53,5 +61,11 @@ class ChildDeviceRepository : BaseRepository() {
         deviceId: String,
     ): Result<EffectiveProtectionPolicyResponse> =
         safeApiCall { api.getEffectiveProtectionPolicy(childId, deviceId) }
+
+    suspend fun getEffectiveContentBlurPolicy(
+        childId: String,
+        deviceId: String,
+    ): Result<EffectiveContentBlurPolicyResponse> =
+        safeApiCall { api.getEffectiveContentBlurPolicy(childId, deviceId) }
 }
 

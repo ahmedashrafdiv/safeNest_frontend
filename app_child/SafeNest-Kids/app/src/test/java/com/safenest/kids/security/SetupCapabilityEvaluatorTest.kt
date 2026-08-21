@@ -16,6 +16,30 @@ class SetupCapabilityEvaluatorTest {
     }
 
     @Test
+    fun test_content_blur_disabled_is_optional_and_does_not_lock_baseline() {
+        val readiness = SetupCapabilityEvaluator.evaluate(snapshot())
+
+        assertTrue(readiness.baselineReady)
+        assertEquals(
+            SetupCapabilityStatus.NOT_REQUIRED,
+            readiness.optionalStates[SetupCapability.CONTENT_BLUR_ACCESSIBILITY],
+        )
+    }
+
+    @Test
+    fun test_content_blur_enabled_without_service_blocks_baseline_until_service_is_ready() {
+        val readiness = SetupCapabilityEvaluator.evaluate(
+            snapshot(contentBlurRequired = true, contentBlurAccessibilityEnabled = false),
+        )
+
+        assertFalse(readiness.baselineReady)
+        assertEquals(
+            SetupCapabilityStatus.REQUIRES_ACTION,
+            readiness.requiredStates[SetupCapability.CONTENT_BLUR_ACCESSIBILITY],
+        )
+    }
+
+    @Test
     fun test_parent_requested_protected_home_keeps_baseline_setup_locked_until_role_is_held() {
         val readiness = SetupCapabilityEvaluator.evaluate(
             snapshot(protectedHomeRequested = true, protectedHomeRoleHeld = false),
@@ -43,6 +67,8 @@ class SetupCapabilityEvaluatorTest {
         protectedHomeRequested: Boolean = false,
         protectedHomeRoleAvailable: Boolean = true,
         protectedHomeRoleHeld: Boolean = true,
+        contentBlurRequired: Boolean = false,
+        contentBlurAccessibilityEnabled: Boolean = false,
     ) = SetupCapabilitySnapshot(
         deviceAdminActive = true,
         protectedHomeRequested = protectedHomeRequested,
@@ -51,6 +77,8 @@ class SetupCapabilityEvaluatorTest {
         overlayGranted = true,
         usageAccessGranted = true,
         accessibilityEnabled = true,
+        contentBlurAccessibilityEnabled = contentBlurAccessibilityEnabled,
+        contentBlurRequired = contentBlurRequired,
         batteryExemptionGranted = true,
         websiteProtectionRequired = false,
         vpnGranted = false,

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
+    android:background="@color/ivory_surface"
     android:layoutDirection="rtl"
     android:textDirection="rtl">
 
@@ -31,8 +31,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/lemonada_bold"
-                android:text="@string/back"
-                android:textColor="@color/purple_dark" />
+                android:text="→"
+                android:textColor="@color/navy_brand" />
 
             <!-- Title Row -->
             <LinearLayout
@@ -48,8 +48,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/lemonada_bold"
-                    android:text="@string/safe_zones"
-                    android:textColor="@color/purple_dark"
+                    android:text="أماكن ليان"
+                    android:textColor="@color/navy_brand"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
@@ -58,12 +58,32 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/lemonada_bold"
-                    android:text="@string/add_zone"
+                    android:text="إضافة مكان"
                     android:textColor="@color/white"
                     android:textSize="13sp"
-                    app:backgroundTint="@color/purple_dark"
+                    app:backgroundTint="@color/teal_brand"
                     app:cornerRadius="12dp" />
             </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="@color/mint_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/places_count_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="8dp"
+                    android:fontFamily="sans"
+                    android:text="0 أماكن محفوظة"
+                    android:textColor="@color/navy_brand"
+                    android:textSize="12sp" />
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Progress Bar -->
             <ProgressBar
@@ -89,7 +109,7 @@
 
             <!-- Zones Container -->
             <LinearLayout
-                android:id="@+id/zonesContainer"
+                android:id="@+id/placesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
@@ -101,7 +121,7 @@
         android:id="@+id/bottomNavBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/purple_accent"
+        android:background="@color/white"
         app:itemIconTint="@color/bottom_nav_color"
         app:itemTextColor="@color/bottom_nav_color"
         app:labelVisibilityMode="labeled"

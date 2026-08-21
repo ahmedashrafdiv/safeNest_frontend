@@ -34,18 +34,18 @@ Legend: `[ ]` open, `[x]` done. Each phase is reviewed and committed before the 
 
 ## Phase 4: Menu and parent-password gate
 
-- [ ] T022 Add the menu sheet opened from the header with exactly the sign-out and disable entries.
-- [ ] T023 Add the parent verification dialog with the pre-filled disabled email field, the password field, an error line, and a progress state.
-- [ ] T024 Implement the sign-out action: clear the token, identifiers, and cached policy, cancel the workers, stop the services, and return to the pairing screen. When the device holds the HOME role, also send the parent to the system home-app settings — Android offers no API to release `ROLE_HOME`, so without this the handset keeps launching the unpaired Child app as its launcher.
-- [ ] T025 Implement the disable action: set the suspended flag, clear the cached enforcement policy, and cancel the periodic sync work while keeping the pairing.
-- [ ] T026 Make `RuleSyncWorker`, `ScreenTimePolicySyncWorker`, `WebsitePolicySyncWorker`, `PhoneLocationPolicySyncWorker`, and `ProtectedHomePolicySyncWorker` return early while protection is suspended.
-- [ ] T027 Offer the delete-application action in the suspended state, removing device-admin registration before opening the system uninstall screen.
-- [ ] T028 Offer re-enabling protection from the suspended state behind the same parent verification.
-- [ ] T029 Confirm the parent password is never written to preferences or logs.
+- [x] T022 Add the menu sheet opened from the header with exactly the sign-out and disable entries.
+- [x] T023 Add the parent verification dialog with the pre-filled disabled email field, the password field, an error line, and a progress state.
+- [x] T024 Implement the sign-out action: clear the token, identifiers, and cached policy, cancel the workers, stop the services, and return to the pairing screen. When the device holds the HOME role, also send the parent to the system home-app settings — Android offers no API to release `ROLE_HOME`, so without this the handset keeps launching the unpaired Child app as its launcher.
+- [x] T025 Implement the disable action: set the suspended flag, clear the cached enforcement policy, and cancel the periodic sync work while keeping the pairing.
+- [x] T026 Make `RuleSyncWorker`, `ScreenTimePolicySyncWorker`, `WebsitePolicySyncWorker`, `PhoneLocationPolicySyncWorker`, and `ProtectedHomePolicySyncWorker` return early while protection is suspended.
+- [x] T027 Offer the delete-application action in the suspended state, removing device-admin registration before opening the system uninstall screen.
+- [x] T028 Offer re-enabling protection from the suspended state behind the same parent verification.
+- [x] T029 Confirm the parent password is never written to preferences or logs.
 
 ## Phase 5: Extra-time request and final verification
 
-- [ ] T030 Wire the extra-time action to the access-request endpoint with a stable client request id and report the submitted, duplicate, and failed outcomes.
-- [ ] T031 Give the help action and the bottom-navigation destinations their behaviour.
-- [ ] T032 Run the child unit tests and the debug build.
-- [ ] T033 Confirm the feature diff contains no file under `app_father/` and no change to `AppBlockerAccessibilityService.kt`.
+- [x] T030 Wire the extra-time action to the access-request endpoint with a stable client request id and report the submitted, duplicate, and failed outcomes.
+- [x] T031 Give the help action and the bottom-navigation destinations their behaviour.
+- [x] T032 Run the child unit tests and the debug build.
+- [x] T033 Confirm the feature diff contains no file under `app_father/` and no change to `AppBlockerAccessibilityService.kt`.

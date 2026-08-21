@@ -20,7 +20,8 @@ object ApiClient {
     /** Paths that must remain unauthenticated (no Bearer token). */
     private val UNAUTHENTICATED_PATHS = listOf(
         "/api/devices/link-device",
-        "/api/devices/generate-pin"
+        "/api/devices/generate-pin",
+        "/api/child-devices/claim",
     )
 
     private lateinit var prefsHelper: PrefsHelper

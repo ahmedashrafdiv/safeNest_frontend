@@ -212,6 +212,14 @@ class PrefsHelper(context: Context) {
         prefs.getString("phone_tracking_status", PHONE_LOCATION_STATUS_UNAVAILABLE)
             ?: PHONE_LOCATION_STATUS_UNAVAILABLE
 
+    // ── Parent-defined places and geofence health ───────────────
+    fun setPlacePolicyVersion(value: Int) { prefs.edit().putInt("place_policy_version", value).apply() }
+    fun getPlacePolicyVersion(): Int = prefs.getInt("place_policy_version", 0)
+    fun setPlaceGeofenceStatus(value: String) { prefs.edit().putString("place_geofence_status", value).apply() }
+    fun getPlaceGeofenceStatus(): String = prefs.getString("place_geofence_status", PLACE_GEOFENCE_UNAVAILABLE) ?: PLACE_GEOFENCE_UNAVAILABLE
+    fun setPlaceLastTransitionId(value: String?) { prefs.edit().putString("place_last_transition_id", value).apply() }
+    fun getPlaceLastTransitionId(): String? = prefs.getString("place_last_transition_id", null)
+
     companion object {
         const val WEBSITE_VPN_ACTIVE = "active"
         const val WEBSITE_VPN_UNAVAILABLE = "unavailable"
@@ -236,6 +244,10 @@ class PrefsHelper(context: Context) {
         const val PHONE_LOCATION_STATUS_STALE = "stale"
         const val PHONE_LOCATION_STATUS_DISABLED = "disabled"
         const val PHONE_LOCATION_STATUS_UNAVAILABLE = "unavailable"
+        const val PLACE_GEOFENCE_ACTIVE = "active"
+        const val PLACE_GEOFENCE_PERMISSION_DENIED = "permission_denied"
+        const val PLACE_GEOFENCE_FAILED = "failed"
+        const val PLACE_GEOFENCE_UNAVAILABLE = "unavailable"
     }
 
 
@@ -279,6 +291,37 @@ class PrefsHelper(context: Context) {
 
     fun getDailyScreenTimePolicyVersion(): Int = prefs.getInt("daily_screen_time_policy_version", 0)
 
+    fun setContentBlurPolicy(enabled: Boolean, mode: String, targetPackages: Set<String>, policyVersion: Int) {
+        prefs.edit()
+            .putBoolean("content_blur_enabled", enabled)
+            .putString("content_blur_mode", mode)
+            .putStringSet("content_blur_target_packages", targetPackages)
+            .putInt("content_blur_policy_version", policyVersion)
+            .apply()
+    }
+
+    fun isContentBlurEnabled(): Boolean = prefs.getBoolean("content_blur_enabled", false)
+    fun getContentBlurMode(): String = prefs.getString("content_blur_mode", "CONSERVATIVE") ?: "CONSERVATIVE"
+    fun getContentBlurTargetPackages(): Set<String> =
+        prefs.getStringSet("content_blur_target_packages", emptySet()) ?: emptySet()
+    fun getContentBlurPolicyVersion(): Int = prefs.getInt("content_blur_policy_version", 0)
+
+    fun clearContentBlurPolicy() {
+        setContentBlurPolicy(
+            enabled = false,
+            mode = "CONSERVATIVE",
+            targetPackages = emptySet(),
+            policyVersion = 0,
+        )
+    }
+
+    fun setPendingExtraTimeRequestId(requestId: String?) {
+        prefs.edit().putString("pending_extra_time_request_id", requestId).apply()
+    }
+
+    fun getPendingExtraTimeRequestId(): String? =
+        prefs.getString("pending_extra_time_request_id", null)
+
     // ── Session identity shown on the Home screen ──────────────
 
     fun setChildName(name: String?) {
@@ -304,6 +347,16 @@ class PrefsHelper(context: Context) {
     }
 
     fun isProtectionSuspended(): Boolean = prefs.getBoolean("protection_suspended", false)
+
+    fun setParentSettingsAccessUntil(value: Long) {
+        prefs.edit().putLong("parent_settings_access_until", value).apply()
+    }
+
+    fun getParentSettingsAccessUntil(): Long = prefs.getLong("parent_settings_access_until", 0L)
+
+    fun clearParentSettingsAccess() {
+        prefs.edit().remove("parent_settings_access_until").apply()
+    }
 
     /**
      * Empty every input the enforcement side reads, which is how protection is suspended without
@@ -333,6 +386,10 @@ class PrefsHelper(context: Context) {
             .remove("website_policy_id")
             .putBoolean("protected_home_requested", false)
             .putInt("protected_home_policy_version", 0)
+            .putBoolean("content_blur_enabled", false)
+            .putString("content_blur_mode", "CONSERVATIVE")
+            .putStringSet("content_blur_target_packages", emptySet())
+            .putInt("content_blur_policy_version", 0)
             .apply()
     }
 
@@ -358,6 +415,7 @@ class PrefsHelper(context: Context) {
             .putBoolean("just_paired", false)
             .putBoolean("last_apps_sent", false)
             .putBoolean("protection_suspended", false)
+            .remove("parent_settings_access_until")
             .remove("installed_apps_fingerprint")
             .putBoolean("phone_tracking_enabled", false)
             .remove("phone_tracking_last_latitude")
@@ -371,7 +429,11 @@ class PrefsHelper(context: Context) {
             .remove("phone_tracking_network_state")
             .remove("phone_tracking_permission_state")
             .remove("phone_tracking_policy_version")
+            .remove("place_policy_version")
+            .remove("place_geofence_status")
+            .remove("place_last_transition_id")
             .remove("website_vpn_health")
+            .remove("pending_extra_time_request_id")
             .apply()
     }
 }

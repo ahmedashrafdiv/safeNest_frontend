@@ -17,6 +17,9 @@ interface KidsApiService {
     @POST("api/devices/link-device")
     suspend fun linkDevice(@Body request: LinkDeviceRequest): Response<LinkDeviceResponse>
 
+    @POST("api/child-devices/claim")
+    suspend fun claimChildDevice(@Body request: ChildDeviceClaimRequest): Response<ChildDeviceClaimResponse>
+
     @GET("api/digital-control/device/rules")
     suspend fun getDeviceRules(): Response<DigitalRuleResponse>
 
@@ -71,8 +74,17 @@ interface KidsApiService {
     @GET("api/children/device-effective/protection")
     suspend fun getEffectiveProtectionPolicy(): Response<EffectiveProtectionPolicyResponse>
 
+    @GET("api/children/device-effective/content-blur")
+    suspend fun getEffectiveContentBlurPolicy(): Response<EffectiveContentBlurPolicyResponse>
+
     @GET("api/child-devices/device-effective/phone-location")
     suspend fun getEffectivePhoneLocationPolicy(): Response<PhoneLocationPolicyResponse>
+
+    @GET("api/child-devices/places")
+    suspend fun getActivePlaces(): Response<ChildPlacesResponse>
+
+    @POST("api/child-devices/places/transitions")
+    suspend fun reportPlaceTransition(@Body request: PlaceTransitionRequest): Response<PlaceTransitionResponse>
 
     @GET("api/child-devices/{device_id}/screen-time-policy")
     suspend fun getScreenTimePolicy(

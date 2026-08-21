@@ -55,6 +55,9 @@ class ProtectionHealthWorker(
         val activeCapabilities = buildList {
             add("removal_protection_warning")
             if (capabilityStates[SetupCapability.ACCESSIBILITY] == SetupCapabilityStatus.READY) add("app_blocking_accessibility")
+            if (capabilityStates[SetupCapability.CONTENT_BLUR_ACCESSIBILITY] == SetupCapabilityStatus.READY) {
+                add("content_blur_accessibility")
+            }
             if (setupSnapshot.protectedHomeRoleHeld) add("protected_home")
             if (capabilityStates[SetupCapability.DEVICE_ADMIN] == SetupCapabilityStatus.READY) add("device_admin")
             if (capabilityStates[SetupCapability.OVERLAY] == SetupCapabilityStatus.READY) add("blocking_overlay")
@@ -93,6 +96,7 @@ class ProtectionHealthWorker(
         SetupCapability.OVERLAY -> "overlay"
         SetupCapability.USAGE_ACCESS -> "usage_access"
         SetupCapability.ACCESSIBILITY -> "accessibility"
+        SetupCapability.CONTENT_BLUR_ACCESSIBILITY -> "content_blur_accessibility"
         SetupCapability.BACKGROUND_RELIABILITY -> "battery_optimization"
         SetupCapability.WEBSITE_PROTECTION -> "website_protection"
         SetupCapability.LOCATION_MONITORING -> "location_monitoring"

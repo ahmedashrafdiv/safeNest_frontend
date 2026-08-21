@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.safenest.network.ChildDeviceAuditResult
 import com.example.safenest.network.ChildDevicePairingResponse
+import com.example.safenest.network.ChildDevicePairingStatusResponse
 import com.example.safenest.network.ChildDeviceSummary
 import com.example.safenest.repository.ChildDeviceRepository
 import com.example.safenest.util.Result
@@ -22,6 +23,8 @@ class ChildDevicesViewModel(application: Application) : AndroidViewModel(applica
     val devicesState: StateFlow<Result<List<ChildDeviceSummary>>?> = _devicesState.asStateFlow()
     private val _pairingState = MutableStateFlow<Result<ChildDevicePairingResponse>?>(null)
     val pairingState: StateFlow<Result<ChildDevicePairingResponse>?> = _pairingState.asStateFlow()
+    private val _pairingStatusState = MutableStateFlow<Result<ChildDevicePairingStatusResponse>?>(null)
+    val pairingStatusState: StateFlow<Result<ChildDevicePairingStatusResponse>?> = _pairingStatusState.asStateFlow()
     private val _revokeState = MutableStateFlow<Result<ChildDeviceAuditResult>?>(null)
     val revokeState: StateFlow<Result<ChildDeviceAuditResult>?> = _revokeState.asStateFlow()
 
@@ -47,6 +50,24 @@ class ChildDevicesViewModel(application: Application) : AndroidViewModel(applica
             _pairingState.value = Result.Loading
             _pairingState.value = repository.createPairing(childId)
         }
+    }
+
+    fun refreshPairingStatus(pairingId: String) {
+        val childId = selectedChildId() ?: run {
+            _pairingStatusState.value = Result.Error("لم يتم تحديد الطفل")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            _pairingStatusState.value = repository.getPairingStatus(childId, pairingId)
+        }
+    }
+
+    fun clearPairingState() {
+        _pairingState.value = null
+    }
+
+    fun clearPairingStatusState() {
+        _pairingStatusState.value = null
     }
 
     fun revokeDevice(deviceId: String) {

@@ -28,6 +28,24 @@ class AppPolicyDeciderTest {
     }
 
     @Test
+    fun parentAppIsNeverBlocked_regression20260820() {
+        // Production incident: the parent switched this device to allowlist mode, allowed one app,
+        // and was then locked out of the Layngo Parent app itself — the only place the policy can
+        // be changed back — because it was not in the allowlist.
+        assertFalse(AppPolicyDecider.shouldBlock("com.example.safenest", childPackage, "allowlist", emptySet(), emptySet()))
+        // Even an explicit blocklist entry must not be able to lock the parent out.
+        assertFalse(
+            AppPolicyDecider.shouldBlock(
+                "com.example.safenest",
+                childPackage,
+                "blocklist",
+                emptySet(),
+                setOf("com.example.safenest"),
+            ),
+        )
+    }
+
+    @Test
     fun missingOrUnknownModeUsesBlocklistSemantics() {
         assertTrue(AppPolicyDecider.shouldBlock("com.tiktok", childPackage, "", emptySet(), setOf("com.tiktok")))
         assertFalse(AppPolicyDecider.shouldBlock("com.new.game", childPackage, "", emptySet(), setOf("com.tiktok")))

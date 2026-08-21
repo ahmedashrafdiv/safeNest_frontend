@@ -21,6 +21,8 @@ internal object SetupCapabilityProvider {
             overlayGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context),
             usageAccessGranted = PermissionsHelper.hasUsageAccess(context),
             accessibilityEnabled = PermissionsHelper.hasAccessibilityService(context),
+            contentBlurAccessibilityEnabled = PermissionsHelper.hasContentBlurAccessibilityService(context),
+            contentBlurRequired = prefs.isContentBlurEnabled(),
             batteryExemptionGranted = PermissionsHelper.hasBatteryOptimizationExemption(context),
             websiteProtectionRequired = prefs.getWebsitePolicySnapshotJson() != null,
             vpnGranted = PermissionsHelper.hasVpnPermission(context),

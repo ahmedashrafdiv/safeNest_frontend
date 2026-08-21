@@ -3,6 +3,9 @@
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.safenest.kids.network.ApiClient
@@ -17,6 +20,7 @@ class WebsitePolicySyncWorker(
     private val prefs = PrefsHelper(appContext)
 
     override suspend fun doWork(): Result {
+        if (prefs.isProtectionSuspended()) return Result.success()
         val deviceId = prefs.getDeviceId() ?: return Result.retry()
         return try {
             val assignmentsResponse = ApiClient.apiService.listWebsiteAssignments(deviceId)
@@ -73,5 +77,17 @@ class WebsitePolicySyncWorker(
     companion object {
         private const val TAG = "WebsitePolicySyncWorker"
         const val UNIQUE_WORK_NAME = "website_policy_sync"
+
+        fun enqueueImmediate(context: Context) {
+            WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+                UNIQUE_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                OneTimeWorkRequestBuilder<WebsitePolicySyncWorker>().build(),
+            )
+        }
+
+        fun cancel(context: Context) {
+            WorkManager.getInstance(context.applicationContext).cancelUniqueWork(UNIQUE_WORK_NAME)
+        }
     }
 }

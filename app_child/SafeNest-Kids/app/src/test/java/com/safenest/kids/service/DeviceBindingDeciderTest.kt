@@ -29,10 +29,18 @@ class DeviceBindingDeciderTest {
     }
 
     @Test
-    fun rejectsStaleOrReplayedPolicy() {
+    fun keepsCurrentPolicyWhenVersionMatches() {
+        assertEquals(
+            DeviceBindingDecider.Decision.CURRENT_POLICY,
+            DeviceBindingDecider.decide("device-a", "child-a", "device-a", "child-a", 5, 5),
+        )
+    }
+
+    @Test
+    fun rejectsOlderPolicyAfterNewerPolicyWasApplied() {
         assertEquals(
             DeviceBindingDecider.Decision.STALE_POLICY,
-            DeviceBindingDecider.decide("device-a", "child-a", "device-a", "child-a", 5, 5),
+            DeviceBindingDecider.decide("device-a", "child-a", "device-a", "child-a", 5, 4),
         )
     }
 

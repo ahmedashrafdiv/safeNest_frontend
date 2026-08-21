@@ -23,6 +23,7 @@ class PhoneLocationPolicySyncWorker(
     override suspend fun doWork(): Result {
         val prefs = PrefsHelper(applicationContext)
         if (!prefs.isPaired()) return Result.success()
+        if (prefs.isProtectionSuspended()) return Result.success()
         ApiClient.init(applicationContext)
 
         return try {
@@ -72,6 +73,13 @@ class PhoneLocationPolicySyncWorker(
                 ExistingPeriodicWorkPolicy.KEEP,
                 request,
             )
+        }
+
+        fun cancel(context: Context) {
+            WorkManager.getInstance(context.applicationContext).apply {
+                cancelUniqueWork(IMMEDIATE_WORK_NAME)
+                cancelUniqueWork(PERIODIC_WORK_NAME)
+            }
         }
     }
 }

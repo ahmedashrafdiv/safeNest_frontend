@@ -15,6 +15,8 @@ data class SetupCapabilitySnapshot(
     val overlayGranted: Boolean,
     val usageAccessGranted: Boolean,
     val accessibilityEnabled: Boolean,
+    val contentBlurAccessibilityEnabled: Boolean,
+    val contentBlurRequired: Boolean,
     val batteryExemptionGranted: Boolean,
     val websiteProtectionRequired: Boolean,
     val vpnGranted: Boolean,
@@ -34,6 +36,7 @@ enum class SetupCapability {
     OVERLAY,
     USAGE_ACCESS,
     ACCESSIBILITY,
+    CONTENT_BLUR_ACCESSIBILITY,
     BACKGROUND_RELIABILITY,
     WEBSITE_PROTECTION,
     LOCATION_MONITORING,
@@ -52,7 +55,14 @@ internal object SetupCapabilityEvaluator {
         if (snapshot.protectedHomeRequested) {
             requiredStates[SetupCapability.PROTECTED_HOME] = protectedHomeStatus(snapshot)
         }
+        if (snapshot.contentBlurRequired) {
+            requiredStates[SetupCapability.CONTENT_BLUR_ACCESSIBILITY] =
+                snapshot.contentBlurAccessibilityEnabled.toStatus()
+        }
         val optionalStates = linkedMapOf<SetupCapability, SetupCapabilityStatus>()
+        if (!snapshot.contentBlurRequired) {
+            optionalStates[SetupCapability.CONTENT_BLUR_ACCESSIBILITY] = SetupCapabilityStatus.NOT_REQUIRED
+        }
         if (!snapshot.protectedHomeRequested) {
             optionalStates[SetupCapability.PROTECTED_HOME] = SetupCapabilityStatus.NOT_REQUIRED
         }

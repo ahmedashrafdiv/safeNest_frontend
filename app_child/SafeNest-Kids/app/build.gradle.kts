@@ -61,6 +61,9 @@ dependencies {
     // WorkManager for periodic rule sync
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
+    // Google Play Services location and geofence boundaries for Parent-defined places.
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")

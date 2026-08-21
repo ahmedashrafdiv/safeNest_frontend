@@ -5,6 +5,8 @@
     <color name="teal_brand">#2CA39D</color>
     <color name="ivory_surface">#FFFEEE</color>
     <color name="coral_action">#E8796A</color>
+    <color name="daily_usage_ivory">#FFFDF7</color>
+    <color name="mint_surface">#E5F4F1</color>
 
     <!-- Compatibility names retained for existing layouts -->
     <color name="purple_dark">#15385F</color>

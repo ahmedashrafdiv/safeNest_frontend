@@ -14,6 +14,8 @@ import android.widget.ProgressBar
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -350,11 +352,9 @@ class InstalledAppsFragment : Fragment() {
                 })
             })
 
-            addView(TextView(ctx).apply {
-                text = "⋮"
-                textSize = 20f
-                gravity = Gravity.CENTER
-                setTextColor(ContextCompat.getColor(ctx, R.color.navy_brand))
+            addView(ImageButton(ctx).apply {
+                setImageResource(R.drawable.ic_app_more_vertical)
+                background = ContextCompat.getDrawable(ctx, android.R.drawable.btn_default)
                 contentDescription = "خيارات ${row.displayName}"
                 layoutParams = LinearLayout.LayoutParams(dp(48), dp(48))
                 setOnClickListener { showActionMenu(this, row) }
@@ -369,7 +369,7 @@ class InstalledAppsFragment : Fragment() {
         val content = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
             layoutDirection = View.LAYOUT_DIRECTION_RTL
-            setBackgroundColor(ContextCompat.getColor(ctx, R.color.daily_usage_ivory))
+            background = ContextCompat.getDrawable(ctx, R.drawable.bg_app_action_popup)
             setPadding(dp(16), dp(12), dp(16), dp(12))
         }
 
@@ -385,30 +385,40 @@ class InstalledAppsFragment : Fragment() {
             elevation = 12f
         }
 
-        fun action(title: String, subtitle: String, colorRes: Int, onClick: () -> Unit) {
+        fun action(title: String, subtitle: String, colorRes: Int, iconRes: Int, onClick: () -> Unit) {
             content.addView(LinearLayout(ctx).apply {
-                orientation = LinearLayout.VERTICAL
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
                 minimumHeight = dp(48)
                 setPadding(0, dp(10), 0, dp(10))
                 isClickable = true
-                addView(TextView(ctx).apply {
-                    text = title
-                    textSize = 15f
-                    typeface = android.graphics.Typeface.DEFAULT_BOLD
-                    setTextColor(ContextCompat.getColor(ctx, colorRes))
+                addView(ImageView(ctx).apply {
+                    setImageResource(iconRes)
+                    contentDescription = null
+                    layoutParams = LinearLayout.LayoutParams(dp(24), dp(24)).apply { marginEnd = dp(12) }
                 })
-                addView(TextView(ctx).apply {
-                    text = subtitle
-                    textSize = 12f
-                    setTextColor(ContextCompat.getColor(ctx, R.color.gray_medium))
+                addView(LinearLayout(ctx).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    addView(TextView(ctx).apply {
+                        text = title
+                        textSize = 15f
+                        typeface = android.graphics.Typeface.DEFAULT_BOLD
+                        setTextColor(ContextCompat.getColor(ctx, colorRes))
+                    })
+                    addView(TextView(ctx).apply {
+                        text = subtitle
+                        textSize = 12f
+                        setTextColor(ContextCompat.getColor(ctx, R.color.gray_medium))
+                    })
                 })
                 setOnClickListener { popup.dismiss(); onClick() }
             })
         }
 
-        action("سماح", "يمكن لطفلك استخدام التطبيق ضمن وقت الشاشة.", R.color.teal_brand) { allowApp(row.packageName) }
-        action("تحديد وقت", "اختر حدًا يوميًا لهذا التطبيق.", R.color.navy_brand) { expandWeeklyEditor(row.packageName) }
-        action("حظر", "لن يتمكن جهاز طفلك من فتح التطبيق.", R.color.daily_usage_coral) { blockApp(row.packageName) }
+        action("سماح", "يمكن لطفلك استخدام التطبيق ضمن وقت الشاشة.", R.color.teal_brand, R.drawable.ic_app_action_allow) { allowApp(row.packageName) }
+        action("تحديد وقت", "اختر حدًا يوميًا لهذا التطبيق.", R.color.navy_brand, R.drawable.ic_app_action_time) { expandWeeklyEditor(row.packageName) }
+        action("حظر", "لن يتمكن جهاز طفلك من فتح التطبيق.", R.color.daily_usage_coral, R.drawable.ic_app_action_block) { blockApp(row.packageName) }
 
         popup.showAsDropDown(anchor, 0, 0)
     }
@@ -462,8 +472,13 @@ class InstalledAppsFragment : Fragment() {
             addView(LinearLayout(ctx).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
+                addView(ImageView(ctx).apply {
+                    setImageResource(R.drawable.ic_app_weekly_time)
+                    contentDescription = null
+                    layoutParams = LinearLayout.LayoutParams(dp(24), dp(24)).apply { marginEnd = dp(8) }
+                })
                 addView(TextView(ctx).apply {
-                    text = "🕐 وقت استخدام ${row.displayName}"
+                    text = "وقت استخدام ${row.displayName}"
                     textSize = 15f
                     typeface = android.graphics.Typeface.DEFAULT_BOLD
                     setTextColor(ContextCompat.getColor(ctx, R.color.navy_brand))
@@ -616,9 +631,9 @@ class InstalledAppsFragment : Fragment() {
         }
         val scopeState = ParentPolicyScopeStore.state.value
         val provenance = if (scopeState.scope == ParentPolicyScope.SELECTED_DEVICE) {
-            "Device override • ${scopeState.selectedDevice?.label ?: "Selected device"}"
+            "تعديل خاص بهذا الجهاز: ${scopeState.selectedDevice?.label ?: "الجهاز المحدد"}"
         } else {
-            "Inherited from child default"
+            "موروثة من إعدادات الطفل العامة"
         }
         modeSummary?.text = "$base${System.lineSeparator()}$provenance"
     }
@@ -647,7 +662,7 @@ class InstalledAppsFragment : Fragment() {
                 val child = scope.childId
                 val device = scope.selectedDevice
                 if (child.isNullOrBlank() || device == null || !scope.canWriteDeviceOverride) {
-                    Toast.makeText(context, scope.blockedReason ?: "Select an active device before saving App Blocking.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, scope.blockedReason ?: "اختر جهازًا نشطًا قبل حفظ قواعد التطبيقات.", Toast.LENGTH_LONG).show()
                 } else {
                     when (val effective = ChildDeviceRepository().getEffectiveAppBlockingPolicy(child, device.deviceId)) {
                         is Result.Success -> {
@@ -663,12 +678,12 @@ class InstalledAppsFragment : Fragment() {
                                 is ScopedPolicyMutation.Failed -> Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
                                 is ScopedPolicyMutation.Conflict -> {
                                     policyUpdateInFlight = false
-                                    val source = if (mutation.latest.inherited) "Inherited from child default" else "Overridden for this device"
+                                    val source = if (mutation.latest.inherited) "موروثة من إعدادات الطفل العامة" else "تعديل خاص بهذا الجهاز"
                                     AlertDialog.Builder(requireContext())
-                                        .setTitle("Policy version conflict")
-                                        .setMessage("This device policy changed elsewhere. Latest source: $source. Latest version: ${mutation.latest.version}. Review the latest policy or explicitly apply your changes against that version.")
-                                        .setNegativeButton("Review latest", null)
-                                        .setPositiveButton("Apply anyway") { _, _ -> saveChangesToServer(confirmEmptyAllowlist = false) }
+                                        .setTitle("تعارض في إصدار القاعدة")
+                                        .setMessage("تغيّرت قاعدة هذا الجهاز في مكان آخر. المصدر الحالي: $source. الإصدار الحالي: ${mutation.latest.version}. راجع القاعدة أو أعد تطبيق تغييراتك صراحةً.")
+                                        .setNegativeButton("مراجعة القاعدة", null)
+                                        .setPositiveButton("تطبيق التغييرات") { _, _ -> saveChangesToServer(confirmEmptyAllowlist = false) }
                                         .show()
                                 }
                             }

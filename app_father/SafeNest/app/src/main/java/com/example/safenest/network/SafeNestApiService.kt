@@ -129,6 +129,12 @@ interface SafeNestApiService {
         @Body request: ChildDevicePairingRequest,
     ): Response<ChildDevicePairingResponse>
 
+    @GET("api/children/{child_id}/devices/pairing/{pairing_id}")
+    suspend fun getChildDevicePairingStatus(
+        @Path("child_id") childId: String,
+        @Path("pairing_id") pairingId: String,
+    ): Response<ChildDevicePairingStatusResponse>
+
     @PUT("api/children/{child_id}/devices/{device_id}/policy-overrides/{policy_family}")
     suspend fun putDevicePolicyOverride(
         @Path("child_id") childId: String,
@@ -204,6 +210,30 @@ interface SafeNestApiService {
 
     @DELETE("api/zones/{zone_id}")
     suspend fun deleteZone(@Path("zone_id") zoneId: String): Response<Unit>
+
+    // ============ Child Places (Location v2) ============
+
+    @GET("api/children/{child_id}/places")
+    suspend fun listChildPlaces(@Path("child_id") childId: String): Response<List<ChildPlaceResponse>>
+
+    @POST("api/children/{child_id}/places")
+    suspend fun createChildPlace(
+        @Path("child_id") childId: String,
+        @Body request: PlaceCreateRequest,
+    ): Response<ChildPlaceResponse>
+
+    @PUT("api/children/{child_id}/places/{place_id}")
+    suspend fun updateChildPlace(
+        @Path("child_id") childId: String,
+        @Path("place_id") placeId: String,
+        @Body request: PlaceUpdateRequest,
+    ): Response<ChildPlaceResponse>
+
+    @DELETE("api/children/{child_id}/places/{place_id}")
+    suspend fun deleteChildPlace(
+        @Path("child_id") childId: String,
+        @Path("place_id") placeId: String,
+    ): Response<Unit>
 
     // ============ Child Access Requests ============
 
@@ -283,6 +313,12 @@ interface SafeNestApiService {
         @Path("child_id") childId: String,
         @Path("device_id") deviceId: String,
     ): Response<EffectiveProtectionPolicyResponse>
+
+    @GET("api/children/{child_id}/devices/{device_id}/effective-policy/content_blur")
+    suspend fun getEffectiveContentBlurPolicy(
+        @Path("child_id") childId: String,
+        @Path("device_id") deviceId: String,
+    ): Response<EffectiveContentBlurPolicyResponse>
 
     @PATCH("api/child-devices/{child_id}/devices/{device_id}/phone-location")
     suspend fun setPhoneTrackingForDevice(

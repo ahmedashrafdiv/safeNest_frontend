@@ -23,6 +23,7 @@ class RuleSyncWorker(
     private val prefsHelper = PrefsHelper(applicationContext)
 
     override suspend fun doWork(): Result {
+        if (prefsHelper.isProtectionSuspended()) return Result.success()
         // This worker can be scheduled by AccessibilityService while paired
         // Child controls are intentionally unavailable, before MainActivity
         // gets an opportunity to initialize authenticated API access.
@@ -114,6 +115,14 @@ class RuleSyncWorker(
                 ExistingPeriodicWorkPolicy.KEEP,
                 request,
             )
+        }
+
+        fun cancel(context: Context) {
+            WorkManager.getInstance(context.applicationContext).apply {
+                cancelUniqueWork(IMMEDIATE_WORK_NAME)
+                cancelUniqueWork(PERIODIC_WORK_NAME)
+                cancelUniqueWork("boot_rule_sync")
+            }
         }
     }
 }

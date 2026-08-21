@@ -7,6 +7,7 @@
 object DeviceBindingDecider {
     enum class Decision {
         APPLY,
+        CURRENT_POLICY,
         DEVICE_MISMATCH,
         CHILD_MISMATCH,
         STALE_POLICY,
@@ -24,7 +25,8 @@ object DeviceBindingDecider {
         localDeviceId.isNullOrBlank() -> Decision.UNBOUND_DEVICE
         localDeviceId != responseDeviceId -> Decision.DEVICE_MISMATCH
         !localChildId.isNullOrBlank() && localChildId != responseChildId -> Decision.CHILD_MISMATCH
-        incomingPolicyVersion <= currentPolicyVersion -> Decision.STALE_POLICY
+        incomingPolicyVersion == currentPolicyVersion -> Decision.CURRENT_POLICY
+        incomingPolicyVersion < currentPolicyVersion -> Decision.STALE_POLICY
         else -> Decision.APPLY
     }
 }

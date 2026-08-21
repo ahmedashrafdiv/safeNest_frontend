@@ -12,6 +12,8 @@ import com.safenest.kids.util.AppTimeLimitResolver
 import com.safenest.kids.util.AppUsageHelper
 import com.safenest.kids.util.PrefsHelper
 import com.safenest.kids.util.WeekdayCode
+import com.safenest.kids.security.ProtectionSettingsAttemptClassifier
+import com.safenest.kids.security.ParentSettingsAccessDecider
 import com.safenest.kids.security.UninstallAttemptClassifier
 import org.json.JSONObject
 
@@ -60,6 +62,8 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         RuleSyncWorker.enqueueImmediate(this)
         PhoneLocationPolicySyncWorker.enqueuePeriodic(this)
         PhoneLocationPolicySyncWorker.enqueueImmediate(this)
+        PlacePolicySyncWorker.enqueuePeriodic(this)
+        PlacePolicySyncWorker.enqueueImmediate(this)
         Log.d(TAG, "Service connected — listening for window events")
     }
 
@@ -73,9 +77,29 @@ class AppBlockerAccessibilityService : AccessibilityService() {
             append(extractNodeText(event.source))
             append(extractNodeText(rootInActiveWindow))
         }
+        if (ParentSettingsAccessDecider.permits(
+                prefsHelper.getParentSettingsAccessUntil(),
+                pkg,
+                System.currentTimeMillis(),
+            )
+        ) {
+            return
+        }
         if (UninstallAttemptClassifier.isLayngoRemovalAttempt(pkg, visibleText, packageName)) {
             Log.w(TAG, "LAYNGO_REMOVAL_ATTEMPT_DETECTED source=$pkg")
+            performGlobalAction(GLOBAL_ACTION_BACK)
             blockPackage(packageName, "uninstall_protection", event.eventType)
+            return
+        }
+
+        // Reaching Layngo's accessibility or device-admin entry is the one action that would turn
+        // this service off entirely, so it is intercepted on content changes too. Launch the
+        // explicit protection screen directly instead of issuing GLOBAL_ACTION_BACK first: the
+        // latter may be delivered after the activity launch and immediately dismiss the parent
+        // verification screen on some Android builds.
+        if (ProtectionSettingsAttemptClassifier.isProtectionSettingsAttempt(pkg, visibleText, packageName)) {
+            Log.w(TAG, "LAYNGO_PROTECTION_SETTINGS_ATTEMPT_DETECTED source=$pkg")
+            blockPackage(packageName, "protection_settings", event.eventType)
             return
         }
 

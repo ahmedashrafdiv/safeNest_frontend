@@ -29,20 +29,29 @@ object PermissionsHelper {
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    fun hasAccessibilityService(context: Context): Boolean {
-        val expectedService = "${context.packageName}/com.safenest.kids.service.AppBlockerAccessibilityService"
+    fun hasAccessibilityService(context: Context): Boolean =
+        isAccessibilityServiceEnabled(
+            context,
+            "com.safenest.kids.service.AppBlockerAccessibilityService",
+        )
+
+    fun hasContentBlurAccessibilityService(context: Context): Boolean =
+        isAccessibilityServiceEnabled(
+            context,
+            "com.safenest.kids.service.ContentBlurAccessibilityService",
+        )
+
+    private fun isAccessibilityServiceEnabled(context: Context, serviceClassName: String): Boolean {
+        val expectedService = "${context.packageName}/$serviceClassName"
         val enabledServices = Settings.Secure.getString(
             context.contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
         ) ?: return false
 
         val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
         colonSplitter.setString(enabledServices)
         while (colonSplitter.hasNext()) {
-            val componentName = colonSplitter.next()
-            if (componentName.equals(expectedService, ignoreCase = true)) {
-                return true
-            }
+            if (colonSplitter.next().equals(expectedService, ignoreCase = true)) return true
         }
         return false
     }

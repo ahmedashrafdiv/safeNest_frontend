@@ -17,6 +17,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.MainActivity
 import com.example.safenest.R
+import com.example.safenest.network.EffectiveContentBlurPolicyResponse
+import com.example.safenest.network.InstalledAppItem
+import com.example.safenest.policy.ContentBlurPolicyMutation
+import com.example.safenest.policy.ParentContentBlurScopeCoordinator
+import com.example.safenest.policy.ParentPolicyScopeStore
+import com.example.safenest.repository.ChildDeviceRepository
 import com.example.safenest.repository.DigitalControlRepository
 import com.example.safenest.util.DailyLimitConfirmationValidator
 import com.example.safenest.util.Result
@@ -24,6 +30,7 @@ import com.example.safenest.viewmodel.MonitoringViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -38,13 +45,24 @@ class MonitoringFragment : Fragment() {
     // Repository used directly only for operations not yet in MonitoringViewModel
     // (deleteRule, clearDailyUsageLog — fire-and-forget actions that need no UI state flow)
     private val digitalControlRepo = DigitalControlRepository()
+    private val childDeviceRepo = ChildDeviceRepository()
+    private val contentBlurCoordinator = ParentContentBlurScopeCoordinator(childDeviceRepo)
 
     private lateinit var bottomNavBar: BottomNavigationView
     private lateinit var usedAppsCard: MaterialCardView
     private var progressBar: ProgressBar? = null
     private var screenTimeTv: TextView? = null
+    private var contentBlurSwitch: MaterialSwitch? = null
+    private var contentBlurTargetsButton: MaterialButton? = null
+    private var contentBlurStatusText: TextView? = null
+    private var contentBlurSourceText: TextView? = null
 
     private var currentRuleId: String? = null
+    private var contentBlurPolicy: EffectiveContentBlurPolicyResponse? = null
+    private var installedApps: List<InstalledAppItem> = emptyList()
+    private var selectedContentBlurTargets: MutableSet<String> = mutableSetOf()
+    private var contentBlurDeviceKey: String? = null
+    private var applyingContentBlur = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,6 +76,21 @@ class MonitoringFragment : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
         screenTimeTv = view.findViewById(R.id.screenTimeText)
         screenTimeTv?.setOnClickListener { showDailyLimitConfirmation() }
+        contentBlurSwitch = view.findViewById(R.id.contentBlurSwitch)
+        contentBlurTargetsButton = view.findViewById(R.id.contentBlurTargetsButton)
+        contentBlurStatusText = view.findViewById(R.id.contentBlurStatusText)
+        contentBlurSourceText = view.findViewById(R.id.contentBlurSourceText)
+        contentBlurSwitch?.setOnCheckedChangeListener { _, checked ->
+            if (!applyingContentBlur) {
+                if (checked && selectedContentBlurTargets.isEmpty()) {
+                    contentBlurSwitch?.isChecked = false
+                    showTargetPicker()
+                } else {
+                    saveContentBlurPolicy(checked, selectedContentBlurTargets.toList())
+                }
+            }
+        }
+        contentBlurTargetsButton?.setOnClickListener { showTargetPicker() }
 
         // Populate header from cache (same pattern as HomeFragment)
         val prefs = requireContext().getSharedPreferences("SafeNestPrefs", android.content.Context.MODE_PRIVATE)
@@ -124,6 +157,36 @@ class MonitoringFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    ParentPolicyScopeStore.state.collect { scope ->
+                        renderContentBlurScope(scope)
+                        val device = scope.selectedDevice
+                        val childId = scope.childId ?: viewModel.getSelectedChildId()
+                        val key = if (scope.canWriteDeviceOverride && childId != null && device != null) {
+                            "$childId:${device.deviceId}"
+                        } else null
+                        if (key != contentBlurDeviceKey) {
+                            contentBlurDeviceKey = key
+                            if (childId != null && device != null && scope.canWriteDeviceOverride) {
+                                loadContentBlurPolicy(childId, device.deviceId)
+                            } else {
+                                contentBlurPolicy = null
+                                selectedContentBlurTargets.clear()
+                                renderContentBlurPolicy(null)
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.installedAppsState.collect { result ->
+                        if (result is Result.Success) {
+                            installedApps = result.data.apps
+                            viewModel.clearInstalledAppsState()
+                        }
+                    }
+                }
+
                 // Load digital rule state
                 launch {
                     viewModel.digitalRuleState.collect { state ->
@@ -181,6 +244,130 @@ class MonitoringFragment : Fragment() {
         val childId = viewModel.getSelectedChildId()
         if (childId != null) {
             viewModel.getDigitalRule(childId)
+            viewModel.getInstalledApps(childId)
+        }
+    }
+
+    private fun renderContentBlurScope(scope: com.example.safenest.policy.ParentPolicyScopeState) {
+        val canWrite = scope.canWriteDeviceOverride
+        contentBlurSwitch?.isEnabled = canWrite && !applyingContentBlur
+        contentBlurTargetsButton?.isEnabled = canWrite && !applyingContentBlur
+        contentBlurStatusText?.text = when {
+            scope.scope != com.example.safenest.policy.ParentPolicyScope.SELECTED_DEVICE -> "اختر جهازاً محدداً للتحكم"
+            scope.selectedDevice == null -> "اختر جهازاً محدداً للتحكم"
+            !scope.selectedDevice.isEligible -> "الجهاز غير نشط ولا يمكن تطبيق السياسة"
+            else -> "الجهاز المحدد: ${scope.selectedDevice.label}"
+        }
+    }
+
+    private fun loadContentBlurPolicy(childId: String, deviceId: String) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            when (val result = childDeviceRepo.getEffectiveContentBlurPolicy(childId, deviceId)) {
+                is Result.Success -> kotlinx.coroutines.withContext(Dispatchers.Main) {
+                    contentBlurPolicy = result.data
+                    selectedContentBlurTargets = result.data.values.targetPackages.toMutableSet()
+                    renderContentBlurPolicy(result.data)
+                }
+                is Result.Error -> kotlinx.coroutines.withContext(Dispatchers.Main) {
+                    contentBlurPolicy = null
+                    renderContentBlurPolicy(null)
+                    Toast.makeText(context, "تعذر تحميل سياسة طمس المحتوى لهذا الجهاز", Toast.LENGTH_LONG).show()
+                }
+                Result.Loading -> Unit
+            }
+        }
+    }
+
+    private fun renderContentBlurPolicy(policy: EffectiveContentBlurPolicyResponse?) {
+        applyingContentBlur = true
+        contentBlurSwitch?.isChecked = policy?.values?.enabled == true
+        applyingContentBlur = false
+        contentBlurTargetsButton?.text = if (selectedContentBlurTargets.isEmpty()) {
+            "اختيار التطبيقات المستهدفة"
+        } else {
+            "التطبيقات المستهدفة (${selectedContentBlurTargets.size})"
+        }
+        contentBlurSourceText?.text = when {
+            policy == null -> "القيمة موروثة من إعداد الطفل أو غير متاحة"
+            policy.inherited -> "موروثة من إعداد الطفل"
+            else -> "مخصصة لهذا الجهاز — الإصدار ${policy.version}"
+        }
+    }
+
+    private fun showTargetPicker() {
+        if (installedApps.isEmpty()) {
+            Toast.makeText(context, "لم تصل قائمة تطبيقات الطفل بعد", Toast.LENGTH_SHORT).show()
+            viewModel.getSelectedChildId()?.let(viewModel::getInstalledApps)
+            return
+        }
+        val labels = installedApps.map { it.appName }.toTypedArray()
+        val packages = installedApps.map { it.packageName }
+        val checked = packages.map { selectedContentBlurTargets.contains(it) }.toBooleanArray()
+        AlertDialog.Builder(requireContext())
+            .setTitle("اختيار تطبيقات الطمس")
+            .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
+                if (isChecked) selectedContentBlurTargets.add(packages[which])
+                else selectedContentBlurTargets.remove(packages[which])
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton("حفظ") { _, _ ->
+                val enabled = contentBlurSwitch?.isChecked == true
+                if (enabled && selectedContentBlurTargets.isEmpty()) {
+                    contentBlurSwitch?.isChecked = false
+                    saveContentBlurPolicy(false, emptyList())
+                } else if (enabled) {
+                    saveContentBlurPolicy(true, selectedContentBlurTargets.toList())
+                } else {
+                    renderContentBlurPolicy(contentBlurPolicy)
+                }
+            }
+            .show()
+    }
+
+    private fun saveContentBlurPolicy(enabled: Boolean, targets: List<String>) {
+        val scope = ParentPolicyScopeStore.state.value
+        val childId = scope.childId ?: viewModel.getSelectedChildId()
+        val device = scope.selectedDevice
+        val policy = contentBlurPolicy
+        if (!scope.canWriteDeviceOverride || childId == null || device == null || policy == null) {
+            applyingContentBlur = true
+            contentBlurSwitch?.isChecked = contentBlurPolicy?.values?.enabled == true
+            applyingContentBlur = false
+            Toast.makeText(context, "اختر جهازاً نشطاً وانتظر تحميل سياسته أولاً", Toast.LENGTH_LONG).show()
+            return
+        }
+        applyingContentBlur = true
+        contentBlurSwitch?.isEnabled = false
+        contentBlurTargetsButton?.isEnabled = false
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val mutation = contentBlurCoordinator.saveForDevice(
+                childId = childId,
+                deviceId = device.deviceId,
+                enabled = enabled,
+                mode = "CONSERVATIVE",
+                targetPackages = targets,
+                expectedVersion = policy.version,
+            )
+            kotlinx.coroutines.withContext(Dispatchers.Main) {
+                applyingContentBlur = false
+                when (mutation) {
+                    is ContentBlurPolicyMutation.Applied -> {
+                        Toast.makeText(context, "تم حفظ سياسة طمس المحتوى للجهاز المحدد", Toast.LENGTH_SHORT).show()
+                        loadContentBlurPolicy(childId, device.deviceId)
+                    }
+                    is ContentBlurPolicyMutation.Conflict -> {
+                        contentBlurPolicy = mutation.latest
+                        selectedContentBlurTargets = mutation.latest.values.targetPackages.toMutableSet()
+                        renderContentBlurPolicy(mutation.latest)
+                        Toast.makeText(context, "تغيرت السياسة؛ تم تحديث الجهاز قبل إعادة التأكيد", Toast.LENGTH_LONG).show()
+                    }
+                    is ContentBlurPolicyMutation.Failed -> {
+                        renderContentBlurPolicy(contentBlurPolicy)
+                        Toast.makeText(context, mutation.message, Toast.LENGTH_LONG).show()
+                    }
+                }
+                renderContentBlurScope(scope)
+            }
         }
     }
 

@@ -73,6 +73,7 @@ class SafeNestFirebaseService : FirebaseMessagingService() {
                 Log.d(TAG, "Parent updated rules — triggering immediate sync via WorkManager")
                 triggerImmediateSync()
                 triggerWebsitePolicySync()
+                ContentBlurPolicySyncWorker.enqueueImmediate(applicationContext)
                 // Do NOT show any visible notification to the child
             }
         }

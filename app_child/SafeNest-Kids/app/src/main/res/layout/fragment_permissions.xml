@@ -84,6 +84,7 @@
         <include layout="@layout/item_setup_step_overlay" />
         <include layout="@layout/item_setup_step_usage" />
         <include layout="@layout/item_setup_step_accessibility" />
+        <include layout="@layout/item_setup_step_content_blur" />
         <include layout="@layout/item_setup_step_battery" />
         <include layout="@layout/item_setup_step_website" />
         <include layout="@layout/item_setup_step_location" />

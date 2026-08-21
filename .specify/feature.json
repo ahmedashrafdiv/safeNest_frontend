@@ -1,5 +1,5 @@
 {
-  "feature": "frontend-daily-usage-accuracy",
-  "feature_directory": "specs/frontend-daily-usage-accuracy",
-  "description": "Accurate date-bounded screen-time summaries and the Layngo Parent daily-usage screen."
+  "feature": "frontend-content-blur",
+  "feature_directory": "specs/frontend-content-blur",
+  "description": "Fail-closed device-wide content blur with Parent policy control and independent Child Accessibility enforcement."
 }

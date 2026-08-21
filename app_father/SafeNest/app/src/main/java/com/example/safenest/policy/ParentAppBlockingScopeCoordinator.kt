@@ -32,7 +32,7 @@ class ParentAppBlockingScopeCoordinator(
         val device = state.selectedDevice
         if (!state.canWriteDeviceOverride || childId.isNullOrBlank() || device == null) {
             return ScopedPolicyMutation.Blocked(
-                state.blockedReason ?: "Select an active device before saving a device override.",
+                state.blockedReason ?: "اختر جهازًا نشطًا قبل حفظ تعديل خاص بالجهاز.",
             )
         }
         val request = DevicePolicyOverrideRequest(
@@ -55,17 +55,17 @@ class ParentAppBlockingScopeCoordinator(
                     when (val refreshed = deviceRepository.getEffectiveAppBlockingPolicy(childId, device.deviceId)) {
                         is Result.Success -> ScopedPolicyMutation.Conflict(refreshed.data)
                         is Result.Error -> ScopedPolicyMutation.Failed(
-                            "Policy changed, but the latest version could not be loaded: ${refreshed.message}",
+                            "تغيّرت القاعدة، وتعذر تحميل أحدث إصدار منها. حاول مرة أخرى.",
                         )
                         Result.Loading -> ScopedPolicyMutation.Failed(
-                            "Policy changed. Review the current policy before trying again.",
+                            "تغيّرت القاعدة. راجع القاعدة الحالية قبل المحاولة مرة أخرى.",
                         )
                     }
                 }
-                else -> ScopedPolicyMutation.Failed("Policy save failed (${response.code()}).")
+                else -> ScopedPolicyMutation.Failed("تعذر حفظ القاعدة (${response.code()}).")
             }
         } catch (error: Exception) {
-            ScopedPolicyMutation.Failed(error.message ?: "Network error while saving policy.")
+            ScopedPolicyMutation.Failed(error.message ?: "حدث خطأ في الاتصال أثناء حفظ القاعدة.")
         }
     }
 }

@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Layngo OTP linking: calm Arabic RTL, navy/teal/mint hierarchy, one decision per state. -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/daily_usage_ivory"
+    android:fillViewport="true"
+    android:layoutDirection="rtl"
+    android:textDirection="rtl">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="24dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_link_back"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:contentDescription="رجوع"
+            android:text="←"
+            android:textColor="@color/navy_brand"
+            android:textDirection="ltr"
+            android:textSize="24sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_link_step"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans"
+            android:gravity="center"
+            android:textColor="@color/gray_medium"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:id="@+id/link_ready_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/lemonada_bold"
+                android:gravity="center"
+                android:text="جاهز لربط جهاز ليان؟"
+                android:textColor="@color/navy_brand"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:text="سنحتاج جهاز ليان بجانبك للحظات لإتمام الربط بأمان."
+                android:textColor="@color/gray_medium"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="28dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:textDirection="ltr">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="76dp"
+                    android:layout_height="124dp"
+                    app:cardBackgroundColor="@color/ivory_surface"
+                    app:cardCornerRadius="20dp"
+                    app:strokeColor="@color/teal_brand"
+                    app:strokeWidth="2dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fontFamily="sans"
+                        android:gravity="center"
+                        android:text="✓"
+                        android:textColor="@color/teal_brand"
+                        android:textSize="34sp" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="58dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans"
+                    android:gravity="center"
+                    android:text="·······"
+                    android:textColor="@color/teal_brand"
+                    android:textDirection="ltr"
+                    android:textSize="20sp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="76dp"
+                    android:layout_height="124dp"
+                    app:cardBackgroundColor="@color/ivory_surface"
+                    app:cardCornerRadius="20dp"
+                    app:strokeColor="@color/navy_brand"
+                    app:strokeWidth="2dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fontFamily="sans"
+                        android:gravity="center"
+                        android:text="★"
+                        android:textColor="@color/navy_brand"
+                        android:textSize="30sp" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/mint_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:fontFamily="sans"
+                    android:gravity="center"
+                    android:text="✓  ستحتاج إلى جهاز ليان للحظات فقط."
+                    android:textColor="@color/navy_brand"
+                    android:textSize="14sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tv_ready_linking_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:textColor="@color/coral_action"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start_linking"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="28dp"
+                android:fontFamily="@font/lemonada_bold"
+                android:text="ابدأ الربط"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/teal_brand"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_link_later"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans"
+                android:text="سأكمل لاحقًا"
+                android:textColor="@color/navy_brand" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/link_code_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/lemonada_bold"
+                android:gravity="center"
+                android:text="افتح Layngo على جهاز ليان"
+                android:textColor="@color/navy_brand"
+                android:textSize="22sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:text="من تطبيق الطفل، اختر «ربط جهاز» ثم أدخل الرمز الظاهر أدناه."
+                android:textColor="@color/gray_medium"
+                android:textSize="15sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                app:cardBackgroundColor="@color/navy_brand"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="4dp">
+
+                <TextView
+                    android:id="@+id/tv_pairing_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="32dp"
+                    android:paddingBottom="32dp"
+                    android:fontFamily="@font/lexendmega_medium"
+                    android:gravity="center"
+                    android:letterSpacing="0.06"
+                    android:textColor="@color/white"
+                    android:textDirection="ltr"
+                    android:textSize="28sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tv_pairing_expiry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:textColor="@color/gray_medium"
+                android:textSize="13sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="@color/mint_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:fontFamily="sans"
+                    android:gravity="center"
+                    android:text="لا تشارك هذا الرمز خارج جهاز ليان."
+                    android:textColor="@color/navy_brand"
+                    android:textSize="14sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tv_linking_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:textColor="@color/coral_action"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_confirm_child_code"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/lemonada_bold"
+                android:text="تم إدخال الرمز على جهاز ليان"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/teal_brand"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_resend_pairing_code"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans"
+                android:text="إرسال رمز جديد"
+                android:textColor="@color/teal_brand" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/link_waiting_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="76dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:indeterminateTint="@color/teal_brand" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:fontFamily="@font/lemonada_bold"
+                android:gravity="center"
+                android:text="جارٍ ربط جهاز ليان"
+                android:textColor="@color/navy_brand"
+                android:textSize="22sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:text="نتحقق من الرمز ونؤمّن الاتصال بين الجهازين."
+                android:textColor="@color/gray_medium"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/link_success_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="56dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                app:cardBackgroundColor="@color/mint_surface"
+                app:cardCornerRadius="48dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans"
+                    android:gravity="center"
+                    android:text="✓"
+                    android:textColor="@color/teal_brand"
+                    android:textSize="48sp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:fontFamily="@font/lemonada_bold"
+                android:gravity="center"
+                android:text="تم ربط جهاز ليان"
+                android:textColor="@color/navy_brand"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:text="اكتمل الربط بنجاح. الخطوة التالية هي تفعيل أذونات الحماية على جهاز ليان."
+                android:textColor="@color/gray_medium"
+                android:textSize="15sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_continue_protection"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/lemonada_bold"
+                android:text="متابعة إعداد الحماية"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/teal_brand"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_return_child_page"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans"
+                android:text="العودة إلى صفحة ليان"
+                android:textColor="@color/navy_brand" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

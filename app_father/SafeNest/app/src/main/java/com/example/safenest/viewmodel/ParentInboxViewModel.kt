@@ -52,6 +52,10 @@ class ParentInboxViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    fun clearAlertResolutionState() {
+        _alertResolutionState.value = null
+    }
+
     fun clearDecisionState() {
         _decisionState.value = null
     }

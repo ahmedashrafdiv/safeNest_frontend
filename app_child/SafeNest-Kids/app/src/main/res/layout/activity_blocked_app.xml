@@ -38,4 +38,15 @@
         android:fontFamily="@font/ibm_plex_sans_arabic"
         android:gravity="center" />
 
+    <Button
+        android:id="@+id/btn_parent_authorize"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/teal_brand"
+        android:text="دخول ولي الأمر"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
 </LinearLayout>

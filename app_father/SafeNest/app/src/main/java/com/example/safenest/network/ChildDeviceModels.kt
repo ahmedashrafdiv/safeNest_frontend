@@ -22,7 +22,7 @@ data class ChildDeviceSummary(
 )
 
 data class ChildDevicePairingRequest(
-    @SerializedName("expires_in_seconds") val expiresInSeconds: Int = 300,
+    @SerializedName("expires_in_seconds") val expiresInSeconds: Int = 600,
     @SerializedName("max_attempts") val maxAttempts: Int = 3,
 )
 
@@ -33,6 +33,15 @@ data class ChildDevicePairingResponse(
     @SerializedName("expires_at") val expiresAt: String,
     @SerializedName("status") val status: String,
     @SerializedName("attempts_remaining") val attemptsRemaining: Int,
+)
+
+data class ChildDevicePairingStatusResponse(
+    @SerializedName("pairing_id") val pairingId: String,
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("status") val status: String,
+    @SerializedName("expires_at") val expiresAt: String,
+    @SerializedName("attempts_remaining") val attemptsRemaining: Int,
+    @SerializedName("claimed_device_id") val claimedDeviceId: String? = null,
 )
 
 data class ChildDeviceRevokeRequest(

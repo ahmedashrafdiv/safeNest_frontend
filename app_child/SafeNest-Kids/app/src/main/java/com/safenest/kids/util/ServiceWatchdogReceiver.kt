@@ -19,6 +19,8 @@ import com.safenest.kids.service.InstalledAppsSyncWorker
 import com.safenest.kids.service.PhoneLocationService
 import com.safenest.kids.service.WebsitePolicySyncWorker
 import com.safenest.kids.service.WebsiteDnsVpnService
+import com.safenest.kids.service.ContentBlurPolicySyncWorker
+import com.safenest.kids.service.PlacePolicySyncWorker
 
 /**
  * Fires on BOOT_COMPLETED and MY_PACKAGE_REPLACED to check whether
@@ -46,10 +48,15 @@ class ServiceWatchdogReceiver : BroadcastReceiver() {
         Log.d(TAG, "Received $action. Triggering synchronization.")
         val prefsHelper = PrefsHelper(context)
         if (!prefsHelper.isPaired()) return
+        if (prefsHelper.isProtectionSuspended()) return
 
         // Rule and inventory synchronization are both durable WorkManager jobs.
         triggerImmediateSync(context)
         InstalledAppsSyncWorker.enqueue(context)
+        ContentBlurPolicySyncWorker.enqueueImmediate(context)
+        ContentBlurPolicySyncWorker.enqueuePeriodic(context)
+        PlacePolicySyncWorker.enqueueImmediate(context)
+        PlacePolicySyncWorker.enqueuePeriodic(context)
         val websiteSync = OneTimeWorkRequestBuilder<WebsitePolicySyncWorker>().build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             WebsitePolicySyncWorker.UNIQUE_WORK_NAME,
@@ -77,12 +84,17 @@ class ServiceWatchdogReceiver : BroadcastReceiver() {
                 WebsiteDnsVpnService.startIfPermissionGranted(context)
             }
 
-            val enabled = PermissionsHelper.hasAccessibilityService(context)
-            if (!enabled) {
-                Log.w(TAG, "Accessibility service not enabled — showing notification")
-                showReEnableNotification(context)
+            val blockerEnabled = PermissionsHelper.hasAccessibilityService(context)
+            val blurRequired = prefsHelper.isContentBlurEnabled()
+            val blurEnabled = PermissionsHelper.hasContentBlurAccessibilityService(context)
+            if (!blockerEnabled || (blurRequired && !blurEnabled)) {
+                Log.w(
+                    TAG,
+                    "Required accessibility service missing: blocker=$blockerEnabled blurRequired=$blurRequired blur=$blurEnabled",
+                )
+                showReEnableNotification(context, blurRequired && !blurEnabled)
             } else {
-                Log.d(TAG, "Accessibility service still enabled")
+                Log.d(TAG, "Required accessibility services still enabled")
             }
         }
     }
@@ -98,7 +110,7 @@ class ServiceWatchdogReceiver : BroadcastReceiver() {
         )
     }
 
-    private fun showReEnableNotification(context: Context) {
+    private fun showReEnableNotification(context: Context, contentBlurMissing: Boolean) {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Create the notification channel (safe to call repeatedly)
@@ -125,7 +137,13 @@ class ServiceWatchdogReceiver : BroadcastReceiver() {
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("SafeNest — إعادة تفعيل مطلوبة")
-            .setContentText("يرجى إعادة تفعيل خدمة إمكانية الوصول للحفاظ على الحماية")
+            .setContentText(
+                if (contentBlurMissing) {
+                    "يرجى تفعيل خدمة Content Blur وخدمة الحماية من إعدادات إمكانية الوصول"
+                } else {
+                    "يرجى إعادة تفعيل خدمة إمكانية الوصول للحفاظ على الحماية"
+                },
+            )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

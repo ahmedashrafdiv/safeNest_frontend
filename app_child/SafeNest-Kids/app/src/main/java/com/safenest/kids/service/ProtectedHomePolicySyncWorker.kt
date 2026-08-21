@@ -23,6 +23,7 @@ class ProtectedHomePolicySyncWorker(
     private val prefs = PrefsHelper(applicationContext)
 
     override suspend fun doWork(): Result {
+        if (prefs.isProtectionSuspended()) return Result.success()
         val deviceId = prefs.getDeviceId()
         val childId = prefs.getChildId()
         return try {
@@ -84,6 +85,13 @@ class ProtectedHomePolicySyncWorker(
                 ExistingPeriodicWorkPolicy.KEEP,
                 request,
             )
+        }
+
+        fun cancel(context: Context) {
+            WorkManager.getInstance(context.applicationContext).apply {
+                cancelUniqueWork(IMMEDIATE_WORK_NAME)
+                cancelUniqueWork(PERIODIC_WORK_NAME)
+            }
         }
     }
 }

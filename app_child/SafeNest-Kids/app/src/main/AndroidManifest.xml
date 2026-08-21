@@ -9,15 +9,28 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <application android:allowBackup="false" android:icon="@drawable/layngo_logo" android:label="@string/app_name" android:roundIcon="@drawable/layngo_logo" android:supportsRtl="true" android:theme="@style/Theme.SafeNestKids">
         <activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter></activity>
         <activity android:name=".ProtectedHomeActivity" android:exported="true" android:launchMode="singleTask"><intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.HOME" /><category android:name="android.intent.category.DEFAULT" /></intent-filter></activity>
         <activity android:name=".BlockedAppActivity" android:exported="false" />
-        <service android:name=".service.AppBlockerAccessibilityService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"><intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter><meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility_service_config" /></service>
+        <service android:name=".service.AppBlockerAccessibilityService" android:exported="true" android:label="@string/app_blocking_accessibility_service_name" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"><intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter><meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility_service_config" /></service>
+        <service android:name=".service.ContentBlurAccessibilityService" android:exported="true" android:label="@string/content_blur_accessibility_service_name" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"><intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter><meta-data android:name="android.accessibilityservice" android:resource="@xml/content_blur_accessibility_config" /></service>
         <receiver android:name=".security.LayngoDeviceAdminReceiver" android:exported="true" android:permission="android.permission.BIND_DEVICE_ADMIN"><intent-filter><action android:name="android.app.action.DEVICE_ADMIN_ENABLED" /></intent-filter><meta-data android:name="android.app.device_admin" android:resource="@xml/device_admin_receiver" /></receiver>
-        <receiver android:name=".util.ServiceWatchdogReceiver" android:exported="true"><intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /><action android:name="android.intent.action.MY_PACKAGE_REPLACED" /><action android:name="android.intent.action.PACKAGE_ADDED" /><action android:name="android.intent.action.PACKAGE_REMOVED" /><data android:scheme="package" /></intent-filter></receiver>
+        <receiver android:name=".util.ServiceWatchdogReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".service.PlaceTransitionReceiver" android:exported="false" />
         <service android:name=".service.PhoneLocationService" android:exported="false" android:foregroundServiceType="location" />
         <service android:name=".service.WebsiteDnsVpnService" android:exported="false" android:permission="android.permission.BIND_VPN_SERVICE"><intent-filter><action android:name="android.net.VpnService" /></intent-filter></service>
         <service android:name=".service.SafeNestFirebaseService" android:exported="false"><intent-filter><action android:name="com.google.firebase.MESSAGING_EVENT" /></intent-filter></service>

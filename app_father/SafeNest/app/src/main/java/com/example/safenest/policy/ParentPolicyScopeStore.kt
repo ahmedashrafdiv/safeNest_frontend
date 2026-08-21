@@ -30,8 +30,8 @@ data class ParentPolicyScopeState(
     val blockedReason: String?
         get() = when {
             scope != ParentPolicyScope.SELECTED_DEVICE -> null
-            selectedDevice == null -> "Select a device before applying a device override."
-            !selectedDevice.isEligible -> "This device is not active and cannot receive policy overrides."
+            selectedDevice == null -> "اختر جهازًا قبل تطبيق تعديل خاص بالجهاز."
+            !selectedDevice.isEligible -> "هذا الجهاز غير نشط ولا يمكنه استقبال تعديلات القواعد."
             else -> null
         }
 }

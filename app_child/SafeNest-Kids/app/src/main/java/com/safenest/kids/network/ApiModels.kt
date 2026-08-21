@@ -19,6 +19,22 @@ data class LinkDeviceResponse(
     @SerializedName("access_token") val accessToken: String? = null // Device token for authenticated child endpoints
 )
 
+data class ChildDeviceClaimRequest(
+    @SerializedName("pairing_code") val pairingCode: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("platform") val platform: String,
+    @SerializedName("model") val model: String,
+    @SerializedName("os_version") val osVersion: String,
+    @SerializedName("app_version") val appVersion: String,
+)
+
+data class ChildDeviceClaimResponse(
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_session_version") val deviceSessionVersion: Int,
+    @SerializedName("access_token") val accessToken: String,
+)
+
 data class DigitalRuleResponse(
     @SerializedName("ruleId") val ruleId: String?,
     @SerializedName("max_screen_time") val maxScreenTime: Int?,
@@ -144,6 +160,39 @@ data class PhoneLocationPolicyResponse(
     @SerializedName("policy_version") val policyVersion: Int? = null
 )
 
+data class ChildPlaceSnapshot(
+    @SerializedName("place_id") val placeId: String,
+    @SerializedName("place_type") val placeType: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("latitude") val latitude: Double,
+    @SerializedName("longitude") val longitude: Double,
+    @SerializedName("radius_meters") val radiusMeters: Int,
+    @SerializedName("notify_on_enter") val notifyOnEnter: Boolean,
+    @SerializedName("notify_on_exit") val notifyOnExit: Boolean,
+)
+
+data class ChildPlacesResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("place_version") val placeVersion: Int,
+    @SerializedName("places") val places: List<ChildPlaceSnapshot> = emptyList(),
+)
+
+data class PlaceTransitionRequest(
+    @SerializedName("event_id") val eventId: String,
+    @SerializedName("place_id") val placeId: String,
+    @SerializedName("transition") val transition: String,
+    @SerializedName("occurred_at") val occurredAt: String,
+    @SerializedName("location_timestamp") val locationTimestamp: String? = null,
+)
+
+data class PlaceTransitionResponse(
+    @SerializedName("event_id") val eventId: String,
+    @SerializedName("accepted") val accepted: Boolean,
+    @SerializedName("alert_created") val alertCreated: Boolean,
+    @SerializedName("reason") val reason: String,
+)
+
 
 data class EffectiveAppBlockingValues(
     @SerializedName("blockedApp") val blockedApp: List<String> = emptyList(),
@@ -170,6 +219,20 @@ data class EffectiveProtectionPolicyResponse(
     @SerializedName("policy_version") val policyVersion: Int,
     @SerializedName("scope") val scope: String,
     @SerializedName("values") val values: EffectiveProtectionPolicyValues,
+)
+
+data class EffectiveContentBlurPolicyValues(
+    @SerializedName("enabled") val enabled: Boolean = false,
+    @SerializedName("mode") val mode: String = "CONSERVATIVE",
+    @SerializedName("targetPackages") val targetPackages: List<String> = emptyList(),
+)
+
+data class EffectiveContentBlurPolicyResponse(
+    @SerializedName("child_id") val childId: String,
+    @SerializedName("device_id") val deviceId: String,
+    @SerializedName("policy_version") val policyVersion: Int,
+    @SerializedName("scope") val scope: String,
+    @SerializedName("values") val values: EffectiveContentBlurPolicyValues,
 )
 
 data class ScreenTimePolicyPayload(

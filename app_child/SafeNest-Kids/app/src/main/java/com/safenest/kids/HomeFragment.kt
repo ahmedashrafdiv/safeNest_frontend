@@ -8,13 +8,16 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.safenest.kids.network.ApiClient
+import com.safenest.kids.network.AccessRequestCreateResponse
 import com.safenest.kids.network.InstalledApp
 import com.safenest.kids.network.InstalledAppsRequest
 import com.safenest.kids.service.AppUsageReportWorker
@@ -26,15 +29,18 @@ import com.safenest.kids.service.ScreenTimePolicySyncWorker
 import com.safenest.kids.service.WebsiteDnsVpnService
 import com.safenest.kids.util.AppUsageHelper
 import com.safenest.kids.util.ChildGreeting
+import com.safenest.kids.util.ExtraTimeRequestDecider
 import com.safenest.kids.util.InstalledAppsHelper
 import com.safenest.kids.util.PermissionsHelper
 import com.safenest.kids.util.PrefsHelper
+import com.safenest.kids.util.ProtectionLifecycleCoordinator
 import com.safenest.kids.util.ScreenTimeBudget
 import com.safenest.kids.view.BudgetRingView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
+import java.util.UUID
 
 class HomeFragment : Fragment() {
 
@@ -47,6 +53,9 @@ class HomeFragment : Fragment() {
     private lateinit var btnMenu: ImageButton
     private lateinit var progressSync: ProgressBar
     private lateinit var prefsHelper: PrefsHelper
+    private lateinit var btnRequestExtraTime: View
+    private var extraTimeRequestId: String? = null
+    private var requestingExtraTime = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_home, container, false)
@@ -64,6 +73,39 @@ class HomeFragment : Fragment() {
         cardExtraTime = view.findViewById(R.id.card_extra_time)
         btnMenu = view.findViewById(R.id.btn_menu)
         progressSync = view.findViewById(R.id.progress_sync)
+        btnRequestExtraTime = view.findViewById(R.id.btn_request_extra_time)
+        extraTimeRequestId = savedInstanceState?.getString(STATE_EXTRA_TIME_REQUEST_ID)
+            ?: prefsHelper.getPendingExtraTimeRequestId()
+
+        parentFragmentManager.setFragmentResultListener(
+            ParentControlsSheet.REQUEST_KEY,
+            viewLifecycleOwner,
+        ) { _, result ->
+            result.getString(ParentControlsSheet.BUNDLE_ACTION)
+                ?.let { runCatching { ParentControlAction.valueOf(it) }.getOrNull() }
+                ?.let(::showParentVerification)
+        }
+        parentFragmentManager.setFragmentResultListener(
+            ParentVerificationDialog.REQUEST_KEY,
+            viewLifecycleOwner,
+        ) { _, result ->
+            result.getString(ParentVerificationDialog.BUNDLE_ACTION)
+                ?.let { runCatching { ParentControlAction.valueOf(it) }.getOrNull() }
+                ?.let(::onParentVerified)
+        }
+        btnMenu.setOnClickListener {
+            ParentControlsSheet().show(parentFragmentManager, ParentControlsSheet.TAG)
+        }
+        view.findViewById<View>(R.id.btn_enable_protection).setOnClickListener {
+            showParentVerification(ParentControlAction.REENABLE_PROTECTION)
+        }
+        view.findViewById<View>(R.id.btn_delete_app).setOnClickListener {
+            showParentVerification(ParentControlAction.DELETE_APPLICATION)
+        }
+        btnRequestExtraTime.setOnClickListener { submitExtraTimeRequest() }
+        view.findViewById<View>(R.id.btn_help).setOnClickListener { showHelp() }
+        view.findViewById<View>(R.id.nav_help).setOnClickListener { showHelp() }
+        view.findViewById<View>(R.id.nav_today).setOnClickListener { loadScreenTimeBudget() }
 
         // Show the cached identity immediately so the greeting does not flash a fallback on every
         // launch while the profile request is still in flight.
@@ -114,6 +156,11 @@ class HomeFragment : Fragment() {
         loadScreenTimeBudget()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_EXTRA_TIME_REQUEST_ID, extraTimeRequestId)
+    }
+
     private fun renderSuspendedState(suspended: Boolean) {
         groupSuspended.visibility = if (suspended) View.VISIBLE else View.GONE
         groupBudget.visibility = if (suspended) View.GONE else View.VISIBLE
@@ -147,6 +194,94 @@ class HomeFragment : Fragment() {
         } else {
             getString(R.string.home_greeting_named, displayName)
         }
+    }
+
+    private fun showParentVerification(action: ParentControlAction) {
+        val parentEmail = prefsHelper.getParentEmail()
+        if (parentEmail.isNullOrBlank()) {
+            loadSessionProfile()
+            Toast.makeText(requireContext(), R.string.parent_verification_email_unavailable, Toast.LENGTH_SHORT).show()
+            return
+        }
+        ParentVerificationDialog.newInstance(action, parentEmail)
+            .show(parentFragmentManager, ParentVerificationDialog.TAG)
+    }
+
+    /** Every action reaching this point has passed the Backend parent-password verification gate. */
+    private fun onParentVerified(action: ParentControlAction) {
+        when (action) {
+            ParentControlAction.SIGN_OUT -> {
+                val homeRoleHeld = ProtectionLifecycleCoordinator.signOut(requireContext())
+                if (homeRoleHeld) ProtectionLifecycleCoordinator.openHomeSettings(requireContext())
+                requireActivity().recreate()
+            }
+            ParentControlAction.SUSPEND_PROTECTION -> {
+                ProtectionLifecycleCoordinator.suspendProtection(requireContext())
+                renderSuspendedState(suspended = true)
+            }
+            ParentControlAction.REENABLE_PROTECTION -> {
+                ProtectionLifecycleCoordinator.resumeProtection(requireContext())
+                renderSuspendedState(suspended = false)
+                loadScreenTimeBudget()
+            }
+            ParentControlAction.DELETE_APPLICATION -> {
+                ProtectionLifecycleCoordinator.requestUninstall(requireContext())
+            }
+            ParentControlAction.OPEN_LOCATION_SETTINGS -> Unit
+            ParentControlAction.OPEN_ACCESSIBILITY_SETTINGS -> Unit
+        }
+    }
+
+    private fun submitExtraTimeRequest() {
+        if (requestingExtraTime || prefsHelper.isProtectionSuspended()) return
+        val clientRequestId = extraTimeRequestId ?: UUID.randomUUID().toString().also {
+            extraTimeRequestId = it
+            prefsHelper.setPendingExtraTimeRequestId(it)
+        }
+        requestingExtraTime = true
+        btnRequestExtraTime.isEnabled = false
+        btnRequestExtraTime.contentDescription = getString(R.string.home_extra_time_submitting)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val outcome = try {
+                val response = ApiClient.apiService.createAccessRequest(
+                    prefsHelper.getDeviceId(),
+                    ExtraTimeRequestDecider.build(clientRequestId),
+                )
+                val body: AccessRequestCreateResponse? = response.body()
+                ExtraTimeRequestDecider.outcome(
+                    httpCode = response.code(),
+                    duplicate = body?.duplicate == true,
+                    requestId = body?.requestId,
+                )
+            } catch (_: Exception) {
+                ExtraTimeRequestDecider.Outcome.FAILED
+            }
+            withContext(Dispatchers.Main) {
+                if (!isAdded) return@withContext
+                requestingExtraTime = false
+                btnRequestExtraTime.isEnabled = true
+                btnRequestExtraTime.contentDescription = getString(R.string.home_extra_time_action)
+                val message = when (outcome) {
+                    ExtraTimeRequestDecider.Outcome.SUBMITTED -> R.string.home_extra_time_submitted
+                    ExtraTimeRequestDecider.Outcome.DUPLICATE -> R.string.home_extra_time_duplicate
+                    ExtraTimeRequestDecider.Outcome.FAILED -> R.string.home_extra_time_failed
+                }
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+                if (outcome != ExtraTimeRequestDecider.Outcome.FAILED) {
+                    extraTimeRequestId = null
+                    prefsHelper.setPendingExtraTimeRequestId(null)
+                }
+            }
+        }
+    }
+
+    private fun showHelp() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.home_help_title)
+            .setMessage(R.string.home_help_message)
+            .setPositiveButton(R.string.home_help_close, null)
+            .show()
     }
 
     private fun loadSessionProfile() {
@@ -246,17 +381,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun registerScreenTimePolicySyncWorker() {
-        val syncRequest = PeriodicWorkRequestBuilder<ScreenTimePolicySyncWorker>(
-            15, TimeUnit.MINUTES
-        ).build()
-        WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
-            ScreenTimePolicySyncWorker.UNIQUE_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            syncRequest
-        )
+        ScreenTimePolicySyncWorker.enqueuePeriodic(requireContext())
+        ScreenTimePolicySyncWorker.enqueueImmediate(requireContext())
     }
 
     private companion object {
         const val TAG = "HomeFragment"
+        const val STATE_EXTRA_TIME_REQUEST_ID = "extra_time_request_id"
     }
 }

@@ -68,10 +68,19 @@ class MyDevicesFragment : Fragment() {
 
     private fun addPairingAction(root: View) {
         val button = MaterialButton(requireContext()).apply {
-            text = "Add another device"
+            text = "ربط جهاز جديد"
             setTextColor(Color.WHITE)
             backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2CA39D"))
-            setOnClickListener { viewModel.createPairing() }
+            setOnClickListener {
+                if (viewModel.selectedChildId() == null) {
+                    Toast.makeText(requireContext(), "لم يتم تحديد الطفل", Toast.LENGTH_LONG).show()
+                } else {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, DeviceLinkingFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
         }
         (root.findViewById<View>(R.id.devicesContainer).parent as? LinearLayout)?.addView(button, 0)
     }

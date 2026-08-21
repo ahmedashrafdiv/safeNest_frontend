@@ -1,132 +1,102 @@
 package com.example.safenest.fragments
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import com.example.safenest.MainActivity
 import com.example.safenest.R
-import com.example.safenest.util.Result
-import com.example.safenest.viewmodel.SafeZonesViewModel
+import com.example.safenest.network.ChildPlaceResponse
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.launch
+import com.google.android.material.card.MaterialCardView
 
+/** First place-creation decision: choose the meaning before the map or settings. */
 class AddZoneFragment : Fragment() {
+    private var selectedType: String? = null
+    private val options = mutableMapOf<String, MaterialCardView>()
+    private lateinit var continueButton: MaterialButton
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val scroll = ScrollView(requireContext())
+        val root = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24.dp, 20.dp, 24.dp, 24.dp)
+            setBackgroundColor(resources.getColor(R.color.ivory_surface, null))
+        }
+        scroll.addView(root)
+        root.addView(backButton())
+        root.addView(title("ما نوع هذا المكان؟", 20f))
+        root.addView(subtitle("اختر المعنى المناسب لنرسل التنبيه الصحيح."))
+        root.addView(typeCard("safe", "⌂", "مكان آمن", "مكان متوقع مثل المنزل أو المدرسة."))
+        root.addView(typeCard("attention", "◉", "مكان يحتاج انتباهًا", "يخبرك بهدوء عند دخول ليان إليه."))
+        root.addView(typeCard("risk", "△", "منطقة خطر", "ينبهك بوضوح عند دخول ليان إليها.", true))
+        root.addView(subtitle("يمكنك تعديل النوع والتنبيهات لاحقًا.").apply { setPadding(0, 12.dp, 0, 8.dp) })
+        continueButton = MaterialButton(requireContext()).apply {
+            text = "متابعة"
+            isEnabled = false
+            setTextColor(resources.getColor(R.color.white, null))
+            setBackgroundColor(resources.getColor(R.color.teal_brand, null))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 52.dp).apply { topMargin = 8.dp }
+            setOnClickListener { selectedType?.let { (activity as MainActivity).navigateToFragment(PlacePickerFragment.newInstance(it)) } }
+        }
+        root.addView(continueButton)
+        return scroll
+    }
+
+    private fun typeCard(type: String, icon: String, label: String, copy: String, risk: Boolean = false): MaterialCardView {
+        return MaterialCardView(requireContext()).apply {
+            radius = 16f
+            cardElevation = 0f
+            strokeWidth = 1
+            strokeColor = resources.getColor(R.color.mint_surface, null)
+            setCardBackgroundColor(resources.getColor(R.color.white, null))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 12.dp }
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(16.dp, 16.dp, 16.dp, 16.dp)
+                addView(TextView(context).apply { text = icon; textSize = 24f; setTextColor(resources.getColor(if (risk) R.color.coral_action else R.color.teal_brand, null)) })
+                addView(LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = 12.dp }
+                    addView(title(label, 15f))
+                    addView(subtitle(copy))
+                })
+            })
+            setOnClickListener { select(type) }
+            options[type] = this
+        }
+    }
+
+    private fun select(type: String) {
+        selectedType = type
+        options.forEach { (key, card) ->
+            card.strokeWidth = if (key == type) 3 else 1
+            card.strokeColor = resources.getColor(if (key == type) R.color.teal_brand else R.color.mint_surface, null)
+        }
+        continueButton.isEnabled = true
+    }
+
+    private fun backButton() = MaterialButton(requireContext()).apply {
+        text = "→"
+        textSize = 22f
+        setTextColor(resources.getColor(R.color.navy_brand, null))
+        setOnClickListener { parentFragmentManager.popBackStack() }
+    }
+
+    private fun title(value: String, size: Float) = TextView(requireContext()).apply {
+        text = value; textSize = size; setTextColor(resources.getColor(R.color.navy_brand, null)); typeface = resources.getFont(R.font.lemonada_bold)
+    }
+
+    private fun subtitle(value: String) = TextView(requireContext()).apply { text = value; textSize = 12f; setTextColor(resources.getColor(R.color.navy_brand, null)) }
+    private val Int.dp get() = (this * resources.displayMetrics.density).toInt()
 
     companion object {
-        private const val TAG = "AddZoneFragment"
-    }
-
-    private val viewModel: SafeZonesViewModel by viewModels()
-
-    private var zoneNameInput: TextInputEditText? = null
-    private var zoneTypeInput: TextInputEditText? = null
-    private var latitudeInput: TextInputEditText? = null
-    private var longitudeInput: TextInputEditText? = null
-    private var radiusInput: TextInputEditText? = null
-    private var saveZoneBtn: MaterialButton? = null
-    private var progressBar: ProgressBar? = null
-    private var errorText: TextView? = null
-
-    private var childId: String? = null
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_add_zone, container, false)
-
-        zoneNameInput = view.findViewById(R.id.zoneNameInput)
-        zoneTypeInput = view.findViewById(R.id.zoneTypeInput)
-        latitudeInput = view.findViewById(R.id.latitudeInput)
-        longitudeInput = view.findViewById(R.id.longitudeInput)
-        radiusInput = view.findViewById(R.id.radiusInput)
-        saveZoneBtn = view.findViewById(R.id.saveZoneBtn)
-        progressBar = view.findViewById(R.id.progressBar)
-        errorText = view.findViewById(R.id.errorText)
-
-        val prefs = requireContext().getSharedPreferences("SafeNestPrefs", android.content.Context.MODE_PRIVATE)
-        childId = prefs.getString("child_id", null)
-
-        view.findViewById<MaterialButton>(R.id.backButton).setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        saveZoneBtn?.setOnClickListener {
-            saveZoneBtn?.isEnabled = false
-            saveZone()
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.createZoneState.collect { state ->
-                    when (state) {
-                        is Result.Loading -> setLoading(true)
-                        is Result.Success -> {
-                            setLoading(false)
-                            Toast.makeText(context, getString(R.string.zone_created), Toast.LENGTH_SHORT).show()
-                            parentFragmentManager.popBackStack()
-                            viewModel.clearCreateZoneState()
-                        }
-                        is Result.Error -> {
-                            setLoading(false)
-                            showError(state.message)
-                            viewModel.clearCreateZoneState()
-                        }
-                        null -> Unit
-                    }
-                }
-            }
-        }
-    }
-
-    private fun saveZone() {
-        val name = zoneNameInput?.text.toString().trim()
-        val zoneType = zoneTypeInput?.text.toString().trim()
-        val latStr = latitudeInput?.text.toString().trim()
-        val lngStr = longitudeInput?.text.toString().trim()
-        val radiusStr = radiusInput?.text.toString().trim()
-        val cid = this.childId
-
-        if (name.isEmpty()) { showError(getString(R.string.error_zone_name_required)); return }
-        if (zoneType.isEmpty() || (zoneType != "Safe" && zoneType != "Danger")) { showError(getString(R.string.error_zone_type_invalid)); return }
-        val latitude = latStr.toDoubleOrNull() ?: run { showError(getString(R.string.error_latitude_invalid)); return }
-        val longitude = lngStr.toDoubleOrNull() ?: run { showError(getString(R.string.error_longitude_invalid)); return }
-        val radius = radiusStr.toIntOrNull()?.takeIf { it > 0 } ?: run { showError(getString(R.string.error_radius_invalid)); return }
-        if (cid == null) { showError(getString(R.string.error_no_child)); return }
-
-        hideError()
-        viewModel.createZone(name, zoneType, cid, latitude, longitude, radius)
-    }
-
-    private fun showError(message: String) {
-        saveZoneBtn?.isEnabled = true
-        errorText?.text = message
-        errorText?.visibility = View.VISIBLE
-    }
-
-    private fun hideError() {
-        errorText?.visibility = View.GONE
-    }
-
-    private fun setLoading(loading: Boolean) {
-        saveZoneBtn?.isEnabled = !loading
-        saveZoneBtn?.text = if (loading) getString(R.string.saving) else getString(R.string.save_zone)
-        progressBar?.visibility = if (loading) View.VISIBLE else View.GONE
+        fun newEdit(place: ChildPlaceResponse): Fragment = PlaceSettingsFragment.newEdit(place)
     }
 }

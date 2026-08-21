@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Layngo Kids</string>
+    <string name="app_blocking_accessibility_service_name">Layngo Kids · حماية التطبيقات</string>
+    <string name="content_blur_accessibility_service_name">Layngo Kids · تمويه المحتوى</string>
     <string name="accessibility_service_description">تستخدم هذه الخدمة لحظر التطبيقات غير المسموح بها</string>
+    <string name="content_blur_accessibility_description">Covers media while on-device safety analysis is unavailable</string>
 
     <!-- Home screen -->
     <string name="home_brand_name">Layngo</string>
@@ -22,4 +25,31 @@
     <string name="home_suspended_subtitle">أوقف أحد الوالدين الحماية على هذا الجهاز.</string>
     <string name="home_suspended_enable_action">إعادة تفعيل الحماية</string>
     <string name="home_suspended_delete_action">حذف التطبيق</string>
+
+    <!-- Parent-protected controls -->
+    <string name="parent_controls_title">إعدادات الوالدين</string>
+    <string name="parent_controls_subtitle">يلزم التحقق من كلمة مرور حساب الوالد للمتابعة.</string>
+    <string name="parent_controls_sign_out">تسجيل الخروج</string>
+    <string name="parent_controls_suspend">تعطيل البرنامج</string>
+    <string name="parent_verification_title">تأكيد حساب الوالد</string>
+    <string name="parent_verification_subtitle">أدخل كلمة المرور للمتابعة في هذا الإجراء.</string>
+    <string name="parent_verification_email">بريد حساب الوالد</string>
+    <string name="parent_verification_email_unavailable">جارٍ جلب بيانات حساب الوالد. حاول بعد لحظات.</string>
+    <string name="parent_verification_password">كلمة المرور</string>
+    <string name="parent_verification_password_required">أدخل كلمة مرور الوالد أولًا.</string>
+    <string name="parent_verification_confirm">تأكيد</string>
+    <string name="parent_verification_cancel">إلغاء</string>
+    <string name="parent_verification_wrong_password">كلمة المرور غير صحيحة. حاول مرة أخرى.</string>
+    <string name="parent_verification_locked">تم إيقاف المحاولات مؤقتًا. حاول بعد 15 دقيقة.</string>
+    <string name="parent_verification_session_expired">انتهت جلسة هذا الجهاز. أعد ربطه بحساب الوالد.</string>
+    <string name="parent_verification_not_authorized">لا يملك هذا الحساب صلاحية إدارة الجهاز.</string>
+    <string name="parent_verification_account_unavailable">تعذر العثور على حساب الوالد المرتبط.</string>
+    <string name="parent_verification_unavailable">تعذر التحقق الآن. تحقق من الاتصال وحاول مرة أخرى.</string>
+    <string name="home_extra_time_submitting">جارٍ إرسال طلب الوقت الإضافي</string>
+    <string name="home_extra_time_submitted">تم إرسال طلبك إلى الوالدين.</string>
+    <string name="home_extra_time_duplicate">يوجد طلب وقت إضافي قيد الانتظار بالفعل.</string>
+    <string name="home_extra_time_failed">تعذر إرسال الطلب الآن. حاول مرة أخرى.</string>
+    <string name="home_help_title">كيف يعمل الوقت اليومي؟</string>
+    <string name="home_help_message">توضح الدائرة الوقت المتبقي لليوم. يمكنك إرسال طلب وقت إضافي، ويحتاج الطلب موافقة أحد الوالدين قبل أن يتغير وقتك.</string>
+    <string name="home_help_close">حسنًا</string>
 </resources>

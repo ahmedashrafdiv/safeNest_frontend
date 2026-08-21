@@ -1,0 +1,8 @@
+[
+  { "featureType": "all", "elementType": "labels", "stylers": [ { "visibility": "off" } ] },
+  { "featureType": "poi", "stylers": [ { "visibility": "off" } ] },
+  { "featureType": "transit", "stylers": [ { "visibility": "off" } ] },
+  { "featureType": "road", "elementType": "geometry", "stylers": [ { "color": "#edf4f1" } ] },
+  { "featureType": "water", "elementType": "geometry", "stylers": [ { "color": "#e5f4f1" } ] },
+  { "featureType": "landscape", "elementType": "geometry", "stylers": [ { "color": "#fffaf2" } ] }
+]

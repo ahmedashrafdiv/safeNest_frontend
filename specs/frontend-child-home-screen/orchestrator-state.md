@@ -20,15 +20,16 @@ untouched; the spec name is passed to review tooling explicitly.
 - Phase 2 (data layer and pure logic): DONE | commits 3a0f929, d19efcc, 71e75ef | review 002 | fixes 4/4 | code-review 3 findings, all resolved
   - Tests: 96 passed, 0 failed. Lint: 21 errors / 98 warnings, all pre-existing, none in a Phase 2 file
   - Code-review finding on `ROLE_HOME` carried into T024 rather than fixed here — Android has no API to release the role, so it belongs with the sign-out wiring
-- Phase 3 (Layngo Home screen): PENDING
-- Phase 4 (menu and password gate): PENDING
-- Phase 5 (extra-time and verification): PENDING
+- Phase 3 (Layngo Home screen): CODE DONE | build/test pass | review 003
+  - T021 remains pending only for physical Realme rendering verification; the Debug APK is available.
+- Phase 4 (menu and password gate): CODE DONE | review 003 | parent password is neither persisted nor logged.
+- Phase 5 (extra-time and verification): CODE DONE | review 003 | JVM tests and Debug build pass; physical verification remains pending with T021.
 
-- Next: Phase 3, T015
+- Next: physical Realme validation for T021, then local scoped commit when the concurrent tree can be staged safely.
 - Attempts: implement=1, review-fix=1, code-review=1
 
 ## Environment
 
 `JAVA_HOME` is unset and no `java` is on `PATH`. Every Gradle command needs the prefix
-`JAVA_HOME=D:/Android/jdk/temurin-17`. No Android SDK emulator or attached device has been
-confirmed in this session, so T021 and T032 may need the user's handset.
+`JAVA_HOME=D:/Android/jdk/temurin-17`. Java 17 and ADB are available under `D:\Android`, but
+`adb devices -l` currently reports no attached handset; only T021 needs the user's Realme.

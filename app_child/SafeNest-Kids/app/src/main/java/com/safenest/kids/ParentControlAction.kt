@@ -1,0 +1,10 @@
+package com.safenest.kids
+
+enum class ParentControlAction {
+    SIGN_OUT,
+    SUSPEND_PROTECTION,
+    REENABLE_PROTECTION,
+    DELETE_APPLICATION,
+    OPEN_LOCATION_SETTINGS,
+    OPEN_ACCESSIBILITY_SETTINGS,
+}

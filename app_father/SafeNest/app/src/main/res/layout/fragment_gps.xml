@@ -3,16 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
-    android:layoutDirection="rtl"
-    android:textDirection="rtl">
+    android:background="@color/ivory_surface"
+    android:layoutDirection="rtl">
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,378 +18,201 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="24dp">
 
-            <!-- Header card with child info - EDGE TO EDGE -->
-            <FrameLayout
-                android:id="@+id/childHeaderCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/header_card_background"
-                android:elevation="4dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layoutDirection="rtl"
-                    android:padding="16dp">
-
-                    <!-- Avatar (Right side in RTL) -->
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/headerAvatar"
-                        android:layout_width="72dp"
-                        android:layout_height="72dp"
-                        android:contentDescription="avatar"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ch4"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
-
-                    <!-- Name with person icon (Left side in RTL) -->
-                    <LinearLayout
-                        android:id="@+id/nameContainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <TextView
-                            android:id="@+id/childName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/lemonada_bold"
-                            android:text="جميل"
-                            android:textColor="@color/purple_dark"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginStart="4dp"
-                            android:contentDescription="person"
-                            android:src="@drawable/ic_home"
-                            app:tint="@color/purple_dark" />
-                    </LinearLayout>
-
-                    <!-- Battery percentage (Left side in RTL, below name) -->
-                    <LinearLayout
-                        android:id="@+id/batteryContainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/nameContainer">
-
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_marginEnd="4dp"
-                            android:contentDescription="battery"
-                            android:src="@drawable/ic_sensors"
-                            app:tint="@color/purple_dark" />
-
-                        <TextView
-                            android:id="@+id/childBattery"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/lemonada_bold"
-                            android:text="50%"
-                            android:textColor="@color/purple_dark"
-                            android:textSize="14sp" />
-                    </LinearLayout>
-
-                    <!-- Usage time chip (dark rounded, centered at bottom) -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/usageTimeCard"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:cardBackgroundColor="@color/purple_dark"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/headerAvatar">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp">
-
-                            <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:layout_marginEnd="8dp"
-                                android:contentDescription="clock"
-                                android:src="@drawable/ic_home"
-                                app:tint="@color/white" />
-
-                            <TextView
-                                android:id="@+id/usageTime"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/lemonada_bold"
-                                android:text="02:35 out of 03:00"
-                                android:textColor="@color/white"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </FrameLayout>
-
-            <!-- Content with padding below header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="16dp">
-
-                <!-- Loading indicator -->
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone" />
-
-                <!-- Status text -->
-                <TextView
-                    android:id="@+id/statusText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="@font/lemonada_bold"
-                    android:text="جاري التحميل..."
-                    android:textColor="@color/purple_dark"
-                    android:textSize="14sp" />
-
-                <!-- Location coordinates -->
-                <TextView
-                    android:id="@+id/locationText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="@font/lemonada_bold"
-                    android:text="الموقع: —"
-                    android:textColor="@color/purple_dark"
-                    android:textSize="13sp" />
-
-                <!-- Last updated time -->
-                <TextView
-                    android:id="@+id/lastUpdateText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="@font/lemonada_bold"
-                    android:text="آخر تحديث: —"
-                    android:textColor="@color/gray_light"
-                    android:textSize="12sp" />
-
-                <!-- Battery / device info -->
-                <TextView
-                    android:id="@+id/batteryText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="@font/lemonada_bold"
-                    android:text="الجهاز: —"
-                    android:textColor="@color/gray_light"
-                    android:textSize="12sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_select_gps_device"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
+                    android:id="@+id/btn_location_back"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:text="→"
+                    android:textColor="@color/navy_brand"
+                    android:textSize="22sp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:contentDescription="Choose the child device whose phone location is shown"
-                    android:text="اختر جهاز الطفل للموقع"
-                    android:textColor="@color/purple_dark"
-                    app:cornerRadius="18dp"
-                    app:strokeColor="@color/purple_dark" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-                                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switch_phone_tracking"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="تتبع موقع هاتف الطفل"
-                    android:textColor="@color/purple_dark"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/phone_tracking_hint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="يتحكم هذا الخيار في موقع الهاتف فقط؛ GPS الخارجي مسار مستقل."
-                    android:textColor="@color/gray_light"
-                    android:textSize="12sp" />
-
-                <!-- Location Title with Gray Container Background -->
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layoutDirection="rtl">
-
-                    <!-- Gray rounded background -->
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:contentDescription="background"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/gray_rounded_bg" />
-
-                    <!-- Title content overlay -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:gravity="center_vertical|start"
-                        android:layoutDirection="rtl"
-                        android:orientation="horizontal"
-                        android:paddingStart="16dp">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginEnd="8dp"
-                            android:contentDescription="alert"
-                            android:src="@drawable/ic_alert_circle" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/lemonada_bold"
-                            android:text="الموقع"
-                            android:textColor="@color/purple_dark"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                </FrameLayout>
-
-
-                <!-- Alert Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/alertCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    app:cardBackgroundColor="@color/pink_soft"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:fontFamily="@font/lemonada_bold"
+                        android:text="موقع ليان"
+                        android:textColor="@color/navy_brand"
+                        android:textSize="20sp" />
 
-                        <!-- Alert Header -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_marginEnd="8dp"
-                                android:contentDescription="warning"
-                                android:src="@drawable/ic_alert_circle" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/lemonada_bold"
-                                android:text="تنبيه محاوله الخروج من المنزل"
-                                android:textColor="@color/white"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <!-- Alert Description -->
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:fontFamily="@font/lemonada_bold"
-                            android:text="خرج جميل الان من المنزل"
-                            android:textColor="@color/white"
-                            android:textSize="12sp" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Map Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/mapCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/location_freshness_text"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans"
+                        android:text="جاري التحقق من الموقع"
+                        android:textColor="@color/teal_brand"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
-                        <!-- Google Map Fragment -->
-                        <androidx.fragment.app.FragmentContainerView
-                            android:id="@+id/mapFragment"
-                            android:name="com.google.android.gms.maps.SupportMapFragment"
-                            android:layout_width="match_parent"
-                            android:layout_height="250dp" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Time Ago Text -->
-                <TextView
-                    android:id="@+id/timeAgoText"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="16dp"
-                    android:fontFamily="@font/lemonada_bold"
-                    android:text="منذ 1 ساعه"
-                    android:textColor="@color/gray_light"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans"
+                        android:text="ليان"
+                        android:textColor="@color/navy_brand"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="8dp"
+                        android:contentDescription="Layngo"
+                        android:src="@drawable/layngo_logo" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="12dp"
+                android:visibility="gone" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="232dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/mint_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/mapFragment"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/mint_surface"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/locationText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/lemonada_bold"
+                        android:text="آخر موقع معروف: —"
+                        android:textColor="@color/navy_brand"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/lastUpdateText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="sans"
+                        android:text="لم يصل تحديث بعد"
+                        android:textColor="@color/navy_brand"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:background="@drawable/bg_location_privacy">
+
+                <TextView
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans"
+                    android:gravity="center"
+                    android:text="⌂"
+                    android:textColor="@color/teal_brand"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="sans"
+                    android:text="الموقع للاطمئنان، ولا يعرض مسار الحركة."
+                    android:textColor="@color/navy_brand"
                     android:textSize="12sp" />
+            </LinearLayout>
 
-            </LinearLayout> <!-- Close padded content LinearLayout -->
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="sans"
+                android:gravity="center"
+                android:textColor="@color/coral_action"
+                android:textSize="12sp"
+                android:visibility="gone" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_manage_places"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="22dp"
+                android:fontFamily="@font/lemonada_bold"
+                android:text="إدارة الأماكن"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/teal_brand"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_refresh_location"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:fontFamily="sans"
+                android:text="تحديث الموقع"
+                android:textColor="@color/navy_brand" />
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Material 3 Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/purple_accent"
+        android:background="@color/white"
         app:itemIconTint="@color/bottom_nav_color"
         app:itemTextColor="@color/bottom_nav_color"
         app:labelVisibilityMode="labeled"
@@ -399,5 +220,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

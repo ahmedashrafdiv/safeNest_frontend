@@ -1,6 +1,5 @@
 package com.example.safenest.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -16,52 +14,132 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.safenest.MainActivity
 import com.example.safenest.R
-import com.example.safenest.network.ZoneResponse
+import com.example.safenest.network.ChildPlaceResponse
 import com.example.safenest.util.Result
-import com.example.safenest.viewmodel.SafeZonesViewModel
+import com.example.safenest.viewmodel.PlaceViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.launch
 
+/** Grouped parent place management, deliberately free of coordinates and route history. */
 class SafeZonesFragment : Fragment() {
+    private val viewModel: PlaceViewModel by viewModels()
+    private var childId: String? = null
+    private lateinit var countText: TextView
+    private lateinit var emptyText: TextView
+    private lateinit var container: LinearLayout
+    private lateinit var progress: ProgressBar
 
-    companion object {
-        private const val TAG = "SafeZonesFragment"
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        inflater.inflate(R.layout.fragment_safe_zones, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        countText = view.findViewById(R.id.places_count_text)
+        emptyText = view.findViewById(R.id.emptyText)
+        container = view.findViewById(R.id.placesContainer)
+        progress = view.findViewById(R.id.progressBar)
+        childId = requireContext().getSharedPreferences("SafeNestPrefs", android.content.Context.MODE_PRIVATE).getString("child_id", null)
+        view.findViewById<MaterialButton>(R.id.backButton).setOnClickListener { parentFragmentManager.popBackStack() }
+        view.findViewById<MaterialButton>(R.id.addZoneBtn).setOnClickListener { (activity as MainActivity).navigateToFragment(AddZoneFragment()) }
+        setupBottomNav(view.findViewById(R.id.bottomNavBar))
+        observe()
+        childId?.let(viewModel::load) ?: renderEmpty("اختر ملف الطفل أولاً لإدارة الأماكن.")
     }
 
-    private val viewModel: SafeZonesViewModel by viewModels()
+    override fun onResume() {
+        super.onResume()
+        childId?.let(viewModel::load)
+    }
 
-    private lateinit var bottomNavBar: BottomNavigationView
-    private var progressBar: ProgressBar? = null
-    private var emptyText: TextView? = null
-    private var zonesContainer: LinearLayout? = null
-    private var childId: String? = null
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_safe_zones, container, false)
-
-        bottomNavBar = view.findViewById(R.id.bottomNavBar)
-        progressBar = view.findViewById(R.id.progressBar)
-        emptyText = view.findViewById(R.id.emptyText)
-        zonesContainer = view.findViewById(R.id.zonesContainer)
-
-        val prefs = requireContext().getSharedPreferences("SafeNestPrefs", android.content.Context.MODE_PRIVATE)
-        childId = prefs.getString("child_id", null)
-
-        view.findViewById<MaterialButton>(R.id.backButton).setOnClickListener {
-            parentFragmentManager.popBackStack()
+    private fun observe() = viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.placesState.collect { state ->
+                when (state) {
+                    is Result.Loading -> { progress.visibility = View.VISIBLE; emptyText.visibility = View.GONE }
+                    is Result.Success -> { progress.visibility = View.GONE; renderPlaces(state.data); viewModel.clearPlaces() }
+                    is Result.Error -> { progress.visibility = View.GONE; renderEmpty(state.message); viewModel.clearPlaces() }
+                    null -> Unit
+                }
+            }
         }
+    }
 
-        view.findViewById<MaterialButton>(R.id.addZoneBtn).setOnClickListener {
-            (activity as MainActivity).navigateToFragment(AddZoneFragment())
+    private fun renderPlaces(places: List<ChildPlaceResponse>) {
+        container.removeAllViews()
+        countText.text = "${places.size} أماكن محفوظة"
+        if (places.isEmpty()) {
+            renderEmpty("لم تضف أماكن بعد. أضف مكانًا للاطمئنان.")
+            return
         }
+        emptyText.visibility = View.GONE
+        section("الأماكن الآمنة", places.filter { it.placeType == "safe" })
+        section("أماكن تحتاج انتباهًا", places.filter { it.placeType == "attention" })
+        section("مناطق الخطر", places.filter { it.placeType == "risk" })
+    }
 
-        bottomNavBar.setOnItemSelectedListener { item ->
+    private fun section(title: String, places: List<ChildPlaceResponse>) {
+        if (places.isEmpty()) return
+        container.addView(TextView(requireContext()).apply {
+            text = title
+            textSize = 14f
+            setTextColor(resources.getColor(R.color.navy_brand, null))
+            typeface = resources.getFont(R.font.lemonada_bold)
+            setPadding(0, 12, 0, 8)
+        })
+        places.forEach { container.addView(placeCard(it)) }
+    }
+
+    private fun placeCard(place: ChildPlaceResponse): MaterialCardView {
+        val isRisk = place.placeType == "risk"
+        val label = when (place.placeType) { "safe" -> "مكان آمن"; "attention" -> "يحتاج انتباهًا"; else -> "منطقة خطر" }
+        val icon = when (place.placeType) { "safe" -> "⌂"; "attention" -> "◉"; else -> "△" }
+        val detail = when {
+            place.notifyOnExit -> "الوصول والمغادرة"
+            place.notifyOnEnter -> "تنبيه عند الدخول"
+            else -> "التنبيهات متوقفة"
+        }
+        return MaterialCardView(requireContext()).apply {
+            radius = 16f
+            cardElevation = 0f
+            setCardBackgroundColor(resources.getColor(R.color.white, null))
+            strokeColor = resources.getColor(if (isRisk) R.color.coral_action else R.color.mint_surface, null)
+            strokeWidth = 1
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = 8 }
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(14, 14, 14, 14)
+                addView(TextView(context).apply { text = icon; textSize = 22f; setTextColor(resources.getColor(if (isRisk) R.color.coral_action else R.color.teal_brand, null)) })
+                addView(LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = 12 }
+                    addView(TextView(context).apply { text = place.name; textSize = 15f; setTextColor(resources.getColor(R.color.navy_brand, null)); typeface = resources.getFont(R.font.lemonada_bold) })
+                    addView(TextView(context).apply { text = "$label • نطاق ${place.radiusMeters} م • $detail"; textSize = 11f; setTextColor(resources.getColor(R.color.navy_brand, null)) })
+                })
+                addView(MaterialButton(context).apply {
+                    text = "✎"
+                    textSize = 18f
+                    minWidth = 48
+                    minHeight = 48
+                    setTextColor(resources.getColor(R.color.navy_brand, null))
+                    setOnClickListener { (activity as MainActivity).navigateToFragment(AddZoneFragment.newEdit(place)) }
+                })
+            })
+        }
+    }
+
+    private fun renderEmpty(message: String) {
+        container.removeAllViews()
+        emptyText.text = message
+        emptyText.visibility = View.VISIBLE
+        countText.text = "0 أماكن محفوظة"
+    }
+
+    private fun setupBottomNav(nav: BottomNavigationView) {
+        nav.selectedItemId = R.id.nav_gps
+        nav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> { (activity as MainActivity).navigateToFragment(HomeFragment()); true }
                 R.id.nav_monitoring -> { (activity as MainActivity).navigateToFragment(MonitoringFragment()); true }
@@ -71,149 +149,5 @@ class SafeZonesFragment : Fragment() {
                 else -> false
             }
         }
-
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.zonesState.collect { state ->
-                    when (state) {
-                        is Result.Loading -> {
-                            progressBar?.visibility = View.VISIBLE
-                            emptyText?.visibility = View.GONE
-                            zonesContainer?.removeAllViews()
-                        }
-                        is Result.Success -> {
-                            progressBar?.visibility = View.GONE
-                            val zones = state.data
-                            if (zones.isEmpty()) {
-                                emptyText?.text = getString(R.string.no_zones)
-                                emptyText?.visibility = View.VISIBLE
-                            } else {
-                                emptyText?.visibility = View.GONE
-                                zones.forEach { zone -> addZoneCard(zone) }
-                            }
-                            viewModel.clearZonesState()
-                        }
-                        is Result.Error -> {
-                            progressBar?.visibility = View.GONE
-                            emptyText?.text = getString(R.string.error_loading_zones)
-                            emptyText?.visibility = View.VISIBLE
-                            viewModel.clearZonesState()
-                        }
-                        null -> Unit
-                    }
-                }
-            }
-        }
-
-        val cid = childId
-        if (cid != null) {
-            viewModel.getChildZones(cid)
-        } else {
-            emptyText?.text = getString(R.string.error_no_child)
-            emptyText?.visibility = View.VISIBLE
-        }
-    }
-
-    private fun addZoneCard(zone: ZoneResponse) {
-        val ctx = requireContext()
-
-        val card = MaterialCardView(ctx).apply {
-            radius = 48f
-            cardElevation = 8f
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(0, 0, 0, 16) }
-            setCardBackgroundColor(android.graphics.Color.WHITE)
-            strokeColor = if (zone.zoneType == "Safe")
-                android.graphics.Color.parseColor("#16A22B")
-            else
-                android.graphics.Color.parseColor("#E15151")
-            strokeWidth = 4
-        }
-
-        val inner = LinearLayout(ctx).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 32, 48, 32)
-        }
-
-        val zoneTypeColor = if (zone.zoneType == "Safe")
-            android.graphics.Color.parseColor("#16A22B")
-        else
-            android.graphics.Color.parseColor("#E15151")
-
-        val nameTv = TextView(ctx).apply {
-            text = zone.name
-            textSize = 16f
-            setTextColor(android.graphics.Color.parseColor("#692AC8"))
-            typeface = android.graphics.Typeface.DEFAULT_BOLD
-        }
-
-        val typeTv = TextView(ctx).apply {
-            text = getString(R.string.zone_type_format, zone.zoneType)
-            textSize = 13f
-            setTextColor(zoneTypeColor)
-            setPadding(0, 4, 0, 0)
-        }
-
-        val radiusTv = TextView(ctx).apply {
-            text = getString(R.string.zone_radius_format, zone.radiusMeters)
-            textSize = 13f
-            setTextColor(android.graphics.Color.parseColor("#9E9E9E"))
-            setPadding(0, 4, 0, 0)
-        }
-
-        val coordsTv = TextView(ctx).apply {
-            text = getString(R.string.zone_coords_format, zone.latitude, zone.longitude)
-            textSize = 11f
-            setTextColor(android.graphics.Color.GRAY)
-            setPadding(0, 4, 0, 0)
-        }
-
-        val deleteBtn = MaterialButton(ctx).apply {
-            text = getString(R.string.delete_zone)
-            textSize = 13f
-            setTextColor(android.graphics.Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 12 }
-            backgroundTintList = android.content.res.ColorStateList.valueOf(
-                android.graphics.Color.parseColor("#E15151")
-            )
-            cornerRadius = 32
-            setOnClickListener { confirmDeleteZone(zone, card) }
-        }
-
-        inner.addView(nameTv)
-        inner.addView(typeTv)
-        inner.addView(radiusTv)
-        inner.addView(coordsTv)
-        inner.addView(deleteBtn)
-        card.addView(inner)
-        zonesContainer?.addView(card)
-    }
-
-    private fun confirmDeleteZone(zone: ZoneResponse, card: MaterialCardView) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.delete_zone_confirm_title))
-            .setMessage(getString(R.string.delete_zone_confirm_message, zone.name))
-            .setPositiveButton(getString(R.string.delete)) { _, _ ->
-                zonesContainer?.removeView(card)
-                if (zonesContainer?.childCount == 0) {
-                    emptyText?.text = getString(R.string.no_zones)
-                    emptyText?.visibility = View.VISIBLE
-                }
-                viewModel.deleteZone(zone.zoneId)
-                Toast.makeText(context, getString(R.string.zone_deleted), Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
     }
 }
